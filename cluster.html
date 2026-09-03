@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Cluster Analysis Teaching Tool</title>
+<style>
+:root{--primary:#2563eb;--secondary:#7c3aed;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--dark:#1e293b;--text:#334155;--muted:#64748b;--light:#f8fafc;--border:#cbd5e1}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f7;color:var(--text)}
+header{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff;text-align:center;padding:24px 18px;box-shadow:0 3px 12px rgba(0,0,0,.15)}
+header h1{margin:0;font-size:30px} header p{margin:8px 0 0;opacity:.92}
+.container{max-width:1600px;margin:auto;padding:20px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tab-btn{background:#fff;color:var(--dark);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-weight:bold;cursor:pointer}
+.tab-btn.active{background:var(--primary);color:#fff}.tab{display:none}.tab.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid-main{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.card{background:#fff;border-radius:12px;padding:18px;margin-bottom:20px;box-shadow:0 3px 15px rgba(0,0,0,.08)}
+.card h2,.card h3{margin-top:0;color:var(--dark)}.control-group{margin-bottom:16px}
+label{display:block;font-weight:bold;margin-bottom:7px}input[type=range],input[type=number],input[type=text],select{width:100%}
+input[type=number],input[type=text],select{padding:9px;border:1px solid var(--border);border-radius:7px}
+input[type=range]{accent-color:var(--primary)}button{border:none;border-radius:7px;padding:10px 14px;background:var(--primary);color:#fff;font-weight:bold;cursor:pointer;margin:3px}
+button:hover{opacity:.9}.success{background:var(--success)}.warning{background:var(--warning)}.danger{background:var(--danger)}.secondary{background:var(--secondary)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-box{background:#f8fafc;border-left:5px solid var(--primary);padding:12px;border-radius:7px}
+.stat-box span{display:block;font-size:12px;color:var(--muted)}.stat-box strong{display:block;font-size:19px;margin-top:3px;color:var(--dark)}
+.table-wrapper{overflow:auto;max-height:620px}table{width:100%;border-collapse:collapse}th,td{border:1px solid var(--border);padding:8px;text-align:center}
+th{background:var(--primary);color:#fff;position:sticky;top:0}tr:nth-child(even){background:#f8fafc}.data-input{width:95px;padding:6px!important;text-align:center}
+.canvas-wrap{width:100%;overflow:auto}canvas{border:1px solid var(--border);border-radius:8px;background:#fff;width:100%;max-width:100%}
+.formula{background:#f1f5f9;border-radius:8px;padding:14px;font-family:"Times New Roman",serif;font-size:18px;overflow-x:auto}
+.interpretation{background:#eff6ff;border-left:5px solid var(--primary);padding:14px;border-radius:8px;line-height:1.6}
+.highlight{background:#fef3c7;border-left:5px solid #f59e0b;padding:13px;border-radius:7px;line-height:1.6}
+.experiment-box{background:linear-gradient(135deg,#eff6ff,#f5f3ff);border:1px solid #c7d2fe;padding:20px;border-radius:10px;margin-bottom:20px}
+.good{background:#dcfce7!important}.moderate{background:#fef3c7!important}.bad{background:#fee2e2!important}.small{font-size:13px;color:var(--muted)}
+.step{padding:10px;margin:7px 0;border-radius:7px;background:#f8fafc;border-left:4px solid var(--secondary)}
+@media(max-width:1000px){.grid2,.grid-main{grid-template-columns:1fr}}@media(max-width:650px){header h1{font-size:23px}.tabs{flex-direction:column}.tab-btn{width:100%}.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>Interactive Cluster Analysis Teaching Tool</h1>
+<p>Explore distances, standardization, Hierarchical Clustering, Dendrograms, K-Means, Elbow Method, Silhouette Analysis and Cluster Profiles</p>
+</header>
+
+<div class="container">
+<div class="tabs">
+<button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+<button class="tab-btn" onclick="showTab('data')">Data</button>
+<button class="tab-btn" onclick="showTab('distance')">Distance</button>
+<button class="tab-btn" onclick="showTab('hierarchical')">Hierarchical</button>
+<button class="tab-btn" onclick="showTab('kmeans')">K-Means</button>
+<button class="tab-btn" onclick="showTab('evaluation')">Evaluation</button>
+<button class="tab-btn" onclick="showTab('profiles')">Cluster Profiles</button>
+<button class="tab-btn" onclick="showTab('experiment')">Experiment Mode</button>
+</div>
+
+<div id="overview" class="tab active">
+<div class="grid-main"><div>
+<div class="card"><h2>What is Cluster Analysis?</h2>
+<div class="formula">Cluster Analysis → Group observations so that observations within the same cluster are similar, while observations in different clusters are dissimilar.</div><br>
+<div class="interpretation"><strong>Main idea:</strong> High within-cluster similarity and low between-cluster similarity. Cluster analysis is an <strong>unsupervised learning</strong> technique because no outcome variable or predefined group membership is required.</div>
+<br><div class="formula">Common steps:<br><br>1. Select variables<br>2. Standardize variables if necessary<br>3. Choose a distance measure<br>4. Apply a clustering method<br>5. Select the number of clusters<br>6. Evaluate cluster quality<br>7. Interpret and profile clusters</div></div>
+<div class="card"><h2>Current Cluster Visualization</h2><canvas id="overviewCanvas" width="950" height="560"></canvas></div>
+</div><div>
+<div class="card"><h2>Current Analysis</h2><div class="stat-grid">
+<div class="stat-box"><span>Observations</span><strong id="overviewN">0</strong></div>
+<div class="stat-box"><span>Variables</span><strong id="overviewP">0</strong></div>
+<div class="stat-box"><span>K-Means K</span><strong id="overviewK">0</strong></div>
+<div class="stat-box"><span>Hierarchical Method</span><strong id="overviewLinkage">Ward</strong></div>
+<div class="stat-box"><span>Silhouette</span><strong id="overviewSil">0</strong></div>
+<div class="stat-box"><span>WSS</span><strong id="overviewWSS">0</strong></div>
+</div></div>
+<div class="card"><h3>Quick Teaching Datasets</h3>
+<button class="success" onclick="generateScenario('clear2')">Clear 2 Clusters</button>
+<button class="secondary" onclick="generateScenario('clear3')">Clear 3 Clusters</button>
+<button class="warning" onclick="generateScenario('overlap')">Overlapping Clusters</button>
+<button onclick="generateScenario('random')">Random Data</button>
+</div>
+<div class="card"><h3>Teaching Tip</h3><div class="highlight">Start with <strong>Clear 3 Clusters</strong>, compare Hierarchical and K-Means results, then use <strong>Overlapping Clusters</strong> to demonstrate why cluster selection is not always obvious.</div></div>
+</div></div></div>
+
+<div id="data" class="tab">
+<div class="card"><h2>Dataset and Settings</h2><p class="small">This tool is designed for 2D and 3D-friendly datasets. For visualization, the first two variables are displayed on scatter plots.</p>
+<div class="grid2">
+<div class="control-group"><label>Number of Variables: <span id="variableCountDisplay">2</span></label><input type="range" id="variableCount" min="2" max="3" value="2" oninput="changeVariableCount()"></div>
+<div class="control-group"><label>Number of Clusters (K): <span id="clusterCountDisplay">3</span></label><input type="range" id="clusterCount" min="2" max="6" value="3" oninput="changeClusterCount()"></div>
+</div>
+<div class="control-group"><label><input type="checkbox" id="standardize" checked onchange="runAll()"> Use Z-score Standardization for clustering</label></div>
+<button class="success" onclick="updateFromTable()">Update Analysis</button><button onclick="addObservation()">Add Observation</button><button class="danger" onclick="removeObservation()">Remove Last Observation</button><button class="warning" onclick="resetData()">Reset Data</button>
+</div>
+<div class="card"><div class="table-wrapper"><table id="dataTable"><thead id="dataHead"></thead><tbody id="dataBody"></tbody></table></div></div>
+</div>
+
+<div id="distance" class="tab">
+<div class="grid2"><div class="card"><h2>Distance Measure</h2>
+<div class="control-group"><label>Select Distance</label><select id="distanceMethod" onchange="runAll()"><option value="euclidean">Euclidean Distance</option><option value="squared">Squared Euclidean Distance</option><option value="manhattan">Manhattan Distance</option></select></div>
+<div class="formula" id="distanceFormula">d(i,j) = √Σ(xᵢₖ − xⱼₖ)²</div>
+<div class="control-group"><label>Observation A</label><select id="obsA" onchange="updateDistanceExample()"></select></div>
+<div class="control-group"><label>Observation B</label><select id="obsB" onchange="updateDistanceExample()"></select></div>
+<div id="distanceExample" class="interpretation"></div></div>
+<div class="card"><h2>Why Standardize?</h2><div class="highlight">Variables measured on larger scales can dominate distance calculations. Z-score standardization puts variables on a comparable scale:<br><br><strong>z = (x − mean) / SD</strong></div></div></div>
+<div class="card"><h2>Distance Matrix</h2><div class="table-wrapper"><table id="distanceTable"></table></div></div>
+</div>
+
+<div id="hierarchical" class="tab">
+<div class="grid2"><div class="card"><h2>Hierarchical Clustering</h2>
+<div class="control-group"><label>Linkage Method</label><select id="linkageMethod" onchange="runAll()"><option value="single">Single Linkage</option><option value="complete">Complete Linkage</option><option value="average">Average Linkage</option><option value="ward" selected>Ward-style Linkage</option></select></div>
+<div class="control-group"><label>Number of Clusters for Cut: <span id="hierKDisplay">3</span></label><input type="range" id="hierK" min="2" max="6" value="3" oninput="changeHierK()"></div>
+<div id="hierExplanation" class="interpretation"></div></div>
+<div class="card"><h2>Merge History</h2><div class="table-wrapper"><table><thead><tr><th>Step</th><th>Cluster A</th><th>Cluster B</th><th>Distance</th></tr></thead><tbody id="mergeTable"></tbody></table></div></div></div>
+<div class="card"><h2>Interactive Dendrogram</h2><canvas id="dendrogramCanvas" width="1200" height="650"></canvas><div class="highlight">The dendrogram records the sequence in which observations or clusters merge. A lower merge height indicates greater similarity.</div></div>
+</div>
+
+<div id="kmeans" class="tab">
+<div class="grid2"><div class="card"><h2>K-Means Controls</h2>
+<div class="control-group"><label>Number of Clusters K</label><select id="kmeansK" onchange="changeClusterFromSelect()"></select></div>
+<div class="control-group"><label>Initialization</label><select id="initMethod" onchange="runAll()"><option value="spread">Spread-out Teaching Initialization</option><option value="random">Random Initialization</option></select></div>
+<button class="success" onclick="runAll()">Run K-Means</button><button class="secondary" onclick="kmeansStep()">Show Next Iteration</button><button class="warning" onclick="resetKmeansSteps()">Reset Steps</button>
+<div id="kmeansExplanation" class="interpretation" style="margin-top:12px"></div></div>
+<div class="card"><h2>Current Iteration</h2><div class="stat-grid"><div class="stat-box"><span>Iteration</span><strong id="iterationValue">0</strong></div><div class="stat-box"><span>Converged</span><strong id="convergedValue">No</strong></div><div class="stat-box"><span>WSS</span><strong id="wssValue">0</strong></div><div class="stat-box"><span>Silhouette</span><strong id="silValue">0</strong></div></div></div></div>
+<div class="card"><h2>K-Means Cluster Plot</h2><canvas id="kmeansCanvas" width="1050" height="600"></canvas></div>
+<div class="card"><h2>Cluster Membership</h2><div class="table-wrapper"><table id="membershipTable"></table></div></div>
+</div>
+
+<div id="evaluation" class="tab">
+<div class="grid2"><div class="card"><h2>Elbow Method</h2><canvas id="elbowCanvas" width="750" height="500"></canvas><div class="highlight">Look for the point where the decrease in WSS begins to slow substantially—the possible <strong>elbow</strong>.</div></div>
+<div class="card"><h2>Silhouette Analysis</h2><canvas id="silhouetteCanvas" width="750" height="500"></canvas><div id="silhouetteExplanation" class="interpretation"></div></div></div>
+<div class="card"><h2>Model Comparison</h2><div class="table-wrapper"><table><thead><tr><th>K</th><th>WSS</th><th>Average Silhouette</th><th>Interpretation</th></tr></thead><tbody id="evaluationTable"></tbody></table></div></div>
+</div>
+
+<div id="profiles" class="tab">
+<div class="card"><h2>Cluster Profiles</h2><p class="small">Means are calculated using the original variables for interpretation.</p><div class="table-wrapper"><table id="profileTable"></table></div></div>
+<div class="card"><h2>Interpretation Guide</h2><div id="profileInterpretation" class="interpretation"></div></div>
+</div>
+
+<div id="experiment" class="tab">
+<div class="experiment-box"><h2>Interactive Experiment Mode</h2><p>Generate datasets with different numbers of clusters, separation and noise, then observe how K-Means and Hierarchical clustering respond.</p></div>
+<div class="grid-main"><div>
+<div class="card"><h3>Experiment Controls</h3>
+<div class="control-group"><label>Sample Size: <span id="expSampleDisplay">60</span></label><input type="range" id="expSampleSize" min="20" max="150" step="10" value="60" oninput="updateExperimentLabels()"></div>
+<div class="control-group"><label>Variables: <span id="expVariableDisplay">2</span></label><input type="range" id="expVariables" min="2" max="3" value="2" oninput="updateExperimentLabels()"></div>
+<div class="control-group"><label>True Clusters: <span id="expClusterDisplay">3</span></label><input type="range" id="expClusters" min="2" max="5" value="3" oninput="updateExperimentLabels()"></div>
+<div class="control-group"><label>Cluster Separation: <span id="expSeparationDisplay">7</span></label><input type="range" id="expSeparation" min="2" max="12" value="7" oninput="updateExperimentLabels()"></div>
+<div class="control-group"><label>Noise: <span id="expNoiseDisplay">1.2</span></label><input type="range" id="expNoise" min="0.3" max="4" step="0.1" value="1.2" oninput="updateExperimentLabels()"></div>
+<button class="success" onclick="generateExperiment()">Generate Experiment Dataset</button></div>
+<div class="card"><h2>Experiment Plot</h2><canvas id="experimentCanvas" width="900" height="560"></canvas></div></div>
+<div><div class="card"><h2>Live Results</h2><div class="stat-grid">
+<div class="stat-box"><span>Observations</span><strong id="expN">0</strong></div><div class="stat-box"><span>Variables</span><strong id="expP">0</strong></div>
+<div class="stat-box"><span>K-Means K</span><strong id="expK">0</strong></div><div class="stat-box"><span>WSS</span><strong id="expWSS">0</strong></div>
+<div class="stat-box"><span>Silhouette</span><strong id="expSil">0</strong></div><div class="stat-box"><span>Iterations</span><strong id="expIter">0</strong></div>
+</div></div><div class="card"><h3>Teaching Explanation</h3><div id="experimentExplanation" class="interpretation">Adjust the sliders and generate a dataset.</div></div></div></div>
+</div>
+</div>
+
+<script>
+let variableCount=2, clusterCount=3, data=[], analysis=null, hierAnalysis=null;
+let kmeansHistory=[], currentStep=0;
+const palette=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0891b2'];
+
+function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');[...document.querySelectorAll('.tab-btn')].find(b=>b.textContent.toLowerCase().replace(/[^a-z]/g,'').includes(id==='hierarchical'?'hierarchical':id==='overview'?'overview':id==='kmeans'?'kmeans':id==='evaluation'?'evaluation':id==='profiles'?'clusterprofiles':id==='experiment'?'experiment':id==='distance'?'distance':'data'))?.classList.add('active');drawAll();}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function sd(a){let m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/Math.max(1,a.length-1))}
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function clone(A){return A.map(r=>r.slice())}
+function getWorkingData(){if(!document.getElementById('standardize').checked)return clone(data);let means=[],sds=[];for(let j=0;j<variableCount;j++){let c=data.map(r=>r[j]);means[j]=mean(c);sds[j]=sd(c)||1}return data.map(r=>r.map((x,j)=>(x-means[j])/sds[j]))}
+function distance(a,b,method=document.getElementById('distanceMethod')?.value||'euclidean'){let sum=0;if(method==='manhattan')return a.reduce((s,x,i)=>s+Math.abs(x-b[i]),0);for(let i=0;i<a.length;i++)sum+=(a[i]-b[i])**2;return method==='squared'?sum:Math.sqrt(sum)}
+function distanceMatrix(D){return D.map((a,i)=>D.map((b,j)=>i===j?0:distance(a,b)))}
+function generateData(n,k,p,separation,noise,overlap=false){let centers=[];for(let c=0;c<k;c++){let angle=2*Math.PI*c/k;let center=[];center.push(Math.cos(angle)*separation);center.push(Math.sin(angle)*separation);if(p===3)center.push((c-(k-1)/2)*separation*.7);centers.push(center)}let rows=[];for(let i=0;i<n;i++){let c=i%k;let row=centers[c].map(v=>v+randn()*noise);if(overlap&&Math.random()<.18){let other=(c+1)%k;row=centers[other].map(v=>v+randn()*noise*1.2)}rows.push(row)}return rows}
+function generateScenario(type){if(type==='clear2'){variableCount=2;clusterCount=2;data=generateData(60,2,2,7,1)}if(type==='clear3'){variableCount=2;clusterCount=3;data=generateData(75,3,2,8,1.1)}if(type==='overlap'){variableCount=2;clusterCount=3;data=generateData(75,3,2,4,2.2,true)}if(type==='random'){variableCount=2;clusterCount=3;data=Array.from({length:75},()=>[randn()*5,randn()*5])}syncControls();renderDataTable();runAll()}
+function createDefault(){variableCount=2;clusterCount=3;data=generateData(75,3,2,8,1.1)}
+function renderDataTable(){let h='<tr><th>ID</th>';for(let j=0;j<variableCount;j++)h+=`<th>X${j+1}</th>`;h+='</tr>';dataHead.innerHTML=h;dataBody.innerHTML=data.map((r,i)=>'<tr><td>'+ (i+1) +'</td>'+r.map(x=>`<td><input class="data-input" type="number" step="0.01" value="${x.toFixed(3)}"></td>`).join('')+'</tr>').join('')}
+function updateFromTable(){data=[...document.querySelectorAll('#dataBody tr')].map(tr=>[...tr.querySelectorAll('input')].map(x=>+x.value));runAll()}
+function addObservation(){let row=[];for(let j=0;j<variableCount;j++){let c=data.map(r=>r[j]);row.push(mean(c)+randn()*(sd(c)||1))}data.push(row);renderDataTable();runAll()}
+function removeObservation(){if(data.length>10){data.pop();renderDataTable();runAll()}}
+function resetData(){createDefault();syncControls();renderDataTable();runAll()}
+function changeVariableCount(){variableCount=+variableCountEl.value;data.forEach(r=>{while(r.length<variableCount)r.push(randn()*5);r.length=variableCount});syncControls();renderDataTable();runAll()}
+function changeClusterCount(){clusterCount=+clusterCountEl.value;syncControls();runAll()}
+const variableCountEl=document.getElementById('variableCount'), clusterCountEl=document.getElementById('clusterCount');
+function syncControls(){variableCountEl.value=variableCount;clusterCountEl.value=clusterCount;variableCountDisplay.textContent=variableCount;clusterCountDisplay.textContent=clusterCount;hierK.max=Math.min(6,Math.max(2,data.length-1));hierK.value=Math.min(clusterCount,+hierK.max);hierKDisplay.textContent=hierK.value;kmeansK.innerHTML=Array.from({length:Math.min(6,Math.max(1,data.length-1))},(_,i)=>`<option value="${i+2}" ${i+2===clusterCount?'selected':''}>${i+2}</option>`).join('')}
+function changeHierK(){hierKDisplay.textContent=hierK.value;runHierarchical()}
+function changeClusterFromSelect(){clusterCount=+kmeansK.value;clusterCountEl.value=clusterCount;clusterCountDisplay.textContent=clusterCount;runAll()}
+
+function kmeans(D,K,init='spread',maxIter=100){let n=D.length,p=D[0].length,centroids=[];if(init==='random'){let ids=[...Array(n).keys()].sort(()=>Math.random()-.5).slice(0,K);centroids=ids.map(i=>D[i].slice())}else{let ids=[0];while(ids.length<K){let best=-1,bestScore=-1;for(let i=0;i<n;i++){let score=Math.min(...ids.map(j=>distance(D[i],D[j])));if(score>bestScore){bestScore=score;best=i}}ids.push(best)}centroids=ids.map(i=>D[i].slice())}
+let history=[],labels=Array(n).fill(-1);for(let it=0;it<maxIter;it++){let newLabels=D.map(row=>{let ds=centroids.map(c=>distance(row,c));return ds.indexOf(Math.min(...ds))});let newCentroids=Array.from({length:K},(_,k)=>{let pts=D.filter((_,i)=>newLabels[i]===k);if(!pts.length)return centroids[k].slice();return Array.from({length:p},(_,j)=>mean(pts.map(r=>r[j]))) });let wss=D.reduce((s,r,i)=>s+distance(r,newCentroids[newLabels[i]],'squared'),0);history.push({labels:newLabels.slice(),centroids:clone(newCentroids),wss,iteration:it+1});if(labels.every((x,i)=>x===newLabels[i]))break;labels=newLabels;centroids=newCentroids}let last=history[history.length-1];return {...last,history}}
+function silhouette(D,labels){let n=D.length,vals=[];for(let i=0;i<n;i++){let own=labels[i],same=[];for(let j=0;j<n;j++)if(i!==j&&labels[j]===own)same.push(distance(D[i],D[j]));let a=same.length?mean(same):0;let groups=[...new Set(labels)].filter(g=>g!==own).map(g=>{let ds=[];for(let j=0;j<n;j++)if(labels[j]===g)ds.push(distance(D[i],D[j]));return ds.length?mean(ds):Infinity});let b=Math.min(...groups);let s=(b-a)/Math.max(a,b,1e-12);vals.push(Number.isFinite(s)?s:0)}return {values:vals,average:mean(vals)}}
+
+function hierarchical(D,method='ward'){let clusters=D.map((r,i)=>({ids:[i],node:{ids:[i],left:null,right:null,height:0,x:null}})),merges=[],step=0;function linkage(A,B){let vals=[];for(let i of A.ids)for(let j of B.ids)vals.push(distance(D[i],D[j]));if(method==='single')return Math.min(...vals);if(method==='complete')return Math.max(...vals);if(method==='average')return mean(vals);let all=A.ids.concat(B.ids), centroid=Array.from({length:D[0].length},(_,q)=>mean(all.map(i=>D[i][q])));let s=all.reduce((x,i)=>x+distance(D[i],centroid,'squared'),0);return Math.sqrt(s/(all.length||1))}
+while(clusters.length>1){let bi=0,bj=1,best=Infinity;for(let i=0;i<clusters.length;i++)for(let j=i+1;j<clusters.length;j++){let d=linkage(clusters[i],clusters[j]);if(d<best){best=d;bi=i;bj=j}}let A=clusters[bi],B=clusters[bj],node={ids:A.ids.concat(B.ids),left:A.node,right:B.node,height:best,x:null};merges.push({step:++step,a:A.ids.map(i=>i+1).join(','),b:B.ids.map(i=>i+1).join(','),distance:best,node});let C={ids:node.ids,node};clusters=clusters.filter((_,i)=>i!==bi&&i!==bj);clusters.push(C)}return {root:clusters[0].node,merges}}
+function cutTree(root,K){let nodes=[root];while(nodes.length<K){let idx=-1,max=-Infinity;nodes.forEach((n,i)=>{if(n.left&&n.height>max){max=n.height;idx=i}});if(idx<0)break;let n=nodes.splice(idx,1)[0];nodes.push(n.left,n.right)}let labels=Array(data.length).fill(0);nodes.forEach((n,g)=>n.ids.forEach(i=>labels[i]=g));return labels}
+
+function runAll(){if(data.length<3)return;syncControls();let D=getWorkingData();let km=kmeans(D,clusterCount,document.getElementById('initMethod').value);let sil=silhouette(D,km.labels);analysis={D,km,sil};kmeansHistory=km.history;currentStep=km.history.length-1;runHierarchical();updateDisplays();drawAll()}
+function runHierarchical(){if(!data.length)return;let D=getWorkingData();hierAnalysis=hierarchical(D,linkageMethod.value);let labels=cutTree(hierAnalysis.root,+hierK.value);hierAnalysis.labels=labels;updateHierarchical()}
+function resetKmeansSteps(){currentStep=0;updateKmeansStep()}
+function kmeansStep(){if(currentStep<kmeansHistory.length-1)currentStep++;updateKmeansStep()}
+function updateKmeansStep(){if(!analysis)return;let s=kmeansHistory[currentStep];analysis.current=s;let sil=silhouette(analysis.D,s.labels);iterationValue.textContent=s.iteration;convergedValue.textContent=currentStep===kmeansHistory.length-1?'Yes':'No';wssValue.textContent=s.wss.toFixed(2);silValue.textContent=sil.average.toFixed(3);kmeansExplanation.innerHTML=`<strong>Iteration ${s.iteration}:</strong> observations are assigned to the nearest centroid, then centroids are recalculated. ${currentStep===kmeansHistory.length-1?'The algorithm has converged.':'Use “Show Next Iteration” to continue.'}`;renderMembership(s.labels,s.centroids);drawKmeans(s)}
+function updateDisplays(){if(!analysis)return;overviewN.textContent=data.length;overviewP.textContent=variableCount;overviewK.textContent=clusterCount;overviewLinkage.textContent=linkageMethod.value==='ward'?'Ward-style':linkageMethod.value;overviewSil.textContent=analysis.sil.average.toFixed(3);overviewWSS.textContent=analysis.km.wss.toFixed(2);updateDistance();updateKmeansStep();updateEvaluation();updateProfiles()}
+function updateDistance(){if(!analysis)return;let opts=data.map((_,i)=>`<option value="${i}">${i+1}</option>`).join('');obsA.innerHTML=opts;obsB.innerHTML=opts;obsB.selectedIndex=Math.min(1,data.length-1);updateDistanceExample();let M=distanceMatrix(analysis.D);let h='<thead><tr><th></th>'+data.map((_,i)=>`<th>${i+1}</th>`).join('')+'</tr></thead><tbody>';M.forEach((r,i)=>h+=`<tr><th>${i+1}</th>`+r.map(v=>`<td>${v.toFixed(2)}</td>`).join('')+'</tr>');distanceTable.innerHTML=h+'</tbody>';let m=distanceMethod.value;distanceFormula.textContent=m==='manhattan'?'d(i,j) = Σ|xᵢₖ − xⱼₖ|':m==='squared'?'d²(i,j) = Σ(xᵢₖ − xⱼₖ)²':'d(i,j) = √Σ(xᵢₖ − xⱼₖ)²'}
+function updateDistanceExample(){if(!analysis||!obsA.options.length)return;let i=+obsA.value,j=+obsB.value,a=analysis.D[i],b=analysis.D[j],d=distance(a,b);distanceExample.innerHTML=`<strong>Observation ${i+1} vs Observation ${j+1}</strong><br>A = (${a.map(x=>x.toFixed(3)).join(', ')})<br>B = (${b.map(x=>x.toFixed(3)).join(', ')})<br><br><strong>Distance = ${d.toFixed(4)}</strong>`}
+function updateHierarchical(){if(!hierAnalysis)return;mergeTable.innerHTML=hierAnalysis.merges.map(m=>`<tr><td>${m.step}</td><td>${m.a}</td><td>${m.b}</td><td>${m.distance.toFixed(3)}</td></tr>`).join('');hierExplanation.innerHTML=`Using <strong>${linkageMethod.value==='ward'?'Ward-style linkage':linkageMethod.value+' linkage'}</strong>, the tree is cut into <strong>${hierK.value}</strong> clusters for comparison and teaching.`;drawDendrogram()}
+function renderMembership(labels,centroids){let h='<thead><tr><th>Observation</th><th>Cluster</th>'+Array.from({length:variableCount},(_,j)=>`<th>X${j+1}</th>`).join('')+'</tr></thead><tbody>';data.forEach((r,i)=>h+=`<tr><td>${i+1}</td><td>Cluster ${labels[i]+1}</td>`+r.map(x=>`<td>${x.toFixed(3)}</td>`).join('')+'</tr>');membershipTable.innerHTML=h+'</tbody>'}
+function updateEvaluation(){let rows=[];for(let k=2;k<=Math.min(6,Math.max(2,data.length-1));k++){let km=kmeans(analysis.D,k,'spread');let si=silhouette(analysis.D,km.labels);rows.push({k,wss:km.wss,sil:si.average})}analysis.evaluation=rows;evaluationTable.innerHTML=rows.map(r=>`<tr><td>${r.k}</td><td>${r.wss.toFixed(2)}</td><td>${r.sil.toFixed(3)}</td><td>${r.sil>=.5?'Good separation':r.sil>=.25?'Moderate structure':'Weak/overlapping structure'}</td></tr>`).join('');let best=rows.reduce((a,b)=>b.sil>a.sil?b:a);silhouetteExplanation.innerHTML=`The highest average silhouette in this comparison occurs at <strong>K = ${best.k}</strong> (${best.sil.toFixed(3)}). Use this together with theory and the elbow plot.`;drawElbow();drawSilhouette()}
+function updateProfiles(){if(!analysis)return;let labels=analysis.km.labels;let h='<thead><tr><th>Cluster</th><th>Size</th>'+Array.from({length:variableCount},(_,j)=>`<th>Mean X${j+1}</th>`).join('')+'</tr></thead><tbody>';for(let k=0;k<clusterCount;k++){let pts=data.filter((_,i)=>labels[i]===k);h+=`<tr><td>Cluster ${k+1}</td><td>${pts.length}</td>`+Array.from({length:variableCount},(_,j)=>`<td>${(pts.length?mean(pts.map(r=>r[j])):0).toFixed(3)}</td>`).join('')+'</tr>'}profileTable.innerHTML=h+'</tbody>';profileInterpretation.innerHTML=`Interpret clusters by comparing their means and sizes. Give meaningful names only when the variables have substantive interpretation—for example, <em>High Engagement</em>, <em>Moderate Users</em>, or <em>Low Activity</em>.`}
+function drawScatter(canvas,labels,centroids,title=''){let c=canvas,ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);let xs=data.map(r=>r[0]),ys=data.map(r=>r[1]),pad=70,minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);let dx=maxX-minX||1,dy=maxY-minY||1;let sx=x=>pad+(x-minX)/dx*(w-2*pad),sy=y=>h-pad-(y-minY)/dy*(h-2*pad);ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.moveTo(pad,pad);ctx.lineTo(pad,h-pad);ctx.stroke();ctx.fillStyle='#334155';ctx.font='16px Arial';ctx.fillText(title,pad,30);data.forEach((r,i)=>{ctx.beginPath();ctx.fillStyle=palette[(labels?.[i]??0)%palette.length];ctx.arc(sx(r[0]),sy(r[1]),6,0,2*Math.PI);ctx.fill();ctx.fillStyle='#334155';ctx.font='11px Arial';ctx.fillText(i+1,sx(r[0])+7,sy(r[1])-7)});if(centroids){centroids.forEach((p,k)=>{let x=p[0],y=p[1];if(document.getElementById('standardize').checked){let means=[mean(data.map(r=>r[0])),mean(data.map(r=>r[1]))],sds=[sd(data.map(r=>r[0]))||1,sd(data.map(r=>r[1]))||1];x=x*sds[0]+means[0];y=y*sds[1]+means[1]}ctx.strokeStyle='#111827';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx(x)-9,sy(y)-9);ctx.lineTo(sx(x)+9,sy(y)+9);ctx.moveTo(sx(x)+9,sy(y)-9);ctx.lineTo(sx(x)-9,sy(y)+9);ctx.stroke();ctx.fillStyle='#111827';ctx.fillText('C'+(k+1),sx(x)+10,sy(y)+12)})}}
+function drawKmeans(s){drawScatter(kmeansCanvas,s.labels,s.centroids,'K-Means Clustering (first two variables)');drawScatter(overviewCanvas,analysis.km.labels,analysis.km.centroids,'Current K-Means Solution')}
+function drawDendrogram(){if(!hierAnalysis)return;let c=dendrogramCanvas,ctx=c.getContext('2d'),w=c.width,h=c.height,pad=60;ctx.clearRect(0,0,w,h);let root=hierAnalysis.root,maxH=root.height||1,leaves=[];function collect(n){if(!n.left)leaves.push(n);else{collect(n.left);collect(n.right)}}collect(root);let idx=0;function assign(n){if(!n.left){n.x=pad+idx*(w-2*pad)/Math.max(1,leaves.length-1);idx++;return}assign(n.left);assign(n.right);n.x=(n.left.x+n.right.x)/2}assign(root);function y(v){return h-pad-v/maxH*(h-2*pad)}ctx.strokeStyle='#334155';ctx.lineWidth=1.5;function draw(n){if(!n.left)return;draw(n.left);draw(n.right);ctx.beginPath();ctx.moveTo(n.left.x,y(n.left.height));ctx.lineTo(n.left.x,y(n.height));ctx.lineTo(n.right.x,y(n.height));ctx.lineTo(n.right.x,y(n.right.height));ctx.moveTo(n.left.x,y(n.height));ctx.lineTo(n.right.x,y(n.height));ctx.stroke()}draw(root);ctx.fillStyle='#334155';ctx.font='12px Arial';leaves.forEach((n,i)=>ctx.fillText(n.ids[0]+1,n.x-4,h-pad+18));ctx.fillText('Merge Height',10,25)}
+function drawElbow(){let rows=analysis.evaluation,c=elbowCanvas,ctx=c.getContext('2d'),w=c.width,h=c.height,p=60;ctx.clearRect(0,0,w,h);let max=Math.max(...rows.map(r=>r.wss)),min=Math.min(...rows.map(r=>r.wss));function X(i){return p+i*(w-2*p)/Math.max(1,rows.length-1)}function Y(v){return h-p-(v-min)/(max-min||1)*(h-2*p)}ctx.strokeStyle='#334155';ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,h-p);ctx.lineTo(w-p,h-p);ctx.stroke();ctx.strokeStyle='#2563eb';ctx.lineWidth=2;ctx.beginPath();rows.forEach((r,i)=>i?ctx.lineTo(X(i),Y(r.wss)):ctx.moveTo(X(i),Y(r.wss)));ctx.stroke();rows.forEach((r,i)=>{ctx.fillStyle='#2563eb';ctx.beginPath();ctx.arc(X(i),Y(r.wss),5,0,2*Math.PI);ctx.fill();ctx.fillStyle='#334155';ctx.fillText('K='+r.k,X(i)-12,h-p+20)})}
+function drawSilhouette(){let vals=analysis.sil.values,c=silhouetteCanvas,ctx=c.getContext('2d'),w=c.width,h=c.height,p=55;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#334155';ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,h-p);ctx.lineTo(w-p,h-p);ctx.stroke();let bw=(w-2*p)/vals.length;vals.forEach((v,i)=>{let y=h-p-(v+1)/2*(h-2*p);let hh=Math.abs(v)/2*(h-2*p);ctx.fillStyle=palette[analysis.km.labels[i]%palette.length];ctx.fillRect(p+i*bw,Math.min(y,h-p-hh),Math.max(1,bw-1),hh)});ctx.fillStyle='#334155';ctx.fillText('Average silhouette = '+analysis.sil.average.toFixed(3),p,25)}
+function drawAll(){if(!analysis)return;drawKmeans(analysis.current||analysis.km);drawDendrogram();drawElbow();drawSilhouette();drawExperiment()}
+function updateExperimentLabels(){expSampleDisplay.textContent=expSampleSize.value;expVariableDisplay.textContent=expVariables.value;expClusterDisplay.textContent=expClusters.value;expSeparationDisplay.textContent=expSeparation.value;expNoiseDisplay.textContent=expNoise.value}
+function generateExperiment(){variableCount=+expVariables.value;clusterCount=+expClusters.value;data=generateData(+expSampleSize.value,clusterCount,variableCount,+expSeparation.value,+expNoise.value);syncControls();renderDataTable();runAll();drawExperiment();expN.textContent=data.length;expP.textContent=variableCount;expK.textContent=clusterCount;expWSS.textContent=analysis.km.wss.toFixed(2);expSil.textContent=analysis.sil.average.toFixed(3);expIter.textContent=analysis.km.iteration;experimentExplanation.innerHTML=`The generated data contain approximately <strong>${clusterCount}</strong> underlying groups. Compare the visible separation with the silhouette value and the elbow curve. Increase noise to create overlap.`}
+function drawExperiment(){if(!analysis)return;drawScatter(experimentCanvas,analysis.km.labels,analysis.km.centroids,'Experiment Dataset')}
+createDefault();syncControls();renderDataTable();updateExperimentLabels();runAll();
+</script>
+</body>
+</html>
