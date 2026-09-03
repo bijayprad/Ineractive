@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Statistics Teaching Tool</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.8/dist/simple-statistics.min.js"></script>
+<style>
+:root{
+  --bg:#f4f7fb; --card:#fff; --text:#182230; --muted:#667085;
+  --accent:#2563eb; --accent2:#0f766e; --border:#dbe2ea;
+  --good:#15803d; --warn:#b45309; --danger:#b91c1c;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+header{background:linear-gradient(135deg,#123b72,#2563eb);color:white;padding:28px 22px}
+header h1{margin:0 0 6px;font-size:30px}
+header p{margin:0;opacity:.9}
+.container{max-width:1400px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 3px 12px #172b4d0d;margin-bottom:18px}
+h2,h3{margin-top:0}
+textarea{width:100%;min-height:150px;border:1px solid var(--border);border-radius:10px;padding:12px;font:15px Consolas,monospace;resize:vertical}
+button{border:0;border-radius:9px;padding:10px 13px;background:var(--accent);color:white;cursor:pointer;font-weight:600;margin:4px 3px 4px 0}
+button:hover{filter:brightness(.94)}
+button.secondary{background:#e8eef7;color:#1f3b62}
+button.green{background:var(--accent2)}
+button.danger{background:#dc2626}
+label{font-weight:600;font-size:14px}
+select,input[type=number]{padding:9px;border:1px solid var(--border);border-radius:8px;width:100%;margin-top:5px}
+.control-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{border:1px solid var(--border);border-radius:11px;padding:12px;background:#fbfcfe}
+.stat .name{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.stat .value{font-size:23px;font-weight:750;margin-top:3px}
+.stat small{color:var(--muted)}
+.chart-wrap{height:360px}
+canvas{max-width:100%}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid var(--border);text-align:right}
+th:first-child,td:first-child{text-align:left}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f1ff;color:#174ea6;font-size:13px;font-weight:700}
+.interpret{padding:13px;border-left:4px solid var(--accent);background:#f2f6ff;border-radius:8px}
+.formula{font-family:Cambria Math,Georgia,serif;background:#f7f7f8;padding:12px;border-radius:9px;margin:8px 0}
+.experiment{background:#f0fdfa;border:1px solid #99f6e4}
+.range-value{font-weight:700;color:var(--accent)}
+footer{text-align:center;color:var(--muted);padding:12px 0 25px;font-size:13px}
+@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.control-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>📊 Interactive Statistics Teaching Tool</h1>
+    <p>Explore mean, median, mode, variance, standard deviation, skewness, kurtosis and graphical summaries.</p>
+  </div>
+</header>
+
+<main class="container">
+<div class="grid">
+
+<section>
+  <div class="card">
+    <h2>1. Enter Data</h2>
+    <p style="color:#667085">Enter numbers separated by commas, spaces, or new lines.</p>
+    <textarea id="dataInput">2, 3, 4, 4, 5, 6, 7</textarea>
+    <button onclick="calculate()">Calculate</button>
+    <button class="secondary" onclick="loadExample('symmetric')">Symmetric</button>
+    <button class="secondary" onclick="loadExample('right')">Right-skewed</button>
+    <button class="secondary" onclick="loadExample('left')">Left-skewed</button>
+    <button class="secondary" onclick="loadExample('normal')">Normal-like</button>
+  </div>
+
+  <div class="card">
+    <h2>2. Display Options</h2>
+    <label>Skewness method</label>
+    <select id="skewMethod" onchange="calculate()">
+      <option value="pearson2">Pearson's second coefficient: 3(mean − median) / SD</option>
+      <option value="moment">Moment coefficient: μ₃ / σ³</option>
+      <option value="adjusted">Adjusted Fisher–Pearson sample skewness</option>
+    </select>
+    <br><br>
+    <label>Kurtosis</label>
+    <select id="kurtMethod" onchange="calculate()">
+      <option value="excess">Excess kurtosis (normal = 0)</option>
+      <option value="raw">Pearson kurtosis (normal = 3)</option>
+    </select>
+  </div>
+
+  <div class="card experiment">
+    <h2>🧪 Experiment: Change One Value</h2>
+    <p>Move the slider to replace the <strong>largest observation</strong>. Watch what happens to mean, SD and skewness.</p>
+    <input id="experimentSlider" type="range" min="1" max="50" value="7" oninput="runExperiment()">
+    <div>Largest value: <span id="sliderValue" class="range-value">7</span></div>
+    <button class="green" onclick="resetExperiment()">Reset experiment</button>
+    <div id="experimentText" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Teaching Notes</h2>
+    <div class="formula"><b>Mean:</b> x̄ = Σx / n</div>
+    <div class="formula"><b>Sample variance:</b> s² = Σ(x − x̄)² / (n − 1)</div>
+    <div class="formula"><b>Sample SD:</b> s = √s²</div>
+    <div class="formula"><b>Pearson skewness:</b> Sk = 3(x̄ − Median) / s</div>
+    <div class="formula"><b>Moment skewness:</b> γ₁ = μ₃ / σ³</div>
+    <div class="formula"><b>Excess kurtosis:</b> γ₂ = μ₄ / σ⁴ − 3</div>
+    <p><b>Rule of thumb for skewness:</b> near 0 → approximately symmetric; positive → right-skewed; negative → left-skewed.</p>
+    <p><b>Kurtosis:</b> excess ≈ 0 → mesokurtic; positive → leptokurtic; negative → platykurtic.</p>
+  </div>
+</section>
+
+<section>
+  <div class="card">
+    <h2>Descriptive Statistics</h2>
+    <div id="stats" class="stats"></div>
+  </div>
+
+  <div class="card">
+    <h2>Distribution</h2>
+    <div class="chart-wrap"><canvas id="histogram"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>Boxplot-style Five Number Summary</h2>
+    <div id="fiveNumber"></div>
+    <div class="chart-wrap"><canvas id="boxplot"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>Interpretation</h2>
+    <div id="interpretation" class="interpret"></div>
+  </div>
+
+  <div class="card">
+    <h2>Sorted Data</h2>
+    <div id="sortedData"></div>
+  </div>
+</section>
+</div>
+</main>
+
+<footer>Interactive Statistics Teaching Tool • Runs entirely in your browser</footer>
+
+<script>
+let histChart=null, boxChart=null, originalData=[2,3,4,4,5,6,7];
+
+function parseData(text){
+  return text.split(/[,\s;]+/).map(Number).filter(x=>Number.isFinite(x));
+}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function median(a){
+  const x=[...a].sort((a,b)=>a-b), n=x.length, m=Math.floor(n/2);
+  return n%2?x[m]:(x[m-1]+x[m])/2;
+}
+function variance(a,sample=true){
+  const m=mean(a); return a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-(sample?1:0));
+}
+function sd(a,sample=true){return Math.sqrt(variance(a,sample))}
+function quantile(a,p){
+  const x=[...a].sort((a,b)=>a-b), pos=(x.length-1)*p;
+  const lo=Math.floor(pos), hi=Math.ceil(pos);
+  return lo===hi?x[lo]:x[lo]+(x[hi]-x[lo])*(pos-lo);
+}
+function mode(a){
+  const counts=new Map(); a.forEach(x=>counts.set(x,(counts.get(x)||0)+1));
+  let max=0; counts.forEach(v=>{if(v>max)max=v});
+  if(max<=1)return "No mode";
+  return [...counts].filter(([k,v])=>v===max).map(([k])=>k).join(", ");
+}
+function skewMoment(a){
+  const m=mean(a), s=Math.sqrt(a.reduce((z,x)=>z+(x-m)**2,0)/a.length);
+  if(s===0)return 0;
+  return a.reduce((z,x)=>z+(x-m)**3,0)/a.length/s**3;
+}
+function skewAdjusted(a){
+  const n=a.length, m=mean(a), s=sd(a,true);
+  if(n<3 || s===0)return NaN;
+  const g=a.reduce((z,x)=>z+(x-m)**3,0)/n/(s**3);
+  return Math.sqrt(n*(n-1))/(n-2)*g;
+}
+function kurtExcess(a){
+  const m=mean(a), mu2=a.reduce((z,x)=>z+(x-m)**2,0)/a.length;
+  if(mu2===0)return 0;
+  const mu4=a.reduce((z,x)=>z+(x-m)**4,0)/a.length;
+  return mu4/(mu2**2)-3;
+}
+function fmt(x){
+  if(typeof x==="string")return x;
+  if(!Number.isFinite(x))return "—";
+  return Math.abs(x)<0.00005 ? "0" : x.toFixed(4).replace(/\.?0+$/,"");
+}
+function calculate(dataOverride=null){
+  const data=dataOverride || parseData(document.getElementById("dataInput").value);
+  if(data.length<2){
+    document.getElementById("stats").innerHTML="<p>Please enter at least two numeric observations.</p>"; return;
+  }
+  const n=data.length,m=mean(data),med=median(data),v=variance(data,true),s=Math.sqrt(v);
+  const range=Math.max(...data)-Math.min(...data);
+  const cv=m!==0?s/Math.abs(m)*100:NaN;
+  let sk;
+  const sm=document.getElementById("skewMethod").value;
+  if(sm==="pearson2")sk=3*(m-med)/s;
+  else if(sm==="moment")sk=skewMoment(data);
+  else sk=skewAdjusted(data);
+  let ku=kurtExcess(data);
+  if(document.getElementById("kurtMethod").value==="raw")ku+=3;
+
+  const items=[
+    ["n",n,"observations"],["Mean",m,"arithmetic average"],["Median",med,"middle value"],
+    ["Mode",mode(data),"most frequent"],["Minimum",Math.min(...data),"smallest"],
+    ["Maximum",Math.max(...data),"largest"],["Range",range,"max − min"],
+    ["Variance",v,"sample variance"],["SD",s,"sample standard deviation"],
+    ["CV (%)",cv,"SD / |mean| × 100"],["Skewness",sk,"selected method"],
+    ["Kurtosis",ku,"selected definition"]
+  ];
+  document.getElementById("stats").innerHTML=items.map(q=>`
+    <div class="stat"><div class="name">${q[0]}</div><div class="value">${fmt(q[1])}</div><small>${q[2]}</small></div>`).join("");
+
+  const sorted=[...data].sort((a,b)=>a-b);
+  const q1=quantile(data,.25), q3=quantile(data,.75);
+  document.getElementById("fiveNumber").innerHTML=`
+    <table><tr><th>Minimum</th><th>Q1</th><th>Median</th><th>Q3</th><th>Maximum</th></tr>
+    <tr><td>${fmt(sorted[0])}</td><td>${fmt(q1)}</td><td>${fmt(med)}</td><td>${fmt(q3)}</td><td>${fmt(sorted.at(-1))}</td></tr></table>
+    <p><b>IQR = ${fmt(q3-q1)}</b></p>`;
+  document.getElementById("sortedData").textContent=sorted.map((x,i)=>`${i+1}: ${fmt(x)}`).join("   ");
+
+  let skewText=sk>0.1?"positively (right) skewed":sk<-0.1?"negatively (left) skewed":"approximately symmetric";
+  let kurtText;
+  const excess=(document.getElementById("kurtMethod").value==="raw")?ku-3:ku;
+  kurtText=excess>0.1?"leptokurtic (heavier tails / sharper peak)":excess<-0.1?"platykurtic (lighter tails / flatter peak)":"approximately mesokurtic";
+  document.getElementById("interpretation").innerHTML=`
+    <p><span class="badge">${skewText}</span> &nbsp; Skewness = <b>${fmt(sk)}</b></p>
+    <p><span class="badge">${kurtText}</span> &nbsp; Kurtosis = <b>${fmt(ku)}</b></p>
+    <p><b>Teaching point:</b> Compare the mean and median. A long right tail tends to pull the mean upward; a long left tail tends to pull it downward.</p>`;
+
+  drawHistogram(data);
+  drawBox(data,q1,med,q3);
+}
+function drawHistogram(data){
+  const min=Math.min(...data), max=Math.max(...data);
+  let bins=Math.min(12,Math.max(5,Math.ceil(Math.sqrt(data.length))));
+  let width=(max-min)/bins || 1;
+  const counts=Array(bins).fill(0), labels=[];
+  for(let i=0;i<bins;i++) labels.push(`${fmt(min+i*width)}–${fmt(min+(i+1)*width)}`);
+  data.forEach(x=>{
+    let k=Math.floor((x-min)/width); if(k>=bins)k=bins-1; counts[k]++;
+  });
+  if(histChart)histChart.destroy();
+  histChart=new Chart(document.getElementById("histogram"),{
+    type:"bar",data:{labels,datasets:[{label:"Frequency",data:counts,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:"Value interval"}},y:{beginAtZero:true,title:{display:true,text:"Frequency"},ticks:{stepSize:1}}}}
+  });
+}
+function drawBox(data,q1,med,q3){
+  const min=Math.min(...data),max=Math.max(...data);
+  if(boxChart)boxChart.destroy();
+  boxChart=new Chart(document.getElementById("boxplot"),{
+    type:"bar",data:{labels:["Five-number summary"],datasets:[
+      {label:"Minimum → Q1",data:[q1-min],base:min},
+      {label:"Q1 → Median",data:[med-q1],base:q1},
+      {label:"Median → Q3",data:[q3-med],base:med},
+      {label:"Q3 → Maximum",data:[max-q3],base:q3}
+    ]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+      scales:{x:{min:min,max:max,title:{display:true,text:"Value"}}},
+      plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}}}
+  });
+}
+function loadExample(type){
+  const examples={
+    symmetric:"2,3,4,5,5,5,6,7,8",
+    right:"2,2,3,3,4,4,5,7,15",
+    left:"1,8,9,10,10,11,11,12,12",
+    normal:"12,14,15,15,16,16,17,17,18,18,19,20,21,21,22"
+  };
+  document.getElementById("dataInput").value=examples[type];
+  calculate();
+}
+function runExperiment(){
+  const slider=Number(document.getElementById("experimentSlider").value);
+  document.getElementById("sliderValue").textContent=slider;
+  const data=[...originalData]; data[data.length-1]=slider;
+  document.getElementById("dataInput").value=data.join(", ");
+  calculate(data);
+  const m=mean(data), s=sd(data,true), sk=3*(m-median(data))/s;
+  document.getElementById("experimentText").innerHTML=
+    `Current mean = <b>${fmt(m)}</b>, SD = <b>${fmt(s)}</b>, skewness = <b>${fmt(sk)}</b>.
+     As the largest value moves farther from the center, observe how the mean and SD respond.`;
+}
+function resetExperiment(){
+  document.getElementById("experimentSlider").value=7;
+  document.getElementById("dataInput").value=originalData.join(", ");
+  calculate();
+  runExperiment();
+}
+calculate();
+</script>
+</body>
+</html>
