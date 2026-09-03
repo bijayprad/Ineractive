@@ -1,0 +1,3408 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive Factor Analysis Teaching Tool</title>
+
+<style>
+:root{
+    --primary:#2563eb;
+    --secondary:#7c3aed;
+    --success:#16a34a;
+    --warning:#d97706;
+    --danger:#dc2626;
+    --dark:#1e293b;
+    --text:#334155;
+    --muted:#64748b;
+    --light:#f8fafc;
+    --border:#cbd5e1;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#eef2f7;
+    color:var(--text);
+}
+header{
+    background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+    color:#fff;
+    text-align:center;
+    padding:24px 18px;
+    box-shadow:0 3px 12px rgba(0,0,0,.15);
+}
+header h1{margin:0;font-size:30px}
+header p{margin:8px 0 0;opacity:.92}
+.container{max-width:1600px;margin:auto;padding:20px}
+.tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
+}
+.tab-btn{
+    background:#fff;
+    color:var(--dark);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:11px 16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+.tab-btn:hover{transform:translateY(-1px)}
+.tab-btn.active{
+    background:var(--primary);
+    color:#fff;
+}
+.tab{display:none}
+.tab.active{display:block}
+
+.grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+.grid-main{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+}
+.card{
+    background:#fff;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:20px;
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
+}
+.card h2,.card h3{
+    margin-top:0;
+    color:var(--dark);
+}
+.control-group{margin-bottom:16px}
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+input[type="range"],
+input[type="number"],
+input[type="text"],
+select{width:100%}
+input[type="number"],
+input[type="text"],
+select{
+    padding:9px;
+    border:1px solid var(--border);
+    border-radius:7px;
+}
+input[type="range"]{accent-color:var(--primary)}
+button{
+    border:none;
+    border-radius:7px;
+    padding:10px 14px;
+    background:var(--primary);
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+    margin:3px;
+}
+button:hover{opacity:.9}
+.success{background:var(--success)}
+.warning{background:var(--warning)}
+.danger{background:var(--danger)}
+.secondary{background:var(--secondary)}
+
+.stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+.stat-box{
+    background:#f8fafc;
+    border-left:5px solid var(--primary);
+    padding:12px;
+    border-radius:7px;
+}
+.stat-box span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+}
+.stat-box strong{
+    display:block;
+    font-size:19px;
+    margin-top:3px;
+    color:var(--dark);
+}
+.table-wrapper{
+    overflow:auto;
+    max-height:620px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    border:1px solid var(--border);
+    padding:8px;
+    text-align:center;
+}
+th{
+    background:var(--primary);
+    color:#fff;
+    position:sticky;
+    top:0;
+}
+tr:nth-child(even){background:#f8fafc}
+.data-input{
+    width:85px;
+    padding:6px!important;
+    text-align:center;
+}
+.canvas-wrap{width:100%;overflow:auto}
+canvas{
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fff;
+    width:100%;
+    max-width:100%;
+}
+.formula{
+    background:#f1f5f9;
+    border-radius:8px;
+    padding:14px;
+    font-family:"Times New Roman",serif;
+    font-size:18px;
+    overflow-x:auto;
+}
+.interpretation{
+    background:#eff6ff;
+    border-left:5px solid var(--primary);
+    padding:14px;
+    border-radius:8px;
+    line-height:1.6;
+}
+.highlight{
+    background:#fef3c7;
+    border-left:5px solid #f59e0b;
+    padding:13px;
+    border-radius:7px;
+    line-height:1.6;
+}
+.experiment-box{
+    background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+    border:1px solid #c7d2fe;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+.bad{background:#fee2e2!important}
+.good{background:#dcfce7!important}
+.moderate{background:#fef3c7!important}
+.small{
+    font-size:13px;
+    color:var(--muted);
+}
+.factor-name{
+    width:100%;
+    min-width:140px;
+}
+@media(max-width:1000px){
+    .grid2,.grid-main{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+    header h1{font-size:23px}
+    .tabs{flex-direction:column}
+    .tab-btn{width:100%}
+    .stat-grid{grid-template-columns:1fr}
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>Interactive Factor Analysis Teaching Tool</h1>
+<p>Explore correlations, KMO, Bartlett's test, eigenvalues, scree plots, factor extraction, communalities and Varimax rotation</p>
+</header>
+
+<div class="container">
+
+<div class="tabs">
+    <button class="tab-btn active" data-tab="overview" onclick="showTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="data" onclick="showTab('data')">Data</button>
+    <button class="tab-btn" data-tab="suitability" onclick="showTab('suitability')">Suitability</button>
+    <button class="tab-btn" data-tab="correlation" onclick="showTab('correlation')">Correlation Matrix</button>
+    <button class="tab-btn" data-tab="eigen" onclick="showTab('eigen')">Eigenvalues & Scree Plot</button>
+    <button class="tab-btn" data-tab="factors" onclick="showTab('factors')">Factor Loadings</button>
+    <button class="tab-btn" data-tab="rotation" onclick="showTab('rotation')">Varimax Rotation</button>
+    <button class="tab-btn" data-tab="experiment" onclick="showTab('experiment')">Experiment Mode</button>
+</div>
+
+<!-- OVERVIEW -->
+
+<div id="overview" class="tab active">
+
+<div class="grid-main">
+
+<div>
+
+<div class="card">
+<h2>What is Factor Analysis?</h2>
+
+<div class="formula">
+X = ΛF + ε
+</div>
+
+<br>
+
+<div class="interpretation">
+Factor analysis attempts to explain correlations among observed variables using a smaller number of underlying latent factors.
+Variables that are strongly related may form a common factor.
+</div>
+
+<br>
+
+<div class="formula">
+Common steps:
+<br><br>
+1. Examine the correlation matrix
+<br>
+2. Check KMO and Bartlett's test
+<br>
+3. Extract factors
+<br>
+4. Examine eigenvalues and scree plot
+<br>
+5. Decide the number of factors
+<br>
+6. Examine communalities
+<br>
+7. Rotate factors for easier interpretation
+<br>
+8. Name and interpret the factors
+</div>
+
+</div>
+
+<div class="card">
+<h2>Current Factor Structure</h2>
+
+<canvas id="overviewCanvas" width="950" height="520"></canvas>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="card">
+<h2>Current Analysis</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>Sample Size</span>
+<strong id="overviewN">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Variables</span>
+<strong id="overviewP">0</strong>
+</div>
+
+<div class="stat-box">
+<span>KMO</span>
+<strong id="overviewKMO">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Bartlett χ²</span>
+<strong id="overviewBartlett">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Suggested Factors</span>
+<strong id="overviewFactors">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Variance Explained</span>
+<strong id="overviewVariance">0%</strong>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+<h3>Quick Examples</h3>
+
+<button class="success" onclick="generateScenario('strong')">Clear Factor Structure</button>
+
+<button class="secondary" onclick="generateScenario('moderate')">Moderate Structure</button>
+
+<button class="warning" onclick="generateScenario('weak')">Weak Correlations</button>
+
+<button onclick="generateScenario('random')">Random Data</button>
+
+</div>
+
+<div class="card">
+<h3>Teaching Tip</h3>
+
+<div class="highlight">
+Start with <strong>Clear Factor Structure</strong>. Then switch to <strong>Weak Correlations</strong> and compare the KMO value, Bartlett's statistic, eigenvalues and factor loadings.
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<!-- DATA -->
+
+<div id="data" class="tab">
+
+<div class="card">
+
+<h2>Dataset and Analysis Settings</h2>
+
+<p class="small">
+Edit the dataset directly. Use the controls below to change the number of observed variables or generate a new dataset.
+</p>
+
+<div class="grid2">
+
+<div class="control-group">
+<label>Number of Variables: <span id="variableCountDisplay">8</span></label>
+<input type="range" id="variableCount" min="4" max="12" value="8" oninput="changeVariableCount()">
+</div>
+
+<div class="control-group">
+<label>Number of Factors to Extract: <span id="factorCountDisplay">2</span></label>
+<input type="range" id="factorCount" min="1" max="6" value="2" oninput="changeFactorCount()">
+</div>
+
+</div>
+
+<button class="success" onclick="updateFromTable()">Update Analysis</button> <button onclick="addObservation()">Add Observation</button> <button class="danger" onclick="removeObservation()">Remove Last Observation</button> <button class="warning" onclick="resetData()">Reset Sample Data</button>
+
+</div>
+
+<div class="card">
+
+<div class="table-wrapper">
+
+<table id="dataTable">
+<thead id="dataHead"></thead>
+<tbody id="dataBody"></tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- SUITABILITY -->
+
+<div id="suitability" class="tab">
+
+<div class="grid2">
+
+<div>
+
+<div class="card">
+
+<h2>Kaiser-Meyer-Olkin (KMO) Measure</h2>
+
+<div class="stat-box">
+<span>Overall KMO</span>
+<strong id="kmoValue">0.000</strong>
+</div>
+
+<br>
+
+<div class="table-wrapper">
+
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>MSA / Individual KMO</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody id="msaTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="card">
+
+<h2>Bartlett's Test of Sphericity</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>Approximate χ²</span>
+<strong id="bartlettChi">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Degrees of Freedom</span>
+<strong id="bartlettDf">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Approximate Significance</span>
+<strong id="bartlettP">—</strong>
+</div>
+
+<div class="stat-box">
+<span>Variables</span>
+<strong id="bartlettVariables">0</strong>
+</div>
+
+</div>
+
+<br>
+
+<div id="suitabilityInterpretation" class="interpretation">
+Calculating suitability statistics...
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>General Classroom Guide</h3>
+
+<div class="highlight">
+<strong>KMO:</strong>
+<br>
+≥ 0.90 excellent
+<br>
+0.80–0.89 very good
+<br>
+0.70–0.79 good
+<br>
+0.60–0.69 acceptable
+<br>
+0.50–0.59 poor
+<br>
+&lt; 0.50 generally unsuitable
+<br><br>
+<strong>Bartlett's test:</strong> a small p-value suggests that the correlation matrix differs from an identity matrix, supporting factor analysis.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CORRELATION -->
+
+<div id="correlation" class="tab">
+
+<div class="card">
+
+<h2>Correlation Matrix</h2>
+
+<p class="small">
+Factor analysis generally requires meaningful relationships among at least some of the variables.
+</p>
+
+<div class="table-wrapper">
+<table id="correlationTable"></table>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Correlation Heatmap</h2>
+
+<canvas id="heatmapCanvas" width="1050" height="760"></canvas>
+
+</div>
+
+</div>
+
+<!-- EIGEN -->
+
+<div id="eigen" class="tab">
+
+<div class="grid2">
+
+<div>
+
+<div class="card">
+
+<h2>Eigenvalues and Explained Variance</h2>
+
+<div class="table-wrapper">
+
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Eigenvalue</th>
+<th>% Variance</th>
+<th>Cumulative %</th>
+<th>Kaiser Rule</th>
+</tr>
+</thead>
+<tbody id="eigenTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="card">
+
+<h2>Factor Selection</h2>
+
+<div class="control-group">
+
+<label>
+Number of Factors to Extract:
+<span id="eigenFactorDisplay">2</span>
+</label>
+
+<input type="range"
+id="eigenFactorSlider"
+min="1"
+max="6"
+value="2"
+oninput="changeFactorFromEigen()">
+
+</div>
+
+<div id="factorSelectionExplanation" class="interpretation"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Interactive Scree Plot</h2>
+
+<canvas id="screeCanvas" width="1050" height="560"></canvas>
+
+<div class="highlight">
+Look for the point where the steep decline in eigenvalues begins to level off. This visual change is often called the <strong>"elbow"</strong>.
+</div>
+
+</div>
+
+</div>
+
+<!-- FACTOR LOADINGS -->
+
+<div id="factors" class="tab">
+
+<div class="card">
+
+<h2>Unrotated Factor Loadings</h2>
+
+<p class="small">
+Loadings represent the relationship between observed variables and extracted factors.
+Higher absolute values indicate stronger relationships.
+</p>
+
+<div class="table-wrapper">
+
+<table>
+<thead id="loadingHead"></thead>
+<tbody id="loadingBody"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<h2>Communalities</h2>
+
+<div class="table-wrapper">
+
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Initial</th>
+<th>Extraction</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody id="communalityTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Loading Interpretation</h2>
+
+<div id="loadingInterpretation" class="interpretation"></div>
+
+<br>
+
+<div class="highlight">
+A commonly used teaching guide is:
+<br><br>
+|Loading| ≥ 0.70: strong
+<br>
+0.50–0.69: moderate
+<br>
+0.30–0.49: weak/modest
+<br>
+&lt; 0.30: small
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ROTATION -->
+
+<div id="rotation" class="tab">
+
+<div class="card">
+
+<h2>Varimax Rotated Factor Loadings</h2>
+
+<p class="small">
+Varimax is an orthogonal rotation designed to simplify interpretation by making variables load more clearly on one factor.
+</p>
+
+<div class="table-wrapper">
+
+<table>
+<thead id="rotatedHead"></thead>
+<tbody id="rotatedBody"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<h2>Factor Naming Exercise</h2>
+
+<div id="factorNamingInputs"></div>
+
+<button class="success" onclick="saveFactorNames()">Save Factor Names</button>
+
+</div>
+
+<div class="card">
+
+<h2>Automatic Interpretation</h2>
+
+<div id="rotationInterpretation" class="interpretation"></div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Rotated Loading Heatmap</h2>
+
+<canvas id="loadingHeatmapCanvas" width="1050" height="700"></canvas>
+
+</div>
+
+</div>
+
+<!-- EXPERIMENT -->
+
+<div id="experiment" class="tab">
+
+<div class="experiment-box">
+
+<h2>Interactive Experiment Mode</h2>
+
+<p>
+Change the sample size, number of variables, number of latent factors, correlation strength and noise. Generate a new dataset and observe how factor analysis changes.
+</p>
+
+</div>
+
+<div class="grid-main">
+
+<div>
+
+<div class="card">
+
+<h3>Experiment Controls</h3>
+
+<div class="control-group">
+<label>Sample Size: <span id="expSampleDisplay">100</span></label>
+<input type="range" id="expSampleSize" min="20" max="300" step="10" value="100" oninput="updateExperimentLabels()">
+</div>
+
+<div class="control-group">
+<label>Number of Variables: <span id="expVariableDisplay">8</span></label>
+<input type="range" id="expVariables" min="4" max="12" value="8" oninput="updateExperimentLabels()">
+</div>
+
+<div class="control-group">
+<label>Latent Factors in Generated Data: <span id="expLatentDisplay">2</span></label>
+<input type="range" id="expLatentFactors" min="1" max="4" value="2" oninput="updateExperimentLabels()">
+</div>
+
+<div class="control-group">
+<label>Factor Strength: <span id="expStrengthDisplay">70</span>%</label>
+<input type="range" id="expStrength" min="10" max="95" value="70" step="5" oninput="updateExperimentLabels()">
+</div>
+
+<div class="control-group">
+<label>Random Noise: <span id="expNoiseDisplay">30</span>%</label>
+<input type="range" id="expNoise" min="5" max="100" value="30" step="5" oninput="updateExperimentLabels()">
+</div>
+
+<button class="success" onclick="generateExperimentData()">Generate Experiment Data</button> <button class="danger" onclick="addNoiseVariable()">Add Noise Variable</button>
+
+</div>
+
+<div class="card">
+
+<h2>Experiment Scree Plot</h2>
+
+<canvas id="experimentCanvas" width="900" height="520"></canvas>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="card">
+
+<h2>Live Results</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>KMO</span>
+<strong id="expKMO">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Bartlett χ²</span>
+<strong id="expBartlett">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Suggested Factors</span>
+<strong id="expSuggested">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Selected Factors</span>
+<strong id="expSelected">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Explained Variance</span>
+<strong id="expVariance">0%</strong>
+</div>
+
+<div class="stat-box">
+<span>Variables</span>
+<strong id="expVariablesResult">0</strong>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Teaching Explanation</h3>
+
+<div id="experimentExplanation" class="interpretation">
+Adjust the sliders and generate data to begin.
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Suggested Demonstrations</h3>
+
+<div class="highlight">
+
+<strong>Experiment 1:</strong> High factor strength and low noise. Observe a clear scree plot and stronger loadings.
+
+<br><br>
+
+<strong>Experiment 2:</strong> Reduce factor strength. Observe lower correlations and weaker factor structure.
+
+<br><br>
+
+<strong>Experiment 3:</strong> Add random noise. Observe how KMO, communalities and explained variance may change.
+
+<br><br>
+
+<strong>Experiment 4:</strong> Add a completely unrelated noise variable and see whether it fits well into the factor structure.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* ============================================================
+GLOBAL VARIABLES
+============================================================ */
+
+let variableCount = 8;
+let factorCount = 2;
+let factorNames = ["Factor 1","Factor 2","Factor 3","Factor 4","Factor 5","Factor 6"];
+
+let data = [];
+let analysis = null;
+
+
+/* ============================================================
+UTILITY FUNCTIONS
+============================================================ */
+
+function mean(arr){
+    return arr.reduce((a,b)=>a+b,0)/arr.length;
+}
+
+function variance(arr){
+    const m=mean(arr);
+    return arr.reduce((s,x)=>s+(x-m)*(x-m),0)/(arr.length-1);
+}
+
+function standardDeviation(arr){
+    return Math.sqrt(variance(arr));
+}
+
+function correlation(a,b){
+    const ma=mean(a);
+    const mb=mean(b);
+
+    let num=0,sa=0,sb=0;
+
+    for(let i=0;i<a.length;i++){
+        const da=a[i]-ma;
+        const db=b[i]-mb;
+
+        num+=da*db;
+        sa+=da*da;
+        sb+=db*db;
+    }
+
+    if(sa===0 || sb===0) return 0;
+
+    return num/Math.sqrt(sa*sb);
+}
+
+function randomNormal(){
+    let u=0,v=0;
+
+    while(u===0)u=Math.random();
+    while(v===0)v=Math.random();
+
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+
+/* ============================================================
+MATRIX FUNCTIONS
+============================================================ */
+
+function identity(n){
+    let I=[];
+
+    for(let i=0;i<n;i++){
+        let row=[];
+        for(let j=0;j<n;j++){
+            row.push(i===j?1:0);
+        }
+        I.push(row);
+    }
+
+    return I;
+}
+
+function cloneMatrix(A){
+    return A.map(r=>r.slice());
+}
+
+function transpose(A){
+    return A[0].map((_,i)=>A.map(r=>r[i]));
+}
+
+function multiply(A,B){
+
+    const rows=A.length;
+    const cols=B[0].length;
+    const inner=B.length;
+
+    let C=Array.from(
+        {length:rows},
+        ()=>Array(cols).fill(0)
+    );
+
+    for(let i=0;i<rows;i++){
+        for(let j=0;j<cols;j++){
+            for(let k=0;k<inner;k++){
+                C[i][j]+=A[i][k]*B[k][j];
+            }
+        }
+    }
+
+    return C;
+}
+
+function determinant(A){
+
+    let M=cloneMatrix(A);
+    const n=M.length;
+    let det=1;
+
+    for(let i=0;i<n;i++){
+
+        let pivot=i;
+
+        for(let j=i+1;j<n;j++){
+            if(Math.abs(M[j][i])>Math.abs(M[pivot][i])){
+                pivot=j;
+            }
+        }
+
+        if(Math.abs(M[pivot][i])<1e-12) return 0;
+
+        if(pivot!==i){
+            [M[i],M[pivot]]=[M[pivot],M[i]];
+            det*=-1;
+        }
+
+        det*=M[i][i];
+
+        for(let j=i+1;j<n;j++){
+
+            const factor=M[j][i]/M[i][i];
+
+            for(let k=i;k<n;k++){
+                M[j][k]-=factor*M[i][k];
+            }
+        }
+    }
+
+    return det;
+}
+
+function inverseMatrix(A){
+
+    const n=A.length;
+    let M=cloneMatrix(A);
+    let I=identity(n);
+
+    for(let i=0;i<n;i++){
+
+        let maxRow=i;
+
+        for(let k=i+1;k<n;k++){
+            if(Math.abs(M[k][i])>Math.abs(M[maxRow][i])){
+                maxRow=k;
+            }
+        }
+
+        if(Math.abs(M[maxRow][i])<1e-10){
+            throw new Error("Singular matrix");
+        }
+
+        [M[i],M[maxRow]]=[M[maxRow],M[i]];
+        [I[i],I[maxRow]]=[I[maxRow],I[i]];
+
+        const pivot=M[i][i];
+
+        for(let j=0;j<n;j++){
+            M[i][j]/=pivot;
+            I[i][j]/=pivot;
+        }
+
+        for(let k=0;k<n;k++){
+
+            if(k!==i){
+
+                const factor=M[k][i];
+
+                for(let j=0;j<n;j++){
+                    M[k][j]-=factor*M[i][j];
+                    I[k][j]-=factor*I[i][j];
+                }
+            }
+        }
+    }
+
+    return I;
+}
+
+
+/* ============================================================
+JACOBI EIGENVALUE DECOMPOSITION
+For symmetric correlation matrix
+============================================================ */
+
+function jacobiEigen(A){
+
+    const n=A.length;
+
+    let D=cloneMatrix(A);
+    let V=identity(n);
+
+    const maxIterations=100*n*n;
+
+    for(let iteration=0;iteration<maxIterations;iteration++){
+
+        let p=0,q=1;
+        let max=Math.abs(D[p][q]);
+
+        for(let i=0;i<n;i++){
+            for(let j=i+1;j<n;j++){
+
+                if(Math.abs(D[i][j])>max){
+                    max=Math.abs(D[i][j]);
+                    p=i;
+                    q=j;
+                }
+            }
+        }
+
+        if(max<1e-10) break;
+
+        const theta=
+            0.5*Math.atan2(
+                2*D[p][q],
+                D[q][q]-D[p][p]
+            );
+
+        const c=Math.cos(theta);
+        const s=Math.sin(theta);
+
+        const Dpp=D[p][p];
+        const Dqq=D[q][q];
+        const Dpq=D[p][q];
+
+        D[p][p]=
+            c*c*Dpp -
+            2*s*c*Dpq +
+            s*s*Dqq;
+
+        D[q][q]=
+            s*s*Dpp +
+            2*s*c*Dpq +
+            c*c*Dqq;
+
+        D[p][q]=0;
+        D[q][p]=0;
+
+        for(let i=0;i<n;i++){
+
+            if(i!==p && i!==q){
+
+                const Dip=D[i][p];
+                const Diq=D[i][q];
+
+                D[i][p]=
+                    c*Dip-s*Diq;
+
+                D[p][i]=D[i][p];
+
+                D[i][q]=
+                    s*Dip+c*Diq;
+
+                D[q][i]=D[i][q];
+            }
+        }
+
+        for(let i=0;i<n;i++){
+
+            const Vip=V[i][p];
+            const Viq=V[i][q];
+
+            V[i][p]=
+                c*Vip-s*Viq;
+
+            V[i][q]=
+                s*Vip+c*Viq;
+        }
+    }
+
+    let eigenvalues=[];
+    let eigenvectors=[];
+
+    for(let i=0;i<n;i++){
+
+        eigenvalues.push(D[i][i]);
+
+        let vector=[];
+
+        for(let j=0;j<n;j++){
+            vector.push(V[j][i]);
+        }
+
+        eigenvectors.push(vector);
+    }
+
+    const order=eigenvalues
+        .map((v,i)=>({v,i}))
+        .sort((a,b)=>b.v-a.v);
+
+    return {
+        values:order.map(o=>o.v),
+        vectors:order.map(o=>eigenvectors[o.i])
+    };
+}
+
+
+/* ============================================================
+DATA GENERATION
+============================================================ */
+
+function generateStructuredData(
+    n=100,
+    variables=8,
+    latentFactors=2,
+    strength=.70,
+    noise=.30
+){
+
+    let rows=[];
+
+    for(let i=0;i<n;i++){
+
+        let latent=[];
+
+        for(let f=0;f<latentFactors;f++){
+            latent.push(randomNormal());
+        }
+
+        let row=[];
+
+        for(let j=0;j<variables;j++){
+
+            const primary=j%latentFactors;
+
+            let value=
+                strength*latent[primary]+
+                noise*randomNormal();
+
+            if(latentFactors>1 && Math.random()<.25){
+
+                const secondary=
+                    (primary+1)%latentFactors;
+
+                value+=
+                    .20*strength*
+                    latent[secondary];
+            }
+
+            row.push(value);
+        }
+
+        rows.push(row);
+    }
+
+    return rows;
+}
+
+function createDefaultData(){
+
+    variableCount=8;
+    factorCount=2;
+
+    data=generateStructuredData(
+        100,
+        8,
+        2,
+        .75,
+        .30
+    );
+}
+
+
+/* ============================================================
+SCENARIOS
+============================================================ */
+
+function generateScenario(type){
+
+    variableCount=8;
+    factorCount=2;
+
+    if(type==="strong"){
+        data=generateStructuredData(100,8,2,.85,.18);
+    }
+
+    if(type==="moderate"){
+        data=generateStructuredData(100,8,2,.60,.55);
+    }
+
+    if(type==="weak"){
+        data=generateStructuredData(100,8,2,.25,.95);
+    }
+
+    if(type==="random"){
+        data=[];
+
+        for(let i=0;i<100;i++){
+            let row=[];
+
+            for(let j=0;j<8;j++){
+                row.push(randomNormal());
+            }
+
+            data.push(row);
+        }
+    }
+
+    syncControls();
+
+    renderDataTable();
+
+    runAnalysis();
+}
+
+
+/* ============================================================
+CORRELATION MATRIX
+============================================================ */
+
+function calculateCorrelationMatrix(){
+
+    let matrix=[];
+
+    for(let i=0;i<variableCount;i++){
+
+        let xi=data.map(r=>r[i]);
+
+        let row=[];
+
+        for(let j=0;j<variableCount;j++){
+
+            let xj=data.map(r=>r[j]);
+
+            row.push(correlation(xi,xj));
+        }
+
+        matrix.push(row);
+    }
+
+    return matrix;
+}
+
+
+/* ============================================================
+KMO
+============================================================ */
+
+function calculateKMO(R){
+
+    try{
+
+        const inv=inverseMatrix(R);
+
+        const p=R.length;
+
+        let partial=
+            Array.from(
+                {length:p},
+                ()=>Array(p).fill(0)
+            );
+
+        for(let i=0;i<p;i++){
+
+            for(let j=0;j<p;j++){
+
+                if(i===j){
+                    partial[i][j]=1;
+                }else{
+
+                    partial[i][j]=
+                        -inv[i][j]/
+                        Math.sqrt(
+                            Math.abs(inv[i][i]*inv[j][j])
+                        );
+                }
+            }
+        }
+
+        let sumR2=0;
+        let sumP2=0;
+
+        for(let i=0;i<p;i++){
+
+            for(let j=i+1;j<p;j++){
+
+                sumR2+=R[i][j]*R[i][j];
+
+                sumP2+=
+                    partial[i][j]*
+                    partial[i][j];
+            }
+        }
+
+        const overall=
+            sumR2/(sumR2+sumP2);
+
+        let msa=[];
+
+        for(let i=0;i<p;i++){
+
+            let sr=0;
+            let sp=0;
+
+            for(let j=0;j<p;j++){
+
+                if(i!==j){
+
+                    sr+=R[i][j]*R[i][j];
+
+                    sp+=
+                        partial[i][j]*
+                        partial[i][j];
+                }
+            }
+
+            msa.push(
+                sr/(sr+sp)
+            );
+        }
+
+        return {
+            overall,
+            msa,
+            partial
+        };
+
+    }catch(e){
+
+        return {
+            overall:0,
+            msa:Array(variableCount).fill(0),
+            partial:null
+        };
+    }
+}
+
+
+/* ============================================================
+BARTLETT'S TEST
+Approximation
+============================================================ */
+
+function calculateBartlett(R,n){
+
+    const p=R.length;
+
+    let det=Math.abs(determinant(R));
+
+    if(det<1e-12) det=1e-12;
+
+    const chi=
+        -(n-1-(2*p+5)/6)*
+        Math.log(det);
+
+    const df=
+        p*(p-1)/2;
+
+    return {chi,df};
+}
+
+
+/* ============================================================
+FACTOR EXTRACTION USING PRINCIPAL COMPONENT STYLE LOADINGS
+============================================================ */
+
+function calculateLoadings(eigen,factors){
+
+    const p=eigen.values.length;
+
+    let loadings=
+        Array.from(
+            {length:p},
+            ()=>Array(factors).fill(0)
+        );
+
+    for(let f=0;f<factors;f++){
+
+        const eigenvalue=
+            Math.max(0,eigen.values[f]);
+
+        const root=
+            Math.sqrt(eigenvalue);
+
+        for(let v=0;v<p;v++){
+
+            loadings[v][f]=
+                eigen.vectors[f][v]*
+                root;
+        }
+    }
+
+    return loadings;
+}
+
+function communalities(loadings){
+
+    return loadings.map(row=>
+        row.reduce((s,x)=>s+x*x,0)
+    );
+}
+
+
+/* ============================================================
+VARIMAX ROTATION
+============================================================ */
+
+function varimax(loadings,gamma=1,q=50,tol=1e-6){
+
+    const p=loadings.length;
+    const k=loadings[0].length;
+
+    let R=identity(k);
+    let d=0;
+
+    for(let iteration=0;iteration<q;iteration++){
+
+        const dOld=d;
+
+        const L=multiply(loadings,R);
+
+        let B=
+            Array.from(
+                {length:k},
+                ()=>Array(k).fill(0)
+            );
+
+        for(let a=0;a<k;a++){
+
+            for(let b=0;b<k;b++){
+
+                let value=0;
+
+                for(let i=0;i<p;i++){
+
+                    const sumSquares=
+                        L[i].reduce(
+                            (s,x)=>s+x*x,
+                            0
+                        );
+
+                    value+=
+                        L[i][a]*
+                        (
+                            Math.pow(L[i][b],2)
+                            -
+                            gamma*sumSquares/p
+                        );
+                }
+
+                B[a][b]=value;
+            }
+        }
+
+        /* Jacobi eigenvectors used as orthogonal approximation */
+
+        const eig=jacobiEigen(
+            multiply(
+                transpose(B),
+                B
+            )
+        );
+
+        let newR=
+            Array.from(
+                {length:k},
+                ()=>Array(k).fill(0)
+            );
+
+        for(let i=0;i<k;i++){
+            for(let j=0;j<k;j++){
+                newR[i][j]=eig.vectors[j][i];
+            }
+        }
+
+        R=newR;
+
+        const rotated=
+            multiply(loadings,R);
+
+        d=0;
+
+        for(let i=0;i<p;i++){
+            for(let j=0;j<k;j++){
+                d+=Math.pow(rotated[i][j],4);
+            }
+        }
+
+        if(dOld!==0 &&
+            Math.abs(d-dOld)<tol){
+            break;
+        }
+    }
+
+    return multiply(loadings,R);
+}
+
+
+/* ============================================================
+COMPLETE ANALYSIS
+============================================================ */
+
+function runAnalysis(){
+
+    if(data.length<variableCount+5){
+        return;
+    }
+
+    const R=calculateCorrelationMatrix();
+
+    const kmo=calculateKMO(R);
+
+    const bartlett=
+        calculateBartlett(
+            R,
+            data.length
+        );
+
+    const eigen=
+        jacobiEigen(R);
+
+    let suggested=
+        eigen.values.filter(v=>v>1).length;
+
+    if(suggested<1) suggested=1;
+
+    suggested=Math.min(
+        suggested,
+        Math.min(variableCount-1,6)
+    );
+
+    factorCount=Math.min(
+        factorCount,
+        variableCount-1
+    );
+
+    const loadings=
+        calculateLoadings(
+            eigen,
+            factorCount
+        );
+
+    const comm=
+        communalities(loadings);
+
+    let rotated;
+
+    try{
+        rotated=varimax(loadings);
+    }catch(e){
+        rotated=loadings.map(r=>r.slice());
+    }
+
+    analysis={
+        R,
+        kmo,
+        bartlett,
+        eigen,
+        suggested,
+        loadings,
+        communalities:comm,
+        rotated
+    };
+
+    updateAllDisplays();
+}
+
+
+/* ============================================================
+RENDER DATA TABLE
+============================================================ */
+
+function renderDataTable(){
+
+    const head=
+        document.getElementById("dataHead");
+
+    const body=
+        document.getElementById("dataBody");
+
+    let h="<tr><th>#</th>";
+
+    for(let j=0;j<variableCount;j++){
+        h+=`<th>V${j+1}</th>`;
+    }
+
+    h+="</tr>";
+
+    head.innerHTML=h;
+
+    body.innerHTML="";
+
+    data.forEach((row,i)=>{
+
+        let html=`<tr><td>${i+1}</td>`;
+
+        for(let j=0;j<variableCount;j++){
+
+            html+=`
+            <td>
+            <input
+            class="data-input"
+            type="number"
+            step="0.01"
+            value="${(row[j]||0).toFixed(3)}">
+            </td>`;
+        }
+
+        html+="</tr>";
+
+        body.innerHTML+=html;
+    });
+}
+
+function updateFromTable(){
+
+    const rows=
+        document.querySelectorAll(
+            "#dataBody tr"
+        );
+
+    data=[];
+
+    rows.forEach(row=>{
+
+        const inputs=
+            row.querySelectorAll("input");
+
+        let values=[];
+
+        inputs.forEach(input=>{
+            values.push(
+                Number(input.value)
+            );
+        });
+
+        data.push(values);
+    });
+
+    runAnalysis();
+}
+
+
+/* ============================================================
+CHANGE VARIABLE COUNT
+============================================================ */
+
+function changeVariableCount(){
+
+    variableCount=
+        Number(
+            document.getElementById(
+                "variableCount"
+            ).value
+        );
+
+    if(factorCount>=variableCount){
+        factorCount=variableCount-1;
+    }
+
+    data.forEach(row=>{
+
+        while(row.length<variableCount){
+            row.push(randomNormal());
+        }
+
+        row.length=variableCount;
+    });
+
+    syncControls();
+
+    renderDataTable();
+
+    runAnalysis();
+}
+
+function changeFactorCount(){
+
+    factorCount=
+        Number(
+            document.getElementById(
+                "factorCount"
+            ).value
+        );
+
+    factorCount=Math.min(
+        factorCount,
+        variableCount-1
+    );
+
+    syncControls();
+
+    runAnalysis();
+}
+
+function changeFactorFromEigen(){
+
+    factorCount=
+        Number(
+            document.getElementById(
+                "eigenFactorSlider"
+            ).value
+        );
+
+    syncControls();
+
+    runAnalysis();
+}
+
+function syncControls(){
+
+    document.getElementById(
+        "variableCount"
+    ).value=variableCount;
+
+    document.getElementById(
+        "variableCountDisplay"
+    ).textContent=variableCount;
+
+    const maxFactors=
+        Math.min(
+            variableCount-1,
+            6
+        );
+
+    factorCount=Math.min(
+        factorCount,
+        maxFactors
+    );
+
+    document.getElementById(
+        "factorCount"
+    ).max=maxFactors;
+
+    document.getElementById(
+        "factorCount"
+    ).value=factorCount;
+
+    document.getElementById(
+        "factorCountDisplay"
+    ).textContent=factorCount;
+
+    document.getElementById(
+        "eigenFactorSlider"
+    ).max=maxFactors;
+
+    document.getElementById(
+        "eigenFactorSlider"
+    ).value=factorCount;
+
+    document.getElementById(
+        "eigenFactorDisplay"
+    ).textContent=factorCount;
+}
+
+
+/* ============================================================
+ADD / REMOVE OBSERVATION
+============================================================ */
+
+function addObservation(){
+
+    let row=[];
+
+    for(let j=0;j<variableCount;j++){
+
+        const values=
+            data.map(r=>r[j]);
+
+        row.push(
+            mean(values)+randomNormal()
+        );
+    }
+
+    data.push(row);
+
+    renderDataTable();
+
+    runAnalysis();
+}
+
+function removeObservation(){
+
+    if(data.length>variableCount+5){
+
+        data.pop();
+
+        renderDataTable();
+
+        runAnalysis();
+    }
+}
+
+function resetData(){
+
+    createDefaultData();
+
+    syncControls();
+
+    renderDataTable();
+
+    runAnalysis();
+}
+
+
+/* ============================================================
+OVERVIEW
+============================================================ */
+
+function updateOverview(){
+
+    if(!analysis)return;
+
+    const variance=
+        analysis.eigen.values
+        .slice(0,factorCount)
+        .reduce((s,v)=>s+v,0)/
+        variableCount*100;
+
+    document.getElementById(
+        "overviewN"
+    ).textContent=data.length;
+
+    document.getElementById(
+        "overviewP"
+    ).textContent=variableCount;
+
+    document.getElementById(
+        "overviewKMO"
+    ).textContent=
+        analysis.kmo.overall.toFixed(3);
+
+    document.getElementById(
+        "overviewBartlett"
+    ).textContent=
+        analysis.bartlett.chi.toFixed(2);
+
+    document.getElementById(
+        "overviewFactors"
+    ).textContent=
+        analysis.suggested;
+
+    document.getElementById(
+        "overviewVariance"
+    ).textContent=
+        variance.toFixed(1)+"%";
+
+    drawOverviewCanvas();
+}
+
+
+/* ============================================================
+SUITABILITY
+============================================================ */
+
+function kmoAssessment(v){
+
+    if(v>=.9)return "Excellent";
+    if(v>=.8)return "Very good";
+    if(v>=.7)return "Good";
+    if(v>=.6)return "Acceptable";
+    if(v>=.5)return "Poor";
+    return "Unsuitable";
+}
+
+function updateSuitability(){
+
+    if(!analysis)return;
+
+    document.getElementById(
+        "kmoValue"
+    ).textContent=
+        analysis.kmo.overall.toFixed(3);
+
+    let msaHTML="";
+
+    analysis.kmo.msa.forEach((v,i)=>{
+
+        let cls="";
+
+        if(v>=.6)cls="good";
+        else if(v>=.5)cls="moderate";
+        else cls="bad";
+
+        msaHTML+=`
+        <tr>
+        <td>V${i+1}</td>
+        <td>${v.toFixed(3)}</td>
+        <td class="${cls}">
+        ${kmoAssessment(v)}
+        </td>
+        </tr>`;
+    });
+
+    document.getElementById(
+        "msaTable"
+    ).innerHTML=msaHTML;
+
+    document.getElementById(
+        "bartlettChi"
+    ).textContent=
+        analysis.bartlett.chi.toFixed(2);
+
+    document.getElementById(
+        "bartlettDf"
+    ).textContent=
+        analysis.bartlett.df;
+
+    document.getElementById(
+        "bartlettVariables"
+    ).textContent=
+        variableCount;
+
+    const significant=
+        analysis.bartlett.chi>
+        analysis.bartlett.df*1.5;
+
+    document.getElementById(
+        "bartlettP"
+    ).textContent=
+        significant?
+        "< 0.05 (approx.)":
+        "≥ 0.05 (approx.)";
+
+    let interpretation="";
+
+    if(analysis.kmo.overall>=.6){
+
+        interpretation+=
+        `<strong>The KMO value suggests that the data are reasonably suitable for factor analysis.</strong> `;
+
+    }else{
+
+        interpretation+=
+        `<strong>The KMO value suggests weak suitability for factor analysis.</strong> `;
+    }
+
+    if(significant){
+
+        interpretation+=
+        `Bartlett's test is approximately significant, suggesting that the correlation matrix is not close to an identity matrix.`;
+
+    }else{
+
+        interpretation+=
+        `Bartlett's statistic appears relatively weak, suggesting that correlations among variables may not be sufficiently strong.`;
+    }
+
+    document.getElementById(
+        "suitabilityInterpretation"
+    ).innerHTML=interpretation;
+}
+
+
+/* ============================================================
+CORRELATION TABLE
+============================================================ */
+
+function updateCorrelationTable(){
+
+    if(!analysis)return;
+
+    const table=
+        document.getElementById(
+            "correlationTable"
+        );
+
+    let html="<thead><tr><th></th>";
+
+    for(let j=0;j<variableCount;j++){
+        html+=`<th>V${j+1}</th>`;
+    }
+
+    html+="</tr></thead><tbody>";
+
+    for(let i=0;i<variableCount;i++){
+
+        html+=`<tr><th>V${i+1}</th>`;
+
+        for(let j=0;j<variableCount;j++){
+
+            const r=analysis.R[i][j];
+
+            let cls="";
+
+            if(Math.abs(r)>=.6)cls="good";
+            else if(Math.abs(r)>=.3)cls="moderate";
+
+            html+=
+            `<td class="${cls}">
+            ${r.toFixed(3)}
+            </td>`;
+        }
+
+        html+="</tr>";
+    }
+
+    html+="</tbody>";
+
+    table.innerHTML=html;
+
+    drawCorrelationHeatmap();
+}
+
+
+/* ============================================================
+EIGENVALUES
+============================================================ */
+
+function updateEigenTable(){
+
+    if(!analysis)return;
+
+    const tbody=
+        document.getElementById(
+            "eigenTable"
+        );
+
+    let cumulative=0;
+    let html="";
+
+    analysis.eigen.values.forEach((v,i)=>{
+
+        const percent=
+            v/variableCount*100;
+
+        cumulative+=percent;
+
+        html+=`
+        <tr>
+        <td>${i+1}</td>
+        <td>${v.toFixed(4)}</td>
+        <td>${percent.toFixed(2)}%</td>
+        <td>${cumulative.toFixed(2)}%</td>
+        <td>${v>1?"Retain":"Below 1"}</td>
+        </tr>`;
+    });
+
+    tbody.innerHTML=html;
+
+    document.getElementById(
+        "factorSelectionExplanation"
+    ).innerHTML=
+    `<strong>Kaiser criterion:</strong>
+    ${analysis.suggested} component(s) currently have eigenvalues greater than 1.
+    <br><br>
+    The tool is currently extracting
+    <strong>${factorCount}</strong> factor(s).
+    Compare this choice with the scree plot and theoretical expectations.`;
+
+    drawScreePlot(
+        "screeCanvas"
+    );
+}
+
+
+/* ============================================================
+LOADING TABLE
+============================================================ */
+
+function loadingClass(value){
+
+    const a=Math.abs(value);
+
+    if(a>=.50)return "good";
+    if(a>=.30)return "moderate";
+    return "";
+}
+
+function updateLoadings(){
+
+    if(!analysis)return;
+
+    let head="<tr><th>Variable</th>";
+
+    for(let f=0;f<factorCount;f++){
+        head+=`<th>${factorNames[f]||"Factor "+(f+1)}</th>`;
+    }
+
+    head+="<th>Strongest Factor</th></tr>";
+
+    document.getElementById(
+        "loadingHead"
+    ).innerHTML=head;
+
+    let body="";
+
+    analysis.loadings.forEach((row,i)=>{
+
+        body+=`<tr><td><strong>V${i+1}</strong></td>`;
+
+        let strongest=0;
+        let strongestIndex=0;
+
+        row.forEach((value,f)=>{
+
+            body+=`
+            <td class="${loadingClass(value)}">
+            ${value.toFixed(3)}
+            </td>`;
+
+            if(Math.abs(value)>strongest){
+                strongest=Math.abs(value);
+                strongestIndex=f;
+            }
+        });
+
+        body+=`
+        <td>
+        ${factorNames[strongestIndex]||"Factor "+(strongestIndex+1)}
+        (${strongest.toFixed(3)})
+        </td>
+        </tr>`;
+    });
+
+    document.getElementById(
+        "loadingBody"
+    ).innerHTML=body;
+
+    updateCommunalities();
+
+    const strongCount=
+        analysis.loadings
+        .flat()
+        .filter(v=>Math.abs(v)>=.5)
+        .length;
+
+    document.getElementById(
+        "loadingInterpretation"
+    ).innerHTML=
+    `There are currently <strong>${strongCount}</strong> loading(s) with an absolute value of at least 0.50.
+    Compare the strongest factor for each variable to identify possible variable groups.`;
+}
+
+
+/* ============================================================
+COMMUNALITIES
+============================================================ */
+
+function updateCommunalities(){
+
+    let html="";
+
+    analysis.communalities.forEach((v,i)=>{
+
+        let interpretation;
+
+        if(v>=.7)
+            interpretation="Very well represented";
+        else if(v>=.5)
+            interpretation="Well represented";
+        else if(v>=.3)
+            interpretation="Moderately represented";
+        else
+            interpretation="Poorly represented";
+
+        html+=`
+        <tr>
+        <td>V${i+1}</td>
+        <td>1.000</td>
+        <td>${v.toFixed(3)}</td>
+        <td>${interpretation}</td>
+        </tr>`;
+    });
+
+    document.getElementById(
+        "communalityTable"
+    ).innerHTML=html;
+}
+
+
+/* ============================================================
+ROTATION
+============================================================ */
+
+function updateRotation(){
+
+    if(!analysis)return;
+
+    let head="<tr><th>Variable</th>";
+
+    for(let f=0;f<factorCount;f++){
+        head+=`<th>${factorNames[f]||"Factor "+(f+1)}</th>`;
+    }
+
+    head+="<th>Primary Factor</th></tr>";
+
+    document.getElementById(
+        "rotatedHead"
+    ).innerHTML=head;
+
+    let body="";
+    let summary=[];
+
+    analysis.rotated.forEach((row,i)=>{
+
+        body+=`
+        <tr>
+        <td><strong>V${i+1}</strong></td>`;
+
+        let maxValue=0;
+        let maxIndex=0;
+
+        row.forEach((value,f)=>{
+
+            body+=`
+            <td class="${loadingClass(value)}">
+            ${value.toFixed(3)}
+            </td>`;
+
+            if(Math.abs(value)>maxValue){
+                maxValue=Math.abs(value);
+                maxIndex=f;
+            }
+        });
+
+        const factor=
+            factorNames[maxIndex]||
+            "Factor "+(maxIndex+1);
+
+        body+=`
+        <td>
+        ${factor}
+        (${maxValue.toFixed(3)})
+        </td>
+        </tr>`;
+
+        summary.push({
+            variable:i+1,
+            factor,
+            loading:maxValue
+        });
+    });
+
+    document.getElementById(
+        "rotatedBody"
+    ).innerHTML=body;
+
+    let interpretation=
+        "<strong>Variables grouped by strongest rotated loading:</strong><br><br>";
+
+    for(let f=0;f<factorCount;f++){
+
+        const name=
+            factorNames[f]||
+            "Factor "+(f+1);
+
+        const variables=[];
+
+        analysis.rotated.forEach((row,i)=>{
+
+            let max=0;
+            let maxIndex=0;
+
+            row.forEach((v,j)=>{
+                if(Math.abs(v)>max){
+                    max=Math.abs(v);
+                    maxIndex=j;
+                }
+            });
+
+            if(maxIndex===f &&
+                max>=.30){
+                variables.push("V"+(i+1));
+            }
+        });
+
+        interpretation+=
+        `<strong>${name}:</strong> `+
+        (variables.length?
+            variables.join(", "):
+            "No clearly loading variables")+
+        "<br>";
+    }
+
+    document.getElementById(
+        "rotationInterpretation"
+    ).innerHTML=interpretation;
+
+    renderFactorNamingInputs();
+
+    drawLoadingHeatmap();
+}
+
+
+/* ============================================================
+FACTOR NAMING
+============================================================ */
+
+function renderFactorNamingInputs(){
+
+    const container=
+        document.getElementById(
+            "factorNamingInputs"
+        );
+
+    container.innerHTML="";
+
+    for(let f=0;f<factorCount;f++){
+
+        container.innerHTML+=`
+        <div class="control-group">
+        <label>Factor ${f+1} Name</label>
+        <input
+        class="factor-name"
+        type="text"
+        id="factorName${f}"
+        value="${factorNames[f]||"Factor "+(f+1)}">
+        </div>`;
+    }
+}
+
+function saveFactorNames(){
+
+    for(let f=0;f<factorCount;f++){
+
+        const input=
+            document.getElementById(
+                "factorName"+f
+            );
+
+        if(input){
+            factorNames[f]=
+                input.value.trim()||
+                "Factor "+(f+1);
+        }
+    }
+
+    updateLoadings();
+
+    updateRotation();
+}
+
+
+/* ============================================================
+CANVAS HELPERS
+============================================================ */
+
+function clearCanvas(id){
+
+    const canvas=
+        document.getElementById(id);
+
+    const ctx=
+        canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.fillStyle="#fff";
+
+    ctx.fillRect(
+        0,0,
+        canvas.width,
+        canvas.height
+    );
+
+    return {canvas,ctx};
+}
+
+
+/* ============================================================
+SCREE PLOT
+============================================================ */
+
+function drawScreePlot(id){
+
+    if(!analysis)return;
+
+    const {canvas,ctx}=clearCanvas(id);
+
+    const margin=70;
+
+    const values=
+        analysis.eigen.values;
+
+    const maxValue=
+        Math.max(...values)*1.15;
+
+    const width=
+        canvas.width-2*margin;
+
+    const height=
+        canvas.height-2*margin;
+
+    ctx.strokeStyle="#e2e8f0";
+
+    for(let i=0;i<=10;i++){
+
+        const y=
+            margin+i*height/10;
+
+        ctx.beginPath();
+        ctx.moveTo(margin,y);
+        ctx.lineTo(canvas.width-margin,y);
+        ctx.stroke();
+
+        const value=
+            maxValue*(1-i/10);
+
+        ctx.fillStyle="#475569";
+        ctx.font="12px Arial";
+        ctx.textAlign="right";
+
+        ctx.fillText(
+            value.toFixed(1),
+            margin-8,
+            y+4
+        );
+    }
+
+    ctx.strokeStyle="#334155";
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+    ctx.moveTo(margin,margin);
+    ctx.lineTo(margin,canvas.height-margin);
+    ctx.lineTo(canvas.width-margin,canvas.height-margin);
+    ctx.stroke();
+
+    ctx.strokeStyle="#dc2626";
+    ctx.setLineDash([6,5]);
+
+    const yOne=
+        canvas.height-margin-
+        1/maxValue*height;
+
+    ctx.beginPath();
+    ctx.moveTo(margin,yOne);
+    ctx.lineTo(canvas.width-margin,yOne);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    const points=[];
+
+    values.forEach((value,i)=>{
+
+        const x=
+            margin+
+            i*width/
+            Math.max(1,values.length-1);
+
+        const y=
+            canvas.height-margin-
+            value/maxValue*height;
+
+        points.push({x,y,value});
+    });
+
+    ctx.strokeStyle="#2563eb";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    points.forEach((p,i)=>{
+
+        if(i===0)
+            ctx.moveTo(p.x,p.y);
+        else
+            ctx.lineTo(p.x,p.y);
+    });
+
+    ctx.stroke();
+
+    points.forEach((p,i)=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,p.y,
+            7,0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle=
+            i<factorCount?
+            "#16a34a":
+            "#2563eb";
+
+        ctx.fill();
+
+        ctx.fillStyle="#334155";
+        ctx.font="12px Arial";
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            i+1,
+            p.x,
+            canvas.height-margin+22
+        );
+    });
+
+    ctx.fillStyle="#1e293b";
+    ctx.font="bold 15px Arial";
+    ctx.textAlign="center";
+
+    ctx.fillText(
+        "Component Number",
+        canvas.width/2,
+        canvas.height-15
+    );
+
+    ctx.save();
+
+    ctx.translate(
+        20,
+        canvas.height/2
+    );
+
+    ctx.rotate(-Math.PI/2);
+
+    ctx.fillText(
+        "Eigenvalue",
+        0,0
+    );
+
+    ctx.restore();
+}
+
+
+/* ============================================================
+CORRELATION HEATMAP
+============================================================ */
+
+function drawCorrelationHeatmap(){
+
+    if(!analysis)return;
+
+    const {canvas,ctx}=clearCanvas(
+        "heatmapCanvas"
+    );
+
+    const margin=80;
+
+    const p=variableCount;
+
+    const size=Math.min(
+        (canvas.width-margin-20)/p,
+        (canvas.height-margin-20)/p
+    );
+
+    const startX=margin;
+    const startY=60;
+
+    for(let i=0;i<p;i++){
+
+        for(let j=0;j<p;j++){
+
+            const r=
+                analysis.R[i][j];
+
+            const intensity=
+                Math.floor(
+                    Math.abs(r)*220
+                );
+
+            if(r>=0){
+                ctx.fillStyle=
+                `rgb(${255-intensity},${255-intensity},255)`;
+            }else{
+                ctx.fillStyle=
+                `rgb(255,${255-intensity},${255-intensity})`;
+            }
+
+            ctx.fillRect(
+                startX+j*size,
+                startY+i*size,
+                size,
+                size
+            );
+
+            ctx.strokeStyle="#fff";
+            ctx.strokeRect(
+                startX+j*size,
+                startY+i*size,
+                size,
+                size
+            );
+
+            if(p<=10){
+
+                ctx.fillStyle="#1e293b";
+                ctx.font="11px Arial";
+                ctx.textAlign="center";
+
+                ctx.fillText(
+                    r.toFixed(2),
+                    startX+j*size+size/2,
+                    startY+i*size+size/2+4
+                );
+            }
+        }
+    }
+
+    ctx.fillStyle="#1e293b";
+    ctx.font="12px Arial";
+    ctx.textAlign="center";
+
+    for(let j=0;j<p;j++){
+
+        ctx.fillText(
+            "V"+(j+1),
+            startX+j*size+size/2,
+            startY-10
+        );
+    }
+
+    ctx.textAlign="right";
+
+    for(let i=0;i<p;i++){
+
+        ctx.fillText(
+            "V"+(i+1),
+            startX-8,
+            startY+i*size+size/2+4
+        );
+    }
+}
+
+
+/* ============================================================
+LOADING HEATMAP
+============================================================ */
+
+function drawLoadingHeatmap(){
+
+    if(!analysis)return;
+
+    const {canvas,ctx}=clearCanvas(
+        "loadingHeatmapCanvas"
+    );
+
+    const margin=100;
+
+    const rows=variableCount;
+    const cols=factorCount;
+
+    const cellWidth=
+        (canvas.width-margin-30)/cols;
+
+    const cellHeight=
+        Math.min(
+            55,
+            (canvas.height-margin-20)/rows
+        );
+
+    const startX=margin;
+    const startY=60;
+
+    for(let j=0;j<cols;j++){
+
+        ctx.fillStyle="#1e293b";
+        ctx.font="bold 13px Arial";
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            factorNames[j]||
+            "Factor "+(j+1),
+            startX+j*cellWidth+cellWidth/2,
+            startY-15
+        );
+    }
+
+    for(let i=0;i<rows;i++){
+
+        ctx.fillStyle="#1e293b";
+        ctx.font="13px Arial";
+        ctx.textAlign="right";
+
+        ctx.fillText(
+            "V"+(i+1),
+            startX-10,
+            startY+i*cellHeight+
+            cellHeight/2+4
+        );
+
+        for(let j=0;j<cols;j++){
+
+            const value=
+                analysis.rotated[i][j];
+
+            const intensity=
+                Math.floor(
+                    Math.min(
+                        1,
+                        Math.abs(value)
+                    )*220
+                );
+
+            if(value>=0){
+                ctx.fillStyle=
+                `rgb(${255-intensity},${255-intensity},255)`;
+            }else{
+                ctx.fillStyle=
+                `rgb(255,${255-intensity},${255-intensity})`;
+            }
+
+            ctx.fillRect(
+                startX+j*cellWidth,
+                startY+i*cellHeight,
+                cellWidth,
+                cellHeight
+            );
+
+            ctx.strokeStyle="#fff";
+            ctx.strokeRect(
+                startX+j*cellWidth,
+                startY+i*cellHeight,
+                cellWidth,
+                cellHeight
+            );
+
+            ctx.fillStyle="#1e293b";
+            ctx.font="13px Arial";
+            ctx.textAlign="center";
+
+            ctx.fillText(
+                value.toFixed(3),
+                startX+j*cellWidth+cellWidth/2,
+                startY+i*cellHeight+
+                cellHeight/2+4
+            );
+        }
+    }
+}
+
+
+/* ============================================================
+OVERVIEW VISUALIZATION
+============================================================ */
+
+function drawOverviewCanvas(){
+
+    if(!analysis)return;
+
+    const {canvas,ctx}=clearCanvas(
+        "overviewCanvas"
+    );
+
+    const margin=80;
+
+    const p=variableCount;
+    const f=factorCount;
+
+    const factorX=[];
+
+    for(let j=0;j<f;j++){
+
+        factorX.push(
+            margin+
+            (j+.5)*
+            (canvas.width-2*margin)/f
+        );
+    }
+
+    const variableY=[];
+
+    for(let i=0;i<p;i++){
+
+        variableY.push(
+            80+
+            i*
+            (canvas.height-150)/
+            Math.max(1,p-1)
+        );
+    }
+
+    /* Connections */
+
+    for(let i=0;i<p;i++){
+
+        for(let j=0;j<f;j++){
+
+            const loading=
+                analysis.rotated[i][j];
+
+            if(Math.abs(loading)>=.20){
+
+                ctx.strokeStyle=
+                    loading>=0?
+                    "#93c5fd":
+                    "#fca5a5";
+
+                ctx.lineWidth=
+                    Math.max(
+                        1,
+                        Math.abs(loading)*7
+                    );
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    margin+35,
+                    variableY[i]
+                );
+
+                ctx.lineTo(
+                    factorX[j],
+                    55
+                );
+
+                ctx.stroke();
+            }
+        }
+    }
+
+    /* Factors */
+
+    factorX.forEach((x,j)=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,55,
+            35,0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle="#7c3aed";
+        ctx.fill();
+
+        ctx.fillStyle="#fff";
+        ctx.font="bold 13px Arial";
+        ctx.textAlign="center";
+
+        const name=
+            factorNames[j]||
+            "Factor "+(j+1);
+
+        ctx.fillText(
+            name,
+            x,59
+        );
+    });
+
+    /* Variables */
+
+    for(let i=0;i<p;i++){
+
+        ctx.beginPath();
+
+        ctx.arc(
+            margin+35,
+            variableY[i],
+            22,0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle="#2563eb";
+        ctx.fill();
+
+        ctx.fillStyle="#fff";
+        ctx.font="bold 12px Arial";
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            "V"+(i+1),
+            margin+35,
+            variableY[i]+4
+        );
+    }
+
+    ctx.fillStyle="#1e293b";
+    ctx.font="bold 16px Arial";
+    ctx.textAlign="center";
+
+    ctx.fillText(
+        "Visual Representation of Variables and Latent Factors",
+        canvas.width/2,
+        canvas.height-20
+    );
+}
+
+
+/* ============================================================
+EXPERIMENT MODE
+============================================================ */
+
+function updateExperimentLabels(){
+
+    document.getElementById(
+        "expSampleDisplay"
+    ).textContent=
+        document.getElementById(
+            "expSampleSize"
+        ).value;
+
+    document.getElementById(
+        "expVariableDisplay"
+    ).textContent=
+        document.getElementById(
+            "expVariables"
+        ).value;
+
+    document.getElementById(
+        "expLatentDisplay"
+    ).textContent=
+        document.getElementById(
+            "expLatentFactors"
+        ).value;
+
+    document.getElementById(
+        "expStrengthDisplay"
+    ).textContent=
+        document.getElementById(
+            "expStrength"
+        ).value;
+
+    document.getElementById(
+        "expNoiseDisplay"
+    ).textContent=
+        document.getElementById(
+            "expNoise"
+        ).value;
+}
+
+function generateExperimentData(){
+
+    const n=Number(
+        document.getElementById(
+            "expSampleSize"
+        ).value
+    );
+
+    variableCount=Number(
+        document.getElementById(
+            "expVariables"
+        ).value
+    );
+
+    let latentFactors=Number(
+        document.getElementById(
+            "expLatentFactors"
+        ).value
+    );
+
+    latentFactors=Math.min(
+        latentFactors,
+        variableCount-1
+    );
+
+    const strength=Number(
+        document.getElementById(
+            "expStrength"
+        ).value
+    )/100;
+
+    const noise=Number(
+        document.getElementById(
+            "expNoise"
+        ).value
+    )/100;
+
+    factorCount=
+        Math.min(
+            latentFactors,
+            6
+        );
+
+    data=generateStructuredData(
+        n,
+        variableCount,
+        latentFactors,
+        strength,
+        noise
+    );
+
+    syncControls();
+
+    renderDataTable();
+
+    runAnalysis();
+
+    updateExperimentResults();
+}
+
+function addNoiseVariable(){
+
+    if(variableCount>=12){
+        alert("Maximum of 12 variables reached.");
+        return;
+    }
+
+    variableCount++;
+
+    data.forEach(row=>{
+        row.push(randomNormal());
+    });
+
+    syncControls();
+
+    renderDataTable();
+
+    runAnalysis();
+
+    updateExperimentResults();
+}
+
+function updateExperimentResults(){
+
+    if(!analysis)return;
+
+    const explained=
+        analysis.eigen.values
+        .slice(0,factorCount)
+        .reduce((s,v)=>s+v,0)
+        /variableCount*100;
+
+    document.getElementById(
+        "expKMO"
+    ).textContent=
+        analysis.kmo.overall.toFixed(3);
+
+    document.getElementById(
+        "expBartlett"
+    ).textContent=
+        analysis.bartlett.chi.toFixed(2);
+
+    document.getElementById(
+        "expSuggested"
+    ).textContent=
+        analysis.suggested;
+
+    document.getElementById(
+        "expSelected"
+    ).textContent=
+        factorCount;
+
+    document.getElementById(
+        "expVariance"
+    ).textContent=
+        explained.toFixed(1)+"%";
+
+    document.getElementById(
+        "expVariablesResult"
+    ).textContent=
+        variableCount;
+
+    let explanation="";
+
+    if(analysis.kmo.overall>=.7){
+
+        explanation+=
+        "<strong>The current dataset has good factorability.</strong> ";
+
+    }else if(analysis.kmo.overall>=.5){
+
+        explanation+=
+        "<strong>The current dataset has borderline to acceptable factorability.</strong> ";
+
+    }else{
+
+        explanation+=
+        "<strong>The current dataset may not be well suited for factor analysis.</strong> ";
+    }
+
+    if(explained>=60){
+
+        explanation+=
+        "The selected factors explain a substantial proportion of total variance. ";
+
+    }else if(explained>=40){
+
+        explanation+=
+        "The selected factors explain a moderate proportion of total variance. ";
+
+    }else{
+
+        explanation+=
+        "The selected factors explain a relatively small proportion of total variance. ";
+    }
+
+    explanation+=
+    "Try increasing random noise or reducing factor strength and compare the scree plot and KMO value.";
+
+    document.getElementById(
+        "experimentExplanation"
+    ).innerHTML=
+        explanation;
+
+    drawExperimentScree();
+}
+
+function drawExperimentScree(){
+
+    if(!analysis)return;
+
+    const {canvas,ctx}=clearCanvas(
+        "experimentCanvas"
+    );
+
+    const margin=70;
+
+    const values=
+        analysis.eigen.values;
+
+    const maxValue=
+        Math.max(...values)*1.15;
+
+    const width=
+        canvas.width-2*margin;
+
+    const height=
+        canvas.height-2*margin;
+
+    ctx.strokeStyle="#e2e8f0";
+
+    for(let i=0;i<=10;i++){
+
+        const y=
+            margin+i*height/10;
+
+        ctx.beginPath();
+        ctx.moveTo(margin,y);
+        ctx.lineTo(canvas.width-margin,y);
+        ctx.stroke();
+    }
+
+    ctx.strokeStyle="#334155";
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+    ctx.moveTo(margin,margin);
+    ctx.lineTo(margin,canvas.height-margin);
+    ctx.lineTo(canvas.width-margin,canvas.height-margin);
+    ctx.stroke();
+
+    ctx.strokeStyle="#7c3aed";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    values.forEach((v,i)=>{
+
+        const x=
+            margin+
+            i*width/
+            Math.max(1,values.length-1);
+
+        const y=
+            canvas.height-margin-
+            v/maxValue*height;
+
+        if(i===0)ctx.moveTo(x,y);
+        else ctx.lineTo(x,y);
+    });
+
+    ctx.stroke();
+
+    values.forEach((v,i)=>{
+
+        const x=
+            margin+
+            i*width/
+            Math.max(1,values.length-1);
+
+        const y=
+            canvas.height-margin-
+            v/maxValue*height;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,y,
+            7,0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle=
+            i<factorCount?
+            "#16a34a":
+            "#7c3aed";
+
+        ctx.fill();
+
+        ctx.fillStyle="#334155";
+        ctx.font="12px Arial";
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            i+1,
+            x,
+            canvas.height-margin+20
+        );
+    });
+
+    ctx.fillStyle="#1e293b";
+    ctx.font="bold 15px Arial";
+    ctx.textAlign="center";
+
+    ctx.fillText(
+        "Components",
+        canvas.width/2,
+        canvas.height-15
+    );
+}
+
+
+/* ============================================================
+UPDATE ALL
+============================================================ */
+
+function updateAllDisplays(){
+
+    updateOverview();
+
+    updateSuitability();
+
+    updateCorrelationTable();
+
+    updateEigenTable();
+
+    updateLoadings();
+
+    updateRotation();
+
+    updateExperimentResults();
+}
+
+
+/* ============================================================
+TAB NAVIGATION
+============================================================ */
+
+function showTab(id){
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab=>{
+            tab.classList.remove("active");
+        });
+
+    document
+        .querySelectorAll(".tab-btn")
+        .forEach(btn=>{
+            btn.classList.remove("active");
+        });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+
+    document
+        .querySelector(
+            `.tab-btn[data-tab="${id}"]`
+        )
+        .classList.add("active");
+
+    setTimeout(()=>{
+
+        if(id==="overview")
+            drawOverviewCanvas();
+
+        if(id==="correlation")
+            drawCorrelationHeatmap();
+
+        if(id==="eigen")
+            drawScreePlot("screeCanvas");
+
+        if(id==="rotation")
+            drawLoadingHeatmap();
+
+        if(id==="experiment")
+            drawExperimentScree();
+
+    },30);
+}
+
+
+/* ============================================================
+INITIALIZE
+============================================================ */
+
+createDefaultData();
+
+syncControls();
+
+renderDataTable();
+
+updateExperimentLabels();
+
+runAnalysis();
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        if(!analysis)return;
+
+        drawOverviewCanvas();
+        drawCorrelationHeatmap();
+        drawScreePlot("screeCanvas");
+        drawLoadingHeatmap();
+        drawExperimentScree();
+    }
+);
+
+</script>
+
+</body>
+</html>
