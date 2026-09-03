@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Discriminant Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{--bg:#f5f7fb;--card:#fff;--ink:#1f2937;--muted:#64748b;--accent:#2563eb;--border:#dbe2ea;--good:#15803d;--warn:#b45309;--bad:#b91c1c}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink);line-height:1.45}
+  .wrap{max-width:1250px;margin:auto;padding:24px}
+  header{background:linear-gradient(135deg,#1d4ed8,#4338ca);color:white;border-radius:18px;padding:28px;margin-bottom:20px}
+  h1{margin:0 0 8px;font-size:30px}.subtitle{opacity:.92}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px #0000000a;margin-bottom:18px}
+  h2{font-size:19px;margin:0 0 14px}.small{font-size:13px;color:var(--muted)}
+  label{display:block;font-weight:600;margin:10px 0 5px}
+  input,select,button{font:inherit}
+  input,select{width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:white}
+  button{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;background:var(--accent);color:white;margin:4px 3px 4px 0}
+  button.secondary{background:#475569}.danger{background:#dc2626}.success{background:#15803d}
+  button:hover{filter:brightness(.95)}
+  .btnrow{margin-top:10px}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stat{border:1px solid var(--border);border-radius:10px;padding:12px;background:#f8fafc}
+  .stat b{display:block;font-size:20px;margin-top:3px}.stat span{font-size:12px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid var(--border);padding:7px;text-align:center}th{background:#f1f5f9}
+  .tablewrap{overflow:auto;max-height:360px}
+  .pill{display:inline-block;padding:4px 9px;border-radius:999px;background:#e0e7ff;color:#3730a3;font-size:12px;margin:2px}
+  .formula{background:#f8fafc;border-left:4px solid var(--accent);padding:10px 12px;margin:10px 0;font-family:Georgia,serif}
+  .note{padding:10px 12px;border-radius:9px;background:#eff6ff;border:1px solid #bfdbfe}
+  .good{color:var(--good);font-weight:700}.warn{color:var(--warn);font-weight:700}.bad{color:var(--bad);font-weight:700}
+  canvas{max-height:430px}
+  .hidden{display:none}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.statgrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Interactive Discriminant Analysis</h1>
+  <div class="subtitle">Explore Linear Discriminant Analysis (LDA), group separation, canonical functions, classification and prediction.</div>
+</header>
+
+<div class="grid">
+<section>
+  <div class="card">
+    <h2>Data & Experiments</h2>
+    <label>Experiment</label>
+    <select id="experiment">
+      <option value="clear">Experiment 1: Well-separated groups</option>
+      <option value="moderate">Experiment 2: Moderate overlap</option>
+      <option value="weak">Experiment 3: Strong overlap</option>
+      <option value="noise">Experiment 4: Add a noise variable</option>
+    </select>
+    <div class="btnrow">
+      <button onclick="generateExperiment()">Generate Experiment Data</button>
+      <button class="secondary" onclick="addObservation()">Add Observation</button>
+      <button class="danger" onclick="removeLast()">Remove Last Observation</button>
+      <button class="secondary" onclick="resetData()">Reset Sample Data</button>
+    </div>
+    <p class="small">The experiments change the group separation so you can observe how discrimination and classification accuracy respond.</p>
+  </div>
+
+  <div class="card">
+    <h2>Variables</h2>
+    <label>Predictor variables</label>
+    <div id="varChecks"></div>
+    <label>Group variable</label>
+    <select id="groupSelect"></select>
+    <button onclick="runAnalysis()">Update Analysis</button>
+  </div>
+
+  <div class="card">
+    <h2>Predict a New Observation</h2>
+    <div id="predictionInputs"></div>
+    <button class="success" onclick="predictNew()">Predict Group</button>
+    <div id="predictionResult" class="note" style="margin-top:10px">Enter values and click Predict Group.</div>
+  </div>
+
+  <div class="card">
+    <h2>How to Interpret</h2>
+    <p><b>Wilks' Lambda:</b> values closer to 0 indicate stronger separation between groups; values closer to 1 indicate weaker separation.</p>
+    <p><b>Canonical discriminant function:</b> forms a weighted combination of predictors that separates the groups.</p>
+    <p><b>Classification accuracy:</b> percentage of observations correctly classified by the fitted discriminant rule.</p>
+    <p><b>Confusion matrix:</b> rows are actual groups and columns are predicted groups.</p>
+  </div>
+</section>
+
+<main>
+  <div class="card">
+    <h2>Analysis Summary</h2>
+    <div class="statgrid">
+      <div class="stat"><span>Observations</span><b id="nStat">—</b></div>
+      <div class="stat"><span>Groups</span><b id="gStat">—</b></div>
+      <div class="stat"><span>Predictors</span><b id="pStat">—</b></div>
+      <div class="stat"><span>Accuracy</span><b id="aStat">—</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Group Summary</h2>
+    <div id="groupSummary"></div>
+  </div>
+
+  <div class="card">
+    <h2>Group Separation</h2>
+    <canvas id="scatter"></canvas>
+    <p class="small">For two selected predictors, the chart displays the observed groups. With more than two predictors, the first two selected predictors are shown.</p>
+  </div>
+
+  <div class="card">
+    <h2>Discriminant Functions</h2>
+    <div id="functions"></div>
+  </div>
+
+  <div class="card">
+    <h2>Classification Results</h2>
+    <div id="classification"></div>
+  </div>
+
+  <div class="card">
+    <h2>Confusion Matrix</h2>
+    <div id="confusion"></div>
+  </div>
+
+  <div class="card">
+    <h2>Key Statistics</h2>
+    <div id="statistics"></div>
+  </div>
+
+  <div class="card">
+    <h2>Data</h2>
+    <div class="tablewrap"><div id="dataTable"></div></div>
+  </div>
+</main>
+</div>
+
+<script>
+/* ---------- Basic matrix utilities ---------- */
+function zeros(r,c){return Array.from({length:r},()=>Array(c).fill(0))}
+function transpose(A){return A[0].map((_,j)=>A.map(r=>r[j]))}
+function matMul(A,B){
+  let r=A.length,c=B[0].length,k=B.length,R=zeros(r,c);
+  for(let i=0;i<r;i++)for(let j=0;j<c;j++)for(let t=0;t<k;t++)R[i][j]+=A[i][t]*B[t][j];
+  return R
+}
+function dot(a,b){return a.reduce((s,v,i)=>s+v*b[i],0)}
+function inv(A){
+  let n=A.length,M=A.map((r,i)=>r.slice().concat(Array.from({length:n},(_,j)=>i===j?1:0)));
+  for(let i=0;i<n;i++){
+    let piv=i;
+    for(let r=i+1;r<n;r++)if(Math.abs(M[r][i])>Math.abs(M[piv][i]))piv=r;
+    if(Math.abs(M[piv][i])<1e-10) return null;
+    [M[i],M[piv]]=[M[piv],M[i]];
+    let q=M[i][i]; for(let j=0;j<2*n;j++)M[i][j]/=q;
+    for(let r=0;r<n;r++)if(r!==i){let f=M[r][i];for(let j=0;j<2*n;j++)M[r][j]-=f*M[i][j]}
+  }
+  return M.map(r=>r.slice(n))
+}
+function det(A){
+  let M=A.map(r=>r.slice()),d=1;
+  for(let i=0;i<M.length;i++){
+    let p=i;for(let r=i+1;r<M.length;r++)if(Math.abs(M[r][i])>Math.abs(M[p][i]))p=r;
+    if(Math.abs(M[p][i])<1e-12)return 0;
+    if(p!==i){[M[p],M[i]]=[M[i],M[p]];d*=-1}
+    d*=M[i][i];
+    for(let r=i+1;r<M.length;r++){let f=M[r][i]/M[i][i];for(let j=i;j<M.length;j++)M[r][j]-=f*M[i][j]}
+  } return d
+}
+function meanRows(rows,p){return Array.from({length:p},(_,j)=>rows.reduce((s,r)=>s+r[j],0)/rows.length)}
+function cov(rows,m){
+  let p=m.length,C=zeros(p,p),n=rows.length;
+  if(n<=1)return C;
+  for(let r of rows)for(let i=0;i<p;i++)for(let j=0;j<p;j++)C[i][j]+=(r[i]-m[i])*(r[j]-m[j]);
+  return C.map(row=>row.map(v=>v/(n-1)))
+}
+function add(A,B){return A.map((r,i)=>r.map((v,j)=>v+B[i][j]))}
+function scale(A,s){return A.map(r=>r.map(v=>v*s))}
+function eig2(A){
+  if(A.length!==2)return [];
+  let tr=A[0][0]+A[1][1], d=det(A), disc=Math.max(0,tr*tr-4*d);
+  return [(tr+Math.sqrt(disc))/2,(tr-Math.sqrt(disc))/2];
+}
+function fmt(x,d=3){return Number.isFinite(x)?x.toFixed(d):"—"}
+
+/* ---------- Data ---------- */
+const variableNames=["X1","X2","X3","Noise"];
+let data=[];
+let chart=null;
+let analysis=null;
+
+function makeData(type){
+  let out=[], n=45, centers;
+  if(type==="clear") centers=[[2,2,1],[6,6,5],[10,3,9]];
+  if(type==="moderate") centers=[[3,3,2],[5,5,4],[7,3,6]];
+  if(type==="weak") centers=[[4,4,3],[4.8,4.8,3.8],[5.6,4.1,4.7]];
+  if(type==="noise") centers=[[2,2,1],[6,6,5],[10,3,9]];
+  for(let g=0;g<3;g++){
+    for(let i=0;i<n/3;i++){
+      let sd=type==="clear"||type==="noise"?0.75:type==="moderate"?1.35:1.9;
+      let x1=centers[g][0]+randn()*sd;
+      let x2=centers[g][1]+randn()*sd;
+      let x3=centers[g][2]+randn()*sd;
+      let noise=randn()*4;
+      out.push({X1:x1,X2:x2,X3:x3,Noise:noise,Group:"Group "+(g+1)});
+    }
+  }
+  return out;
+}
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function resetData(){data=makeData("clear");renderAll()}
+function generateExperiment(){data=makeData(document.getElementById("experiment").value);renderAll()}
+function addObservation(){
+  let groups=[...new Set(data.map(d=>d.Group))]; let g=groups[Math.floor(Math.random()*groups.length)];
+  let base=data.filter(d=>d.Group===g); let r=base[Math.floor(Math.random()*base.length)];
+  data.push({X1:r.X1+randn(),X2:r.X2+randn(),X3:r.X3+randn(),Noise:randn()*4,Group:g});renderAll()
+}
+function removeLast(){if(data.length){data.pop();renderAll()}}
+
+/* ---------- UI ---------- */
+function initSelectors(){
+  let vc=document.getElementById("varChecks");vc.innerHTML="";
+  variableNames.forEach((v,i)=>{
+    vc.innerHTML+=`<label style="font-weight:normal"><input type="checkbox" value="${v}" ${i<3?"checked":""} style="width:auto;margin-right:6px"> ${v}${v==="Noise"?" (unrelated variable)":""}</label>`
+  });
+  vc.querySelectorAll("input").forEach(x=>x.addEventListener("change",runAnalysis));
+  let gs=[...new Set(data.map(d=>d.Group))], sel=document.getElementById("groupSelect");
+  sel.innerHTML=gs.map(g=>`<option>${g}</option>`).join("");
+}
+function selectedVars(){return [...document.querySelectorAll("#varChecks input:checked")].map(x=>x.value)}
+function renderData(){
+  let vars=variableNames.filter(v=>data.some(d=>v in d));
+  document.getElementById("dataTable").innerHTML="<table><thead><tr><th>#</th>"+vars.map(v=>`<th>${v}</th>`).join("")+"<th>Group</th></tr></thead><tbody>"+
+  data.map((r,i)=>`<tr><td>${i+1}</td>${vars.map(v=>`<td>${fmt(r[v],2)}</td>`).join("")}<td>${r.Group}</td></tr>`).join("")+"</tbody></table>"
+}
+function renderPredictionInputs(){
+  let vs=selectedVars();document.getElementById("predictionInputs").innerHTML=vs.map(v=>`<label>${v}</label><input id="pred_${v}" type="number" step="any" value="${fmt(data.reduce((s,r)=>s+r[v],0)/data.length,2)}">`).join("")
+}
+function renderAll(){initSelectors();renderData();renderPredictionInputs();runAnalysis()}
+
+/* ---------- LDA ---------- */
+function lda(){
+  let vars=selectedVars(), groups=[...new Set(data.map(d=>d.Group))], p=vars.length;
+  if(!vars.length||groups.length<2||data.length<=groups.length)return null;
+  let groupInfo=groups.map(g=>{
+    let rows=data.filter(r=>r.Group===g).map(r=>vars.map(v=>+r[v]));
+    return {g,n:rows.length,mean:meanRows(rows,p),cov:cov(rows,meanRows(rows,p))}
+  });
+  let pooled=zeros(p,p), total=0;
+  groupInfo.forEach(q=>{pooled=add(pooled,scale(q.cov,q.n-1));total+=q.n-1});
+  pooled=scale(pooled,1/total);
+  // Small ridge protects the interactive demonstration from singular matrices.
+  let ridge=1e-7, P=pooled.map((r,i)=>r.map((v,j)=>v+(i===j?ridge:0))), Pinv=inv(P);
+  if(!Pinv)return null;
+  let prior=groupInfo.map(q=>q.n/data.length);
+  function score(x,q){
+    let a=matMul([x],Pinv)[0];
+    return dot(a,q.mean)-0.5*dot(matMul([q.mean],Pinv)[0],q.mean)+Math.log(q.n/data.length);
+  }
+  let preds=data.map(r=>{
+    let x=vars.map(v=>+r[v]), scores=groupInfo.map(q=>score(x,q));
+    let k=scores.indexOf(Math.max(...scores));
+    return {actual:r.Group,pred:groups[k],scores};
+  });
+  let accuracy=preds.filter(z=>z.actual===z.pred).length/data.length;
+  // Wilks' Lambda from determinant ratio: |W| / |T|.
+  let W=scale(pooled,total), grand=meanRows(data.map(r=>vars.map(v=>+r[v])),p), T=zeros(p,p);
+  data.forEach(r=>{let x=vars.map(v=>+r[v]);for(let i=0;i<p;i++)for(let j=0;j<p;j++)T[i][j]+=(x[i]-grand[i])*(x[j]-grand[j])});
+  let lambda=det(W)/det(T);
+  if(!Number.isFinite(lambda))lambda=NaN;
+  // Coefficients: one discriminant vector per non-reference group.
+  let ref=groupInfo[groups.length-1], funcs=groupInfo.slice(0,-1).map(q=>({group:q.g,coef:matMul([q.mean.map((v,i)=>v-ref.mean[i])],Pinv)[0]}));
+  return {vars,groups,groupInfo,pooled,Pinv,preds,accuracy,lambda,funcs,grand};
+}
+function runAnalysis(){
+  if(selectedVars().length===0){alert("Select at least one predictor variable.");return}
+  analysis=lda();if(!analysis)return;
+  document.getElementById("nStat").textContent=data.length;
+  document.getElementById("gStat").textContent=analysis.groups.length;
+  document.getElementById("pStat").textContent=analysis.vars.length;
+  document.getElementById("aStat").textContent=(analysis.accuracy*100).toFixed(1)+"%";
+  renderGroupSummary();renderChart();renderFunctions();renderClassification();renderConfusion();renderStats();renderPredictionInputs()
+}
+function renderGroupSummary(){
+ let h="<table><thead><tr><th>Group</th><th>n</th>"+analysis.vars.map(v=>`<th>Mean ${v}</th>`).join("")+"</tr></thead><tbody>";
+ analysis.groupInfo.forEach(q=>h+=`<tr><td><span class="pill">${q.g}</span></td><td>${q.n}</td>${q.mean.map(v=>`<td>${fmt(v,3)}</td>`).join("")}</tr>`);
+ document.getElementById("groupSummary").innerHTML=h+"</tbody></table>"
+}
+function renderChart(){
+ if(chart)chart.destroy();
+ let v=analysis.vars.slice(0,2);
+ let sets=analysis.groups.map(g=>({label:g,data:data.filter(r=>r.Group===g).map(r=>({x:r[v[0]],y:r[v[1]]})),pointRadius:4}));
+ chart=new Chart(document.getElementById("scatter"),{type:"scatter",data:{datasets:sets},options:{responsive:true,plugins:{legend:{position:"top"}},scales:{x:{title:{display:true,text:v[0]}},y:{title:{display:true,text:v[1]}}}}})
+}
+function renderFunctions(){
+ let h=`<div class="formula">For two or more groups, LDA constructs linear combinations of the selected predictors that maximize between-group variation relative to within-group variation.</div>`;
+ analysis.funcs.forEach((f,i)=>{
+   h+=`<p><b>Function ${i+1}</b> (contrast involving ${f.group} vs. reference ${analysis.groups.at(-1)}):<br>`;
+   h+=`<span class="formula">D = ${f.coef.map((c,j)=>`${c>=0?"+ ":"− "}${Math.abs(c).toFixed(3)} × ${analysis.vars[j]}`).join(" ")} + constant</span></p>`;
+ });
+ h+=`<p class="${analysis.lambda<0.3?"good":analysis.lambda<0.7?"warn":"bad"}"><b>Wilks' Lambda = ${fmt(analysis.lambda,4)}</b> — ${analysis.lambda<0.3?"strong":"moderate to weak"} overall group separation in this demonstration.</p>`;
+ document.getElementById("functions").innerHTML=h
+}
+function renderClassification(){
+ let correct=analysis.preds.filter(x=>x.actual===x.pred).length;
+ document.getElementById("classification").innerHTML=`<p><b>${correct}</b> of <b>${data.length}</b> observations were classified correctly.</p>
+ <p>Overall apparent classification accuracy: <b>${(analysis.accuracy*100).toFixed(1)}%</b>.</p>
+ <div class="note">This is the resubstitution (apparent) accuracy. For an applied study, cross-validation or a separate validation sample is preferable.</div>`
+}
+function renderConfusion(){
+ let gs=analysis.groups,h="<table><thead><tr><th>Actual \\ Predicted</th>"+gs.map(g=>`<th>${g}</th>`).join("")+"</tr></thead><tbody>";
+ gs.forEach(a=>{h+=`<tr><th>${a}</th>`+gs.map(p=>`<td>${analysis.preds.filter(x=>x.actual===a&&x.pred===p).length}</td>`).join("")+"</tr>`});
+ document.getElementById("confusion").innerHTML=h+"</tbody></table>"
+}
+function renderStats(){
+ let p=analysis.vars.length,g=analysis.groups.length;
+ let h=`<table><tbody>
+ <tr><th>Wilks' Lambda</th><td>${fmt(analysis.lambda,5)}</td></tr>
+ <tr><th>Approx. between-group dimensions</th><td>${Math.min(p,g-1)}</td></tr>
+ <tr><th>Within-group covariance determinant</th><td>${fmt(det(analysis.pooled),5)}</td></tr>
+ </tbody></table>`;
+ if(p===2){
+   let eig=eig2(matMul(analysis.Pinv,scale(analysis.pooled,1))); // illustrative; identity by construction
+   h+=`<p class="small">The pooled covariance matrix is used to account for within-group variation. LDA assumes that groups have a common covariance structure.</p>`
+ }
+ document.getElementById("statistics").innerHTML=h
+}
+function predictNew(){
+ if(!analysis){return}
+ let x=analysis.vars.map(v=>+document.getElementById("pred_"+v).value);
+ if(x.some(v=>!Number.isFinite(v))){document.getElementById("predictionResult").innerHTML="<span class='bad'>Please enter a valid value for every predictor.</span>";return}
+ let best=null;
+ analysis.groupInfo.forEach(q=>{
+   let a=matMul([x],analysis.Pinv)[0];
+   let s=dot(a,q.mean)-0.5*dot(matMul([q.mean],analysis.Pinv)[0],q.mean)+Math.log(q.n/data.length);
+   if(!best||s>best.s)best={g:q.g,s};
+ });
+ document.getElementById("predictionResult").innerHTML=`Predicted group: <b>${best.g}</b><br><span class="small">The prediction uses the fitted LDA discriminant score and observed group priors.</span>`
+}
+
+/* Initial sample */
+data=makeData("clear");renderAll();
+</script>
+</body>
+</html>
