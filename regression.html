@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive Correlation & Regression Teaching Tool</title>
+
+<style>
+:root {
+    --primary: #2563eb;
+    --secondary: #7c3aed;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --dark: #1e293b;
+    --light: #f8fafc;
+    --border: #cbd5e1;
+    --text: #334155;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef2f7;
+    color: var(--text);
+}
+
+header {
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    color: white;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,.15);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    margin: 8px 0 0;
+    opacity: .9;
+}
+
+.container {
+    max-width: 1500px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* TABS */
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: white;
+    color: var(--dark);
+    font-weight: bold;
+    border: 1px solid var(--border);
+    transition: .2s;
+}
+
+.tab-btn:hover {
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
+}
+
+/* GRID */
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    margin-bottom: 20px;
+}
+
+.card h2,
+.card h3 {
+    margin-top: 0;
+    color: var(--dark);
+}
+
+/* GRAPH */
+
+canvas {
+    width: 100%;
+    max-width: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: crosshair;
+}
+
+/* CONTROLS */
+
+.control-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 7px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 4px;
+    transition: .2s;
+}
+
+button:hover {
+    opacity: .88;
+    transform: translateY(-1px);
+}
+
+.success {
+    background: var(--success);
+}
+
+.danger {
+    background: var(--danger);
+}
+
+.warning {
+    background: var(--warning);
+}
+
+.secondary {
+    background: var(--secondary);
+}
+
+/* STATISTICS */
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.stat-box {
+    background: #f8fafc;
+    border-left: 5px solid var(--primary);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.stat-box span {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.stat-box strong {
+    font-size: 19px;
+    color: var(--dark);
+}
+
+/* FORMULA */
+
+.formula {
+    background: #f1f5f9;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: "Times New Roman", serif;
+    font-size: 18px;
+    overflow-x: auto;
+}
+
+/* TABLE */
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: var(--primary);
+    color: white;
+}
+
+th,
+td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+/* INTERPRETATION */
+
+.interpretation {
+    padding: 14px;
+    border-radius: 8px;
+    background: #eff6ff;
+    border-left: 5px solid var(--primary);
+    line-height: 1.6;
+}
+
+/* EXPERIMENT BOX */
+
+.experiment-box {
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.highlight {
+    background: #fef3c7;
+    border-left: 5px solid #f59e0b;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 950px) {
+
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 23px;
+    }
+
+}
+
+@media(max-width: 600px) {
+
+    .stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        width: 100%;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Interactive Correlation & Regression Teaching Tool</h1>
+    <p>Explore correlation, regression, residuals, outliers and prediction interactively</p>
+</header>
+
+<div class="container">
+
+<div class="tabs">
+
+    <button class="tab-btn active" onclick="showTab('correlation')">
+        Correlation Explorer
+    </button>
+
+    <button class="tab-btn" onclick="showTab('regression')">
+        Regression Explorer
+    </button>
+
+    <button class="tab-btn" onclick="showTab('residuals')">
+        Residual Explorer
+    </button>
+
+    <button class="tab-btn" onclick="showTab('experiment')">
+        Experiment Mode
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+CORRELATION
+===================================================== -->
+
+<div id="correlation" class="tab active">
+
+<div class="main-grid">
+
+<div>
+
+<div class="card">
+
+<h2>Interactive Scatter Plot</h2>
+
+<canvas id="scatterCanvas" width="850" height="520"></canvas>
+
+<div class="highlight">
+<strong>Try this:</strong>
+Drag any point on the graph. The correlation coefficient and regression line will update immediately.
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Data Patterns</h3>
+
+<button class="success" onclick="generateData('positive')">
+Perfect / Strong Positive
+</button>
+
+<button class="secondary" onclick="generateData('moderate')">
+Moderate Positive
+</button>
+
+<button class="warning" onclick="generateData('none')">
+No Correlation
+</button>
+
+<button class="danger" onclick="generateData('negative')">
+Negative Correlation
+</button>
+
+<button onclick="generateData('random')">
+Random Data
+</button>
+
+<br>
+
+<button class="danger" onclick="addOutlier()">
+Add Outlier
+</button>
+
+<button onclick="removeOutlier()">
+Remove Last Point
+</button>
+
+<button class="warning" onclick="resetData()">
+Reset Data
+</button>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="card">
+
+<h2>Correlation Statistics</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>Pearson Correlation</span>
+<strong id="rValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Coefficient of Determination</span>
+<strong id="r2Value">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Covariance</span>
+<strong id="covValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Number of Points</span>
+<strong id="nValue">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Mean of X</span>
+<strong id="meanX">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Mean of Y</span>
+<strong id="meanY">0.000</strong>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Correlation Formula</h3>
+
+<div class="formula">
+r = Σ[(X − X̄)(Y − Ȳ)] /
+√[Σ(X − X̄)² Σ(Y − Ȳ)²]
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Interpretation</h3>
+
+<div id="correlationInterpretation" class="interpretation">
+Loading...
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Noise Level</h3>
+
+<div class="control-group">
+
+<label>
+Noise:
+<span id="noiseDisplay">5</span>
+</label>
+
+<input type="range"
+       id="noiseSlider"
+       min="0"
+       max="50"
+       value="5"
+       oninput="updateNoise()">
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+REGRESSION
+===================================================== -->
+
+<div id="regression" class="tab">
+
+<div class="main-grid">
+
+<div>
+
+<div class="card">
+
+<h2>Simple Linear Regression</h2>
+
+<canvas id="regressionCanvas" width="850" height="520"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>Regression Equation</h3>
+
+<div class="formula" id="regressionEquation">
+
+Ŷ = b₀ + b₁X
+
+</div>
+
+<br>
+
+<div class="formula">
+
+b₁ = Σ[(X − X̄)(Y − Ȳ)] / Σ(X − X̄)²
+
+<br><br>
+
+b₀ = Ȳ − b₁X̄
+
+</div>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="card">
+
+<h2>Regression Statistics</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>Intercept (b₀)</span>
+<strong id="interceptValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Slope (b₁)</span>
+<strong id="slopeValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>R²</span>
+<strong id="regR2Value">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>RMSE</span>
+<strong id="rmseValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>SSE</span>
+<strong id="sseValue">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>MSE</span>
+<strong id="mseValue">0.000</strong>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Prediction Tool</h3>
+
+<div class="control-group">
+
+<label>Enter an X value</label>
+
+<input type="number"
+       id="predictX"
+       value="10"
+       step="0.1">
+
+</div>
+
+<button class="success" onclick="predictY()">
+Predict Y
+</button>
+
+<div class="highlight">
+
+Predicted value:
+
+<strong id="predictionResult">
+Enter X and click Predict
+</strong>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Regression Interpretation</h3>
+
+<div id="regressionInterpretation" class="interpretation">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+RESIDUALS
+===================================================== -->
+
+<div id="residuals" class="tab">
+
+<div class="card">
+
+<h2>Residual Plot</h2>
+
+<canvas id="residualCanvas" width="1100" height="500"></canvas>
+
+<div class="highlight">
+
+<strong>Residual:</strong>
+
+e = Y − Ŷ
+
+<br><br>
+
+The vertical distance between an observed point and the regression line is called the residual.
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Observed and Predicted Values</h2>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>#</th>
+<th>X</th>
+<th>Observed Y</th>
+<th>Predicted Ŷ</th>
+<th>Residual</th>
+<th>Residual²</th>
+</tr>
+
+</thead>
+
+<tbody id="residualTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+EXPERIMENT
+===================================================== -->
+
+<div id="experiment" class="tab">
+
+<div class="experiment-box">
+
+<h2>What Happens If...?</h2>
+
+<p>
+Use these experiments to demonstrate how correlation and regression respond
+when the relationship between variables changes.
+</p>
+
+</div>
+
+
+<div class="main-grid">
+
+<div>
+
+<div class="card">
+
+<h3>Experiment Controls</h3>
+
+<button class="success" onclick="experiment('strong')">
+Strong Positive Relationship
+</button>
+
+<button class="secondary" onclick="experiment('moderate')">
+Moderate Relationship
+</button>
+
+<button class="warning" onclick="experiment('weak')">
+Weak Relationship
+</button>
+
+<button class="danger" onclick="experiment('negative')">
+Negative Relationship
+</button>
+
+<button onclick="experiment('outlier')">
+Add Extreme Outlier
+</button>
+
+<br><br>
+
+<div class="control-group">
+
+<label>
+Relationship Strength:
+<span id="strengthDisplay">80</span>
+</label>
+
+<input type="range"
+       id="strengthSlider"
+       min="0"
+       max="100"
+       value="80"
+       oninput="generateExperimentData()">
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Experiment Graph</h3>
+
+<canvas id="experimentCanvas" width="850" height="520"></canvas>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="card">
+
+<h2>Live Results</h2>
+
+<div class="stat-grid">
+
+<div class="stat-box">
+<span>Correlation r</span>
+<strong id="expR">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>R²</span>
+<strong id="expR2">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>Slope</span>
+<strong id="expSlope">0.000</strong>
+</div>
+
+<div class="stat-box">
+<span>RMSE</span>
+<strong id="expRMSE">0.000</strong>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Teaching Explanation</h3>
+
+<div id="experimentExplanation" class="interpretation">
+
+Move the relationship strength slider and observe how the scatter,
+correlation and regression line change.
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Suggested Classroom Demonstration</h3>
+
+<div class="highlight">
+
+<strong>Step 1:</strong>
+Generate a strong positive relationship.
+
+<br><br>
+
+<strong>Step 2:</strong>
+Observe that r is close to +1 and R² is high.
+
+<br><br>
+
+<strong>Step 3:</strong>
+Click <em>Add Extreme Outlier</em>.
+
+<br><br>
+
+<strong>Step 4:</strong>
+Observe how one unusual observation can substantially change the
+correlation coefficient and regression line.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+GLOBAL DATA
+===================================================== */
+
+let points = [];
+
+let originalPoints = [];
+
+let selectedPoint = null;
+
+let predictionPoint = null;
+
+
+/* =====================================================
+INITIAL DATA
+===================================================== */
+
+function initializeData() {
+
+    points = [
+        {x:2, y:4},
+        {x:3, y:5},
+        {x:4, y:7},
+        {x:5, y:8},
+        {x:6, y:10},
+        {x:7, y:11},
+        {x:8, y:13},
+        {x:9, y:14},
+        {x:10, y:16}
+    ];
+
+    originalPoints = JSON.parse(JSON.stringify(points));
+
+}
+
+initializeData();
+
+
+/* =====================================================
+UTILITY FUNCTIONS
+===================================================== */
+
+function mean(arr) {
+
+    return arr.reduce((a,b)=>a+b,0) / arr.length;
+
+}
+
+
+function statistics() {
+
+    const xs = points.map(p => p.x);
+
+    const ys = points.map(p => p.y);
+
+    const mx = mean(xs);
+
+    const my = mean(ys);
+
+    let numerator = 0;
+
+    let sx = 0;
+
+    let sy = 0;
+
+    let covarianceSum = 0;
+
+    for(let i=0;i<points.length;i++) {
+
+        const dx = xs[i] - mx;
+
+        const dy = ys[i] - my;
+
+        numerator += dx * dy;
+
+        sx += dx * dx;
+
+        sy += dy * dy;
+
+        covarianceSum += dx * dy;
+
+    }
+
+    const r = numerator / Math.sqrt(sx * sy);
+
+    const slope = numerator / sx;
+
+    const intercept = my - slope * mx;
+
+    const covariance =
+        covarianceSum / (points.length - 1);
+
+    let sse = 0;
+
+    points.forEach(p => {
+
+        const predicted =
+            intercept + slope * p.x;
+
+        sse += Math.pow(p.y - predicted, 2);
+
+    });
+
+    const mse = sse / points.length;
+
+    const rmse = Math.sqrt(mse);
+
+    return {
+
+        mx,
+        my,
+        r,
+        r2: r*r,
+        slope,
+        intercept,
+        covariance,
+        sse,
+        mse,
+        rmse
+
+    };
+
+}
+
+
+/* =====================================================
+CANVAS COORDINATES
+===================================================== */
+
+function getBounds() {
+
+    const xs = points.map(p=>p.x);
+
+    const ys = points.map(p=>p.y);
+
+    let minX = Math.min(...xs);
+
+    let maxX = Math.max(...xs);
+
+    let minY = Math.min(...ys);
+
+    let maxY = Math.max(...ys);
+
+    let paddingX =
+        Math.max(2, (maxX-minX)*0.15);
+
+    let paddingY =
+        Math.max(2, (maxY-minY)*0.15);
+
+    return {
+
+        minX: minX-paddingX,
+        maxX: maxX+paddingX,
+
+        minY: minY-paddingY,
+        maxY: maxY+paddingY
+
+    };
+
+}
+
+
+function coordinateFunctions(canvas) {
+
+    const margin = 55;
+
+    const bounds = getBounds();
+
+    function toCanvasX(x) {
+
+        return margin +
+        (x-bounds.minX) /
+        (bounds.maxX-bounds.minX)
+        * (canvas.width-2*margin);
+
+    }
+
+    function toCanvasY(y) {
+
+        return canvas.height-margin -
+        (y-bounds.minY) /
+        (bounds.maxY-bounds.minY)
+        * (canvas.height-2*margin);
+
+    }
+
+    function fromCanvasX(px) {
+
+        return bounds.minX +
+        (px-margin) /
+        (canvas.width-2*margin)
+        * (bounds.maxX-bounds.minX);
+
+    }
+
+    function fromCanvasY(py) {
+
+        return bounds.minY +
+        (canvas.height-margin-py) /
+        (canvas.height-2*margin)
+        * (bounds.maxY-bounds.minY);
+
+    }
+
+    return {
+
+        margin,
+        bounds,
+        toCanvasX,
+        toCanvasY,
+        fromCanvasX,
+        fromCanvasY
+
+    };
+
+}
+
+
+/* =====================================================
+DRAW AXES
+===================================================== */
+
+function drawAxes(ctx, canvas, coords) {
+
+    const {margin, bounds, toCanvasX, toCanvasY} = coords;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "white";
+
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.strokeStyle = "#e2e8f0";
+
+    ctx.lineWidth = 1;
+
+    const steps = 10;
+
+    for(let i=0;i<=steps;i++) {
+
+        let x =
+            margin +
+            i*(canvas.width-2*margin)/steps;
+
+        ctx.beginPath();
+
+        ctx.moveTo(x,margin);
+
+        ctx.lineTo(x,canvas.height-margin);
+
+        ctx.stroke();
+
+        let value =
+            bounds.minX +
+            i*(bounds.maxX-bounds.minX)/steps;
+
+        ctx.fillStyle = "#475569";
+
+        ctx.font = "12px Arial";
+
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            value.toFixed(1),
+            x,
+            canvas.height-margin+20
+        );
+
+    }
+
+    for(let i=0;i<=steps;i++) {
+
+        let y =
+            margin +
+            i*(canvas.height-2*margin)/steps;
+
+        ctx.beginPath();
+
+        ctx.moveTo(margin,y);
+
+        ctx.lineTo(canvas.width-margin,y);
+
+        ctx.stroke();
+
+        let value =
+            bounds.maxY -
+            i*(bounds.maxY-bounds.minY)/steps;
+
+        ctx.fillStyle = "#475569";
+
+        ctx.textAlign = "right";
+
+        ctx.fillText(
+            value.toFixed(1),
+            margin-8,
+            y+4
+        );
+
+    }
+
+    ctx.strokeStyle = "#334155";
+
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(margin,margin);
+
+    ctx.lineTo(margin,canvas.height-margin);
+
+    ctx.lineTo(canvas.width-margin,canvas.height-margin);
+
+    ctx.stroke();
+
+    ctx.fillStyle = "#1e293b";
+
+    ctx.font = "bold 15px Arial";
+
+    ctx.textAlign = "center";
+
+    ctx.fillText(
+        "X",
+        canvas.width/2,
+        canvas.height-10
+    );
+
+    ctx.save();
+
+    ctx.translate(18,canvas.height/2);
+
+    ctx.rotate(-Math.PI/2);
+
+    ctx.fillText("Y",0,0);
+
+    ctx.restore();
+
+}
+
+
+/* =====================================================
+DRAW SCATTER
+===================================================== */
+
+function drawScatter(canvasId, showRegression=true) {
+
+    const canvas =
+        document.getElementById(canvasId);
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const coords =
+        coordinateFunctions(canvas);
+
+    drawAxes(ctx,canvas,coords);
+
+    const {
+        bounds,
+        toCanvasX,
+        toCanvasY
+    } = coords;
+
+    const stats = statistics();
+
+
+    /* REGRESSION LINE */
+
+    if(showRegression) {
+
+        const y1 =
+            stats.intercept +
+            stats.slope * bounds.minX;
+
+        const y2 =
+            stats.intercept +
+            stats.slope * bounds.maxX;
+
+        ctx.strokeStyle = "#dc2626";
+
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            toCanvasX(bounds.minX),
+            toCanvasY(y1)
+        );
+
+        ctx.lineTo(
+            toCanvasX(bounds.maxX),
+            toCanvasY(y2)
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /* POINTS */
+
+    points.forEach((p,index)=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+            toCanvasX(p.x),
+            toCanvasY(p.y),
+            selectedPoint === index ? 9 : 7,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            selectedPoint === index ?
+            "#f59e0b" :
+            "#2563eb";
+
+        ctx.fill();
+
+        ctx.strokeStyle = "white";
+
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+
+    });
+
+
+    /* PREDICTION POINT */
+
+    if(predictionPoint) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            toCanvasX(predictionPoint.x),
+            toCanvasY(predictionPoint.y),
+            8,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle = "#16a34a";
+
+        ctx.fill();
+
+        ctx.strokeStyle = "black";
+
+        ctx.stroke();
+
+    }
+
+}
+
+
+/* =====================================================
+UPDATE STATISTICS
+===================================================== */
+
+function updateStatistics() {
+
+    if(points.length < 2) return;
+
+    const s = statistics();
+
+    document.getElementById("rValue").textContent =
+        isFinite(s.r) ? s.r.toFixed(3) : "N/A";
+
+    document.getElementById("r2Value").textContent =
+        isFinite(s.r2) ? s.r2.toFixed(3) : "N/A";
+
+    document.getElementById("covValue").textContent =
+        isFinite(s.covariance) ?
+        s.covariance.toFixed(3) :
+        "N/A";
+
+    document.getElementById("nValue").textContent =
+        points.length;
+
+    document.getElementById("meanX").textContent =
+        s.mx.toFixed(3);
+
+    document.getElementById("meanY").textContent =
+        s.my.toFixed(3);
+
+
+    document.getElementById("interceptValue").textContent =
+        s.intercept.toFixed(3);
+
+    document.getElementById("slopeValue").textContent =
+        s.slope.toFixed(3);
+
+    document.getElementById("regR2Value").textContent =
+        s.r2.toFixed(3);
+
+    document.getElementById("rmseValue").textContent =
+        s.rmse.toFixed(3);
+
+    document.getElementById("sseValue").textContent =
+        s.sse.toFixed(3);
+
+    document.getElementById("mseValue").textContent =
+        s.mse.toFixed(3);
+
+
+    let sign =
+        s.slope >= 0 ? "+" : "-";
+
+    document.getElementById("regressionEquation")
+        .textContent =
+        "Ŷ = " +
+        s.intercept.toFixed(3) +
+        " " +
+        sign +
+        " " +
+        Math.abs(s.slope).toFixed(3) +
+        "X";
+
+
+    updateInterpretation(s);
+
+    updateResidualTable(s);
+
+}
+
+
+/* =====================================================
+INTERPRETATION
+===================================================== */
+
+function updateInterpretation(s) {
+
+    let strength;
+
+    const absR = Math.abs(s.r);
+
+    if(absR >= 0.90)
+        strength = "very strong";
+
+    else if(absR >= 0.70)
+        strength = "strong";
+
+    else if(absR >= 0.40)
+        strength = "moderate";
+
+    else if(absR >= 0.20)
+        strength = "weak";
+
+    else
+        strength = "very weak or no linear";
+
+
+    let direction =
+        s.r > 0 ?
+        "positive" :
+        s.r < 0 ?
+        "negative" :
+        "no";
+
+
+    document.getElementById(
+        "correlationInterpretation"
+    ).innerHTML =
+
+    "<strong>" +
+    strength.charAt(0).toUpperCase() +
+    strength.slice(1) +
+    " " +
+    direction +
+    " correlation.</strong><br><br>" +
+
+    "The Pearson correlation coefficient is " +
+    s.r.toFixed(3) +
+    ". As X changes, Y tends to move " +
+    (s.r > 0 ?
+    "in the same direction." :
+    s.r < 0 ?
+    "in the opposite direction." :
+    "with little consistent linear pattern.");
+
+
+    document.getElementById(
+        "regressionInterpretation"
+    ).innerHTML =
+
+    "<strong>Slope interpretation:</strong><br><br>" +
+
+    "For every one-unit increase in X, the predicted Y changes by approximately <strong>" +
+    s.slope.toFixed(3) +
+    "</strong> units.<br><br>" +
+
+    "<strong>R² interpretation:</strong><br><br>" +
+
+    (s.r2*100).toFixed(1) +
+    "% of the variation in Y is explained by the linear relationship with X in this fitted model.";
+
+}
+
+
+/* =====================================================
+RESIDUAL TABLE
+===================================================== */
+
+function updateResidualTable(s) {
+
+    const tbody =
+        document.getElementById("residualTable");
+
+    tbody.innerHTML = "";
+
+    points.forEach((p,index)=>{
+
+        const predicted =
+            s.intercept +
+            s.slope*p.x;
+
+        const residual =
+            p.y-predicted;
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+
+        <td>${index+1}</td>
+
+        <td>${p.x.toFixed(2)}</td>
+
+        <td>${p.y.toFixed(2)}</td>
+
+        <td>${predicted.toFixed(2)}</td>
+
+        <td>${residual.toFixed(2)}</td>
+
+        <td>${(residual*residual).toFixed(2)}</td>
+
+        `;
+
+        tbody.appendChild(row);
+
+    });
+
+}
+
+
+/* =====================================================
+RESIDUAL PLOT
+===================================================== */
+
+function drawResidualPlot() {
+
+    const canvas =
+        document.getElementById("residualCanvas");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const s = statistics();
+
+    const residuals =
+        points.map(p =>
+            p.y -
+            (s.intercept+s.slope*p.x)
+        );
+
+    const xs =
+        points.map(p=>p.x);
+
+    const minX =
+        Math.min(...xs)-1;
+
+    const maxX =
+        Math.max(...xs)+1;
+
+    const maxResidual =
+        Math.max(
+            1,
+            ...residuals.map(Math.abs)
+        )*1.3;
+
+    const margin = 60;
+
+
+    function cx(x) {
+
+        return margin +
+        (x-minX)/(maxX-minX)*
+        (canvas.width-2*margin);
+
+    }
+
+    function cy(y) {
+
+        return canvas.height/2 -
+        y/maxResidual*
+        (canvas.height/2-margin);
+
+    }
+
+
+    ctx.clearRect(
+        0,0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.fillStyle = "white";
+
+    ctx.fillRect(
+        0,0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    ctx.strokeStyle = "#cbd5e1";
+
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(margin,canvas.height/2);
+
+    ctx.lineTo(
+        canvas.width-margin,
+        canvas.height/2
+    );
+
+    ctx.stroke();
+
+
+    points.forEach((p,i)=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+            cx(p.x),
+            cy(residuals[i]),
+            7,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            residuals[i] >= 0 ?
+            "#16a34a" :
+            "#dc2626";
+
+        ctx.fill();
+
+    });
+
+
+    ctx.fillStyle = "#1e293b";
+
+    ctx.font = "bold 15px Arial";
+
+    ctx.fillText(
+        "Residuals",
+        10,
+        30
+    );
+
+}
+
+
+/* =====================================================
+UPDATE EVERYTHING
+===================================================== */
+
+function updateAll() {
+
+    drawScatter("scatterCanvas");
+
+    drawScatter("regressionCanvas");
+
+    updateStatistics();
+
+    drawResidualPlot();
+
+}
+
+
+/* =====================================================
+DRAGGABLE POINTS
+===================================================== */
+
+function setupDragging(canvasId) {
+
+    const canvas =
+        document.getElementById(canvasId);
+
+
+    canvas.addEventListener(
+        "mousedown",
+        function(e) {
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+            const scaleX =
+                canvas.width/rect.width;
+
+            const scaleY =
+                canvas.height/rect.height;
+
+            const mouseX =
+                (e.clientX-rect.left)*scaleX;
+
+            const mouseY =
+                (e.clientY-rect.top)*scaleY;
+
+            const coords =
+                coordinateFunctions(canvas);
+
+            selectedPoint = null;
+
+            points.forEach((p,index)=>{
+
+                const px =
+                    coords.toCanvasX(p.x);
+
+                const py =
+                    coords.toCanvasY(p.y);
+
+                const distance =
+                    Math.sqrt(
+                        Math.pow(mouseX-px,2) +
+                        Math.pow(mouseY-py,2)
+                    );
+
+                if(distance < 12)
+                    selectedPoint = index;
+
+            });
+
+            updateAll();
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mousemove",
+        function(e) {
+
+            if(selectedPoint === null)
+                return;
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+            const scaleX =
+                canvas.width/rect.width;
+
+            const scaleY =
+                canvas.height/rect.height;
+
+            const mouseX =
+                (e.clientX-rect.left)*scaleX;
+
+            const mouseY =
+                (e.clientY-rect.top)*scaleY;
+
+            const coords =
+                coordinateFunctions(canvas);
+
+            points[selectedPoint].x =
+                coords.fromCanvasX(mouseX);
+
+            points[selectedPoint].y =
+                coords.fromCanvasY(mouseY);
+
+            updateAll();
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mouseup",
+        function() {
+
+            selectedPoint = null;
+
+            updateAll();
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mouseleave",
+        function() {
+
+            selectedPoint = null;
+
+            updateAll();
+
+        }
+    );
+
+}
+
+
+setupDragging("scatterCanvas");
+
+setupDragging("regressionCanvas");
+
+
+/* =====================================================
+DATA GENERATION
+===================================================== */
+
+function randomNormal() {
+
+    let u = 0;
+
+    let v = 0;
+
+    while(u === 0)
+        u = Math.random();
+
+    while(v === 0)
+        v = Math.random();
+
+    return Math.sqrt(-2*Math.log(u)) *
+           Math.cos(2*Math.PI*v);
+
+}
+
+
+function generateData(type) {
+
+    const noise =
+        Number(
+            document.getElementById(
+                "noiseSlider"
+            ).value
+        );
+
+    points = [];
+
+    for(let i=1;i<=15;i++) {
+
+        let x = i;
+
+        let y;
+
+        if(type === "positive") {
+
+            y =
+                2*x +
+                randomNormal()*
+                (noise/8);
+
+        }
+
+        else if(type === "moderate") {
+
+            y =
+                2*x +
+                randomNormal()*
+                (noise/2.5);
+
+        }
+
+        else if(type === "negative") {
+
+            y =
+                35 -
+                2*x +
+                randomNormal()*
+                (noise/3);
+
+        }
+
+        else if(type === "none") {
+
+            y =
+                15 +
+                randomNormal()*
+                (noise+8);
+
+        }
+
+        else {
+
+            y =
+                Math.random()*30;
+
+        }
+
+        points.push({x,y});
+
+    }
+
+    predictionPoint = null;
+
+    originalPoints =
+        JSON.parse(JSON.stringify(points));
+
+    updateAll();
+
+}
+
+
+function updateNoise() {
+
+    document.getElementById(
+        "noiseDisplay"
+    ).textContent =
+        document.getElementById(
+            "noiseSlider"
+        ).value;
+
+}
+
+
+/* =====================================================
+OUTLIER
+===================================================== */
+
+function addOutlier() {
+
+    const bounds = getBounds();
+
+    points.push({
+
+        x: bounds.maxX + 4,
+
+        y: bounds.minY - 10
+
+    });
+
+    updateAll();
+
+}
+
+
+function removeOutlier() {
+
+    if(points.length > 2) {
+
+        points.pop();
+
+        updateAll();
+
+    }
+
+}
+
+
+function resetData() {
+
+    points =
+        JSON.parse(
+            JSON.stringify(originalPoints)
+        );
+
+    predictionPoint = null;
+
+    updateAll();
+
+}
+
+
+/* =====================================================
+PREDICTION
+===================================================== */
+
+function predictY() {
+
+    const x =
+        Number(
+            document.getElementById(
+                "predictX"
+            ).value
+        );
+
+    const s = statistics();
+
+    const y =
+        s.intercept +
+        s.slope*x;
+
+    predictionPoint = {x,y};
+
+    document.getElementById(
+        "predictionResult"
+    ).textContent =
+        "Ŷ = " +
+        y.toFixed(3);
+
+    updateAll();
+
+}
+
+
+/* =====================================================
+EXPERIMENT MODE
+===================================================== */
+
+function generateExperimentData() {
+
+    const strength =
+        Number(
+            document.getElementById(
+                "strengthSlider"
+            ).value
+        );
+
+    document.getElementById(
+        "strengthDisplay"
+    ).textContent =
+        strength;
+
+
+    points = [];
+
+    const noise =
+        (100-strength)/5 + 1;
+
+
+    for(let i=1;i<=20;i++) {
+
+        const x = i;
+
+        const y =
+            2*x +
+            randomNormal()*noise*2;
+
+        points.push({x,y});
+
+    }
+
+    updateExperiment();
+
+    updateAll();
+
+}
+
+
+function experiment(type) {
+
+    if(type === "strong") {
+
+        document.getElementById(
+            "strengthSlider"
+        ).value = 95;
+
+    }
+
+    else if(type === "moderate") {
+
+        document.getElementById(
+            "strengthSlider"
+        ).value = 65;
+
+    }
+
+    else if(type === "weak") {
+
+        document.getElementById(
+            "strengthSlider"
+        ).value = 25;
+
+    }
+
+    else if(type === "negative") {
+
+        points = [];
+
+        for(let i=1;i<=20;i++) {
+
+            points.push({
+
+                x:i,
+
+                y:45-2*i+
+                  randomNormal()*4
+
+            });
+
+        }
+
+        updateExperiment();
+
+        updateAll();
+
+        return;
+
+    }
+
+    else if(type === "outlier") {
+
+        addOutlier();
+
+        updateExperiment();
+
+        return;
+
+    }
+
+    generateExperimentData();
+
+}
+
+
+function updateExperiment() {
+
+    const canvas =
+        document.getElementById(
+            "experimentCanvas"
+        );
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const coords =
+        coordinateFunctions(canvas);
+
+    drawAxes(ctx,canvas,coords);
+
+    const {
+        bounds,
+        toCanvasX,
+        toCanvasY
+    } = coords;
+
+    const s = statistics();
+
+
+    /* REGRESSION */
+
+    ctx.strokeStyle = "#dc2626";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+
+        toCanvasX(bounds.minX),
+
+        toCanvasY(
+            s.intercept +
+            s.slope*bounds.minX
+        )
+
+    );
+
+    ctx.lineTo(
+
+        toCanvasX(bounds.maxX),
+
+        toCanvasY(
+            s.intercept +
+            s.slope*bounds.maxX
+        )
+
+    );
+
+    ctx.stroke();
+
+
+    points.forEach(p=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            toCanvasX(p.x),
+
+            toCanvasY(p.y),
+
+            7,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fillStyle = "#2563eb";
+
+        ctx.fill();
+
+    });
+
+
+    document.getElementById(
+        "expR"
+    ).textContent =
+        s.r.toFixed(3);
+
+    document.getElementById(
+        "expR2"
+    ).textContent =
+        s.r2.toFixed(3);
+
+    document.getElementById(
+        "expSlope"
+    ).textContent =
+        s.slope.toFixed(3);
+
+    document.getElementById(
+        "expRMSE"
+    ).textContent =
+        s.rmse.toFixed(3);
+
+
+    let explanation;
+
+    const absR =
+        Math.abs(s.r);
+
+    if(absR > .8) {
+
+        explanation =
+        "The points closely follow a straight-line pattern. " +
+        "The correlation is strong and the regression model explains a large proportion of variation.";
+
+    }
+
+    else if(absR > .4) {
+
+        explanation =
+        "A moderate linear relationship is visible. " +
+        "The regression line describes the general trend, but individual observations show considerable variation.";
+
+    }
+
+    else {
+
+        explanation =
+        "The relationship is weak. The scatter around the regression line is large, so predictions from X are less precise.";
+
+    }
+
+
+    document.getElementById(
+        "experimentExplanation"
+    ).innerHTML =
+        explanation;
+
+}
+
+
+/* =====================================================
+TAB NAVIGATION
+===================================================== */
+
+function showTab(id) {
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab => {
+
+            tab.classList.remove("active");
+
+        });
+
+
+    document
+        .querySelectorAll(".tab-btn")
+        .forEach(btn => {
+
+            btn.classList.remove("active");
+
+        });
+
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+
+
+    const buttons =
+        document.querySelectorAll(".tab-btn");
+
+    buttons.forEach(btn => {
+
+        if(btn.textContent
+            .toLowerCase()
+            .includes(
+                id === "correlation" ?
+                "correlation" :
+                id === "regression" ?
+                "regression" :
+                id === "residuals" ?
+                "residual" :
+                "experiment"
+            )
+        ) {
+
+            btn.classList.add("active");
+
+        }
+
+    });
+
+
+    if(id === "residuals")
+        drawResidualPlot();
+
+
+    if(id === "regression")
+        drawScatter("regressionCanvas");
+
+
+    if(id === "experiment")
+        updateExperiment();
+
+}
+
+
+/* =====================================================
+INITIALIZE
+===================================================== */
+
+updateAll();
+
+updateExperiment();
+
+window.addEventListener(
+    "resize",
+    updateAll
+);
+
+</script>
+
+</body>
+</html>
