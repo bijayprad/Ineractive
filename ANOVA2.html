@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive ANOVA Concept</title>
+
+<style>
+
+/* =========================================
+   GENERAL
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #090909;
+    color: #f2f2f2;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 15px;
+}
+
+h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+
+/* =========================================
+   FRACTION FORMULA
+========================================= */
+
+.formula-top,
+.formula-box {
+    font-family: Georgia, serif;
+}
+
+.formula-top {
+    font-size: 25px;
+    margin: 15px 0 30px;
+}
+
+.formula-box {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 55px;
+}
+
+.fraction {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 8px;
+    line-height: 1.15;
+}
+
+.fraction .top {
+    border-bottom: 1px solid #ddd;
+    padding: 0 8px 4px;
+}
+
+.fraction .bottom {
+    padding-top: 4px;
+}
+
+
+/* =========================================
+   MAIN CARD
+========================================= */
+
+.card {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 470px;
+    background: #353535;
+    border: 1px solid #555;
+    border-radius: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.35);
+}
+
+
+/* =========================================
+   LEFT PANEL
+========================================= */
+
+.left-panel {
+    padding: 40px 35px;
+    border-right: 1px solid #555;
+}
+
+.concept-title {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.control {
+    display: grid;
+    grid-template-columns: 1.4fr 0.5fr 1.5fr;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0;
+}
+
+.control label {
+    font-size: 15px;
+}
+
+.value {
+    font-family: monospace;
+    font-size: 14px;
+    text-align: right;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: #dddddd;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 30px;
+    border: 1px solid #666;
+    background: #383838;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #4b4b4b;
+}
+
+
+/* =========================================
+   RIGHT PANEL
+========================================= */
+
+.right-panel {
+    padding: 28px 35px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #ddd;
+    margin-bottom: 8px;
+}
+
+
+/* =========================================
+   GRAPH
+========================================= */
+
+.chart-area {
+    position: relative;
+    height: 230px;
+    margin-left: 35px;
+    border-bottom: 1px solid #555;
+}
+
+.grid-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #555;
+}
+
+.grid-label {
+    position: absolute;
+    left: -30px;
+    top: -8px;
+    font-size: 11px;
+    color: #ddd;
+}
+
+.mean-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed #eeeeee;
+    z-index: 1;
+}
+
+
+/* =========================================
+   DOTS
+========================================= */
+
+.dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, 50%);
+    z-index: 3;
+}
+
+.group-a {
+    background: #4f8de3;
+}
+
+.group-b {
+    background: #6ec38b;
+}
+
+.group-c {
+    background: #c2a6df;
+}
+
+
+/* =========================================
+   CONFIDENCE INTERVAL ERROR BARS
+========================================= */
+
+.ci-line {
+    position: absolute;
+    width: 2px;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.ci-a {
+    background: #4f8de3;
+}
+
+.ci-b {
+    background: #6ec38b;
+}
+
+.ci-c {
+    background: #c2a6df;
+}
+
+.ci-cap {
+    position: absolute;
+    width: 18px;
+    height: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ci-a-cap {
+    background: #4f8de3;
+}
+
+.ci-b-cap {
+    background: #6ec38b;
+}
+
+.ci-c-cap {
+    background: #c2a6df;
+}
+
+
+/* =========================================
+   GROUP LABELS
+========================================= */
+
+.groups {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 14px;
+    text-align: center;
+}
+
+.group {
+    width: 30%;
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+}
+
+.group-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.group-mean {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.blue {
+    color: #5b9aff;
+}
+
+.green {
+    color: #73c890;
+}
+
+.purple {
+    color: #c4a7e7;
+}
+
+.ci-text {
+    font-size: 10px;
+    margin-top: 3px;
+    color: #cccccc;
+}
+
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align: center;
+    margin-top: 12px;
+    gap: 5px;
+}
+
+.stats div {
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.stats strong {
+    font-size: 12px;
+}
+
+.evidence {
+    margin-top: 6px;
+    text-align: right;
+    font-size: 12px;
+    color: #73a8ff;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 750px) {
+
+    .card {
+        grid-template-columns: 1fr;
+    }
+
+    .left-panel {
+        border-right: none;
+        border-bottom: 1px solid #555;
+    }
+
+    .control {
+        grid-template-columns: 1fr;
+    }
+
+    .value {
+        text-align: left;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+Bijay Lal Pradhan: ANOVA
+
+
+<div class="formula-top">
+
+    <i>F</i> =
+
+    <span class="fraction">
+
+        <span class="top">
+            Between-group variation
+        </span>
+
+        <span class="bottom">
+            Within-group variation
+        </span>
+
+    </span>
+
+</div>
+
+
+
+<div class="card">
+
+
+    <!-- =====================================
+         LEFT PANEL
+    ====================================== -->
+
+    <div class="left-panel">
+
+        <div class="formula-box">
+
+            <i>F</i> =
+
+            <span class="fraction">
+
+                <span class="top">
+                    between-group variation
+                </span>
+
+                <span class="bottom">
+                    within-group variation
+                </span>
+
+            </span>
+
+        </div>
+
+
+        <div class="concept-title">
+            Evidence of difference
+        </div>
+
+
+        <!-- GROUP MEAN SPACING -->
+
+        <div class="control">
+
+            <label>Group mean spacing</label>
+
+            <div class="value">
+                <span id="spacingValue">4.0</span>
+            </div>
+
+            <input
+                type="range"
+                id="spacing"
+                min="1"
+                max="12"
+                step="0.5"
+                value="4"
+            >
+
+        </div>
+
+
+        <!-- WITHIN GROUP SPREAD -->
+
+        <div class="control">
+
+            <label>Within-group spread</label>
+
+            <div class="value">
+                <span id="spreadValue">0.80</span>
+            </div>
+
+            <input
+                type="range"
+                id="spread"
+                min="0.2"
+                max="6"
+                step="0.1"
+                value="0.8"
+            >
+
+        </div>
+
+
+        <button onclick="generateData()">
+            Generate new data
+        </button>
+
+    </div>
+
+
+
+    <!-- =====================================
+         RIGHT PANEL
+    ====================================== -->
+
+    <div class="right-panel">
+
+
+        <div class="chart-header">
+
+            <span>Individual observations + 95% CI</span>
+
+            <span>
+                - - Grand mean
+                <span id="grandMeanText">50</span>
+            </span>
+
+        </div>
+
+
+        <!-- GRAPH -->
+
+        <div
+            class="chart-area"
+            id="chart"
+        >
+
+
+            <!-- GRID -->
+
+            <div class="grid-line" style="top:0%;">
+                <span class="grid-label">100</span>
+            </div>
+
+            <div class="grid-line" style="top:25%;">
+                <span class="grid-label">75</span>
+            </div>
+
+            <div class="grid-line" style="top:50%;">
+                <span class="grid-label">50</span>
+            </div>
+
+            <div class="grid-line" style="top:75%;">
+                <span class="grid-label">25</span>
+            </div>
+
+            <div class="grid-line" style="top:100%;">
+                <span class="grid-label">0</span>
+            </div>
+
+
+            <!-- GRAND MEAN -->
+
+            <div
+                class="mean-line"
+                id="meanLine"
+            ></div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             GROUP INFORMATION
+        ================================== -->
+
+        <div class="groups">
+
+
+            <div class="group">
+
+                <div class="group-name">
+                    Group A
+                </div>
+
+                <div class="group-mean blue">
+
+                    Mean:
+                    <span id="meanA">--</span>
+
+                </div>
+
+                <div class="ci-text">
+
+                    95% CI:
+                    <span id="ciA">--</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="group">
+
+                <div class="group-name">
+                    Group B
+                </div>
+
+                <div class="group-mean green">
+
+                    Mean:
+                    <span id="meanB">--</span>
+
+                </div>
+
+                <div class="ci-text">
+
+                    95% CI:
+                    <span id="ciB">--</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="group">
+
+                <div class="group-name">
+                    Group C
+                </div>
+
+                <div class="group-mean purple">
+
+                    Mean:
+                    <span id="meanC">--</span>
+
+                </div>
+
+                <div class="ci-text">
+
+                    95% CI:
+                    <span id="ciC">--</span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             ANOVA RESULTS
+        ================================== -->
+
+        <div class="stats">
+
+
+            <div>
+
+                Within variation
+
+                <br>
+
+                <strong>
+
+                    MS =
+                    <span id="within">--</span>
+
+                </strong>
+
+            </div>
+
+
+
+            <div>
+
+                Between variation
+
+                <br>
+
+                <strong>
+
+                    MS =
+                    <span id="between">--</span>
+
+                </strong>
+
+            </div>
+
+
+
+            <div>
+
+                One-way ANOVA
+
+                <br>
+
+                <strong>
+
+                    F =
+                    <span id="fValue">--</span>
+
+                </strong>
+
+                <br>
+
+                <strong>
+
+                    p
+                    <span id="pValue">--</span>
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div
+            class="evidence"
+            id="evidence"
+        >
+            Evidence of difference
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+/* =========================================
+   SLIDERS
+========================================= */
+
+const spacingSlider =
+    document.getElementById("spacing");
+
+const spreadSlider =
+    document.getElementById("spread");
+
+
+spacingSlider.addEventListener(
+    "input",
+    generateData
+);
+
+spreadSlider.addEventListener(
+    "input",
+    generateData
+);
+
+
+/* =========================================
+   RANDOM NORMAL DISTRIBUTION
+========================================= */
+
+function randomNormal() {
+
+    let u = 0;
+    let v = 0;
+
+    while (u === 0) {
+        u = Math.random();
+    }
+
+    while (v === 0) {
+        v = Math.random();
+    }
+
+    return Math.sqrt(
+        -2 * Math.log(u)
+    ) * Math.cos(
+        2 * Math.PI * v
+    );
+
+}
+
+
+/* =========================================
+   MEAN
+========================================= */
+
+function mean(values) {
+
+    return values.reduce(
+        (sum, value) => sum + value,
+        0
+    ) / values.length;
+
+}
+
+
+/* =========================================
+   STANDARD DEVIATION
+========================================= */
+
+function standardDeviation(values) {
+
+    const m = mean(values);
+
+    const variance =
+        values.reduce(
+            (sum, value) =>
+                sum + Math.pow(value - m, 2),
+            0
+        )
+        /
+        (values.length - 1);
+
+    return Math.sqrt(variance);
+
+}
+
+
+/* =========================================
+   GENERATE DATA
+========================================= */
+
+function generateData() {
+
+
+    const spacing =
+        parseFloat(spacingSlider.value);
+
+    const spread =
+        parseFloat(spreadSlider.value);
+
+
+    document.getElementById(
+        "spacingValue"
+    ).textContent =
+        spacing.toFixed(1);
+
+
+    document.getElementById(
+        "spreadValue"
+    ).textContent =
+        spread.toFixed(2);
+
+
+    /*
+       Convert sliders into wider
+       values for the 0–100 scale.
+    */
+
+    const actualSpacing =
+        spacing * 4;
+
+    const actualSpread =
+        spread * 4;
+
+
+    const baseMean = 50;
+
+
+    const means = [
+
+        Math.max(
+            5,
+            baseMean - actualSpacing
+        ),
+
+        baseMean,
+
+        Math.min(
+            95,
+            baseMean + actualSpacing
+        )
+
+    ];
+
+
+    const groups = [];
+
+
+    for (let g = 0; g < 3; g++) {
+
+
+        const values = [];
+
+
+        for (let i = 0; i < 10; i++) {
+
+
+            let value =
+                means[g]
+                +
+                randomNormal()
+                *
+                actualSpread;
+
+
+            /*
+               Keep values within
+               the graph range.
+            */
+
+            value =
+                Math.max(
+                    1,
+                    Math.min(
+                        99,
+                        value
+                    )
+                );
+
+
+            values.push(value);
+
+        }
+
+
+        groups.push(values);
+
+    }
+
+
+    drawDots(groups);
+
+    calculateStatistics(groups);
+
+}
+
+
+
+/* =========================================
+   DRAW DOTS AND CONFIDENCE INTERVALS
+========================================= */
+
+function drawDots(groups) {
+
+
+    const chart =
+        document.getElementById("chart");
+
+
+    /*
+       Remove old dots and CIs.
+    */
+
+    chart
+        .querySelectorAll(
+            ".dot, .ci-line"
+        )
+        .forEach(
+            element => element.remove()
+        );
+
+
+    /*
+       Horizontal positions
+       for Groups A, B and C.
+    */
+
+    const positions = [
+        18,
+        50,
+        82
+    ];
+
+
+    groups.forEach(
+        (group, groupIndex) => {
+
+
+            const groupMean =
+                mean(group);
+
+
+            const sd =
+                standardDeviation(group);
+
+
+            const n =
+                group.length;
+
+
+            /*
+               95% confidence interval.
+
+               For n = 10,
+               t critical approximately 2.262.
+            */
+
+            const tCritical =
+                2.262;
+
+
+            const margin =
+                tCritical
+                *
+                (
+                    sd /
+                    Math.sqrt(n)
+                );
+
+
+            let lower =
+                groupMean - margin;
+
+
+            let upper =
+                groupMean + margin;
+
+
+            /*
+               Keep CI inside 0–100.
+            */
+
+            lower =
+                Math.max(0, lower);
+
+            upper =
+                Math.min(100, upper);
+
+
+            /*
+               CREATE CONFIDENCE INTERVAL LINE
+            */
+
+            const ciLine =
+                document.createElement("div");
+
+
+            ciLine.classList.add(
+                "ci-line"
+            );
+
+
+            if (groupIndex === 0) {
+
+                ciLine.classList.add(
+                    "ci-a"
+                );
+
+            }
+
+            if (groupIndex === 1) {
+
+                ciLine.classList.add(
+                    "ci-b"
+                );
+
+            }
+
+            if (groupIndex === 2) {
+
+                ciLine.classList.add(
+                    "ci-c"
+                );
+
+            }
+
+
+            ciLine.style.left =
+                positions[groupIndex] + "%";
+
+
+            ciLine.style.bottom =
+                lower + "%";
+
+
+            ciLine.style.height =
+                (upper - lower) + "%";
+
+
+            /*
+               LOWER CAP
+            */
+
+            const lowerCap =
+                document.createElement("div");
+
+
+            lowerCap.classList.add(
+                "ci-cap"
+            );
+
+
+            /*
+               UPPER CAP
+            */
+
+            const upperCap =
+                document.createElement("div");
+
+
+            upperCap.classList.add(
+                "ci-cap"
+            );
+
+
+            if (groupIndex === 0) {
+
+                lowerCap.classList.add(
+                    "ci-a-cap"
+                );
+
+                upperCap.classList.add(
+                    "ci-a-cap"
+                );
+
+            }
+
+            if (groupIndex === 1) {
+
+                lowerCap.classList.add(
+                    "ci-b-cap"
+                );
+
+                upperCap.classList.add(
+                    "ci-b-cap"
+                );
+
+            }
+
+            if (groupIndex === 2) {
+
+                lowerCap.classList.add(
+                    "ci-c-cap"
+                );
+
+                upperCap.classList.add(
+                    "ci-c-cap"
+                );
+
+            }
+
+
+            lowerCap.style.bottom =
+                "0";
+
+
+            upperCap.style.top =
+                "0";
+
+
+            ciLine.appendChild(
+                lowerCap
+            );
+
+            ciLine.appendChild(
+                upperCap
+            );
+
+
+            chart.appendChild(
+                ciLine
+            );
+
+
+            /*
+               DRAW INDIVIDUAL DOTS
+            */
+
+            group.forEach(
+                (value, i) => {
+
+
+                    const dot =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    dot.classList.add(
+                        "dot"
+                    );
+
+
+                    if (groupIndex === 0) {
+
+                        dot.classList.add(
+                            "group-a"
+                        );
+
+                    }
+
+                    if (groupIndex === 1) {
+
+                        dot.classList.add(
+                            "group-b"
+                        );
+
+                    }
+
+                    if (groupIndex === 2) {
+
+                        dot.classList.add(
+                            "group-c"
+                        );
+
+                    }
+
+
+                    /*
+                       Horizontal jitter
+                    */
+
+                    const x =
+                        positions[groupIndex]
+                        +
+                        (i - 4.5) * 1.6;
+
+
+                    dot.style.left =
+                        x + "%";
+
+
+                    dot.style.bottom =
+                        value + "%";
+
+
+                    chart.appendChild(
+                        dot
+                    );
+
+
+                }
+
+            );
+
+
+        }
+
+    );
+
+}
+
+
+
+/* =========================================
+   CALCULATE ANOVA + CONFIDENCE INTERVALS
+========================================= */
+
+function calculateStatistics(groups) {
+
+
+    const allValues =
+        groups.flat();
+
+
+    /*
+       GRAND MEAN
+    */
+
+    const grandMean =
+        mean(allValues);
+
+
+    /*
+       GROUP MEANS
+    */
+
+    const groupMeans =
+        groups.map(
+            group => mean(group)
+        );
+
+
+    /*
+       SUM OF SQUARES BETWEEN
+    */
+
+    let ssBetween = 0;
+
+
+    groups.forEach(
+        (group, i) => {
+
+            ssBetween +=
+
+                group.length
+
+                *
+
+                Math.pow(
+                    groupMeans[i]
+                    -
+                    grandMean,
+                    2
+                );
+
+        }
+    );
+
+
+    /*
+       SUM OF SQUARES WITHIN
+    */
+
+    let ssWithin = 0;
+
+
+    groups.forEach(
+        (group, i) => {
+
+            group.forEach(
+                value => {
+
+                    ssWithin +=
+
+                        Math.pow(
+                            value
+                            -
+                            groupMeans[i],
+                            2
+                        );
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+       DEGREES OF FREEDOM
+    */
+
+    const dfBetween =
+        groups.length - 1;
+
+
+    const dfWithin =
+        allValues.length
+        -
+        groups.length;
+
+
+    /*
+       MEAN SQUARES
+    */
+
+    const msBetween =
+        ssBetween
+        /
+        dfBetween;
+
+
+    const msWithin =
+        ssWithin
+        /
+        dfWithin;
+
+
+    /*
+       F STATISTIC
+    */
+
+    const F =
+        msBetween
+        /
+        msWithin;
+
+
+    /*
+       UPDATE GRAND MEAN
+    */
+
+    document.getElementById(
+        "grandMeanText"
+    ).textContent =
+        grandMean.toFixed(1);
+
+
+    document.getElementById(
+        "meanLine"
+    ).style.bottom =
+        grandMean + "%";
+
+
+    /*
+       UPDATE GROUP MEANS
+    */
+
+    document.getElementById(
+        "meanA"
+    ).textContent =
+        groupMeans[0].toFixed(1);
+
+
+    document.getElementById(
+        "meanB"
+    ).textContent =
+        groupMeans[1].toFixed(1);
+
+
+    document.getElementById(
+        "meanC"
+    ).textContent =
+        groupMeans[2].toFixed(1);
+
+
+    /*
+       UPDATE 95% CI TEXT
+    */
+
+    groups.forEach(
+        (group, i) => {
+
+
+            const m =
+                mean(group);
+
+
+            const sd =
+                standardDeviation(group);
+
+
+            const n =
+                group.length;
+
+
+            const tCritical =
+                2.262;
+
+
+            const margin =
+                tCritical
+                *
+                sd
+                /
+                Math.sqrt(n);
+
+
+            let lower =
+                Math.max(
+                    0,
+                    m - margin
+                );
+
+
+            let upper =
+                Math.min(
+                    100,
+                    m + margin
+                );
+
+
+            const ciText =
+                lower.toFixed(1)
+                +
+                " – "
+                +
+                upper.toFixed(1);
+
+
+            if (i === 0) {
+
+                document.getElementById(
+                    "ciA"
+                ).textContent =
+                    ciText;
+
+            }
+
+            if (i === 1) {
+
+                document.getElementById(
+                    "ciB"
+                ).textContent =
+                    ciText;
+
+            }
+
+            if (i === 2) {
+
+                document.getElementById(
+                    "ciC"
+                ).textContent =
+                    ciText;
+
+            }
+
+
+        }
+    );
+
+
+    /*
+       UPDATE ANOVA
+    */
+
+    document.getElementById(
+        "within"
+    ).textContent =
+        msWithin.toFixed(2);
+
+
+    document.getElementById(
+        "between"
+    ).textContent =
+        msBetween.toFixed(2);
+
+
+    document.getElementById(
+        "fValue"
+    ).textContent =
+        F.toFixed(2);
+
+
+    /*
+       APPROXIMATE P-VALUE
+    */
+
+    let p;
+
+
+    if (F < 1) {
+
+        p = " > 0.50";
+
+    }
+
+    else if (F < 3) {
+
+        p = " ≈ 0.10";
+
+    }
+
+    else if (F < 5) {
+
+        p = " ≈ 0.05";
+
+    }
+
+    else if (F < 10) {
+
+        p = " ≈ 0.01";
+
+    }
+
+    else {
+
+        p = " < 0.001";
+
+    }
+
+
+    document.getElementById(
+        "pValue"
+    ).textContent =
+        p;
+
+
+    /*
+       EVIDENCE INTERPRETATION
+    */
+
+    const evidence =
+        document.getElementById(
+            "evidence"
+        );
+
+
+    if (F > 10) {
+
+        evidence.textContent =
+            "Strong evidence of difference";
+
+    }
+
+    else if (F > 5) {
+
+        evidence.textContent =
+            "Clear evidence of difference";
+
+    }
+
+    else if (F > 3) {
+
+        evidence.textContent =
+            "Moderate evidence of difference";
+
+    }
+
+    else {
+
+        evidence.textContent =
+            "Little evidence of difference";
+
+    }
+
+}
+
+
+/* =========================================
+   INITIAL DATA
+========================================= */
+
+generateData();
+
+</script>
+
+</body>
+</html>
