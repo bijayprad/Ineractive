@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistical Analysis for Faculty Research Using R</title>
+<style>
+:root{
+  --primary:#2563eb; --secondary:#7c3aed; --success:#059669; --danger:#dc2626;
+  --warning:#d97706; --dark:#172033; --muted:#64748b; --light:#f8fafc;
+  --card:#ffffff; --border:#e2e8f0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;color:#1e293b;line-height:1.6}
+header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:42px 20px;text-align:center}
+header h1{margin:0;font-size:2.4rem}
+header p{font-size:1.1rem;margin:10px 0 0;opacity:.95}
+nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--border);padding:10px;display:flex;gap:8px;overflow:auto}
+nav button{border:0;background:#eef2ff;color:#3730a3;padding:10px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;font-weight:bold}
+nav button:hover{background:#c7d2fe}
+.container{max-width:1200px;margin:auto;padding:25px 18px 70px}
+.section{display:none;animation:fade .35s ease}
+.section.active{display:block}
+@keyframes fade{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin:18px 0;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+h2{color:#1d4ed8;margin-top:0}
+h3{color:#4c1d95}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.stat-card{padding:18px;border-radius:14px;background:linear-gradient(135deg,#eff6ff,#f5f3ff);border-left:5px solid var(--primary)}
+.highlight{background:#ecfdf5;border-left:5px solid var(--success);padding:16px;border-radius:10px;margin:14px 0}
+.warning{background:#fff7ed;border-left:5px solid var(--warning);padding:16px;border-radius:10px;margin:14px 0}
+.danger{background:#fef2f2;border-left:5px solid var(--danger);padding:16px;border-radius:10px;margin:14px 0}
+table{width:100%;border-collapse:collapse;margin:15px 0;background:white}
+th{background:#1d4ed8;color:white}
+th,td{padding:11px;border:1px solid var(--border);text-align:left}
+tr:nth-child(even){background:#f8fafc}
+code{font-family:Consolas,monospace}
+pre{background:#0f172a;color:#e2e8f0;padding:18px;border-radius:12px;overflow:auto;position:relative}
+.copy-btn{float:right;background:#334155;color:white;border:0;border-radius:6px;padding:6px 10px;cursor:pointer}
+.btn{background:var(--primary);color:white;border:0;border-radius:8px;padding:11px 16px;cursor:pointer;font-size:1rem;margin:4px}
+.btn:hover{opacity:.9}
+.btn.secondary{background:var(--secondary)}
+.btn.success{background:var(--success)}
+.big-question{font-size:1.25rem;background:#eff6ff;padding:18px;border-radius:12px;border-left:6px solid var(--primary)}
+canvas{width:100%;max-width:900px;height:440px;background:white;border:1px solid var(--border);border-radius:12px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+input[type=range]{width:220px}
+.output{background:#f8fafc;border:1px solid var(--border);padding:16px;border-radius:10px;font-family:Consolas,monospace;white-space:pre-wrap}
+.quiz-option{display:block;width:100%;text-align:left;margin:8px 0;padding:13px;border:1px solid var(--border);border-radius:9px;background:white;cursor:pointer}
+.quiz-option:hover{background:#eff6ff}
+.answer{display:none;padding:14px;background:#ecfdf5;border-left:5px solid var(--success);border-radius:8px;margin-top:10px}
+.decision{display:none;margin-top:15px;padding:18px;background:#eff6ff;border-radius:12px}
+.timeline{border-left:4px solid #6366f1;padding-left:20px}
+.time{margin:20px 0;padding:15px;background:white;border-radius:10px;border:1px solid var(--border)}
+footer{text-align:center;padding:25px;background:#172033;color:white}
+.presentation-bar{position:fixed;right:18px;bottom:18px;z-index:30}
+.presentation-bar button{border:0;border-radius:50%;width:52px;height:52px;margin:4px;background:#1d4ed8;color:white;font-size:20px;cursor:pointer}
+@media print{nav,.presentation-bar,.copy-btn,.controls,.btn{display:none!important}.section{display:block!important;page-break-after:always}body{background:white}.card{box-shadow:none}}
+@media(max-width:700px){header h1{font-size:1.7rem}.container{padding:15px}canvas{height:330px}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Statistical Analysis Using R</h1>
+  <p>St. Xevier College, Maitighar Using R</p>
+  <p><b>Correlation • Regression • Qualitative Relationships • Chi-square</b></p>
+</header>
+
+<nav>
+<button onclick="showSection('home')">🏠 Home</button>
+<button onclick="showSection('plan')">🕐 Study Plan</button>
+<button onclick="showSection('correlation')">📈 Correlation</button>
+<button onclick="showSection('regression')">📉 Regression</button>
+<button onclick="showSection('multiple')">📊 Multiple Regression</button>
+<button onclick="showSection('qualitative')">👥 Qualitative Variables</button>
+<button onclick="showSection('decision')">🧭 Choose a Test</button>
+<button onclick="showSection('practice')">🎯 Quiz</button>
+<button onclick="showSection('rlab')">💻 R Lab</button>
+<button onclick="showSection('feedback')">Feedback</button>
+</nav>
+
+<div class="container">
+
+<section id="home" class="section active">
+<div class="card">
+<h2>Welcome to Today's Statistical Analysis Session</h2>
+<p>This workshop is designed for <b>faculty members and researchers</b>. The focus is not only on running statistical tests, but on learning the complete research workflow:</p>
+<div class="grid">
+<div class="stat-card"><h3>1️⃣ Research Question</h3><p>What exactly do you want to investigate?</p></div>
+<div class="stat-card"><h3>2️⃣ Identify Variables</h3><p>Are the variables numerical or qualitative?</p></div>
+<div class="stat-card"><h3>3️⃣ Choose the Method</h3><p>Select the appropriate statistical technique.</p></div>
+<div class="stat-card"><h3>4️⃣ Run in R</h3><p>Use reproducible statistical code.</p></div>
+<div class="stat-card"><h3>5️⃣ Interpret</h3><p>Understand coefficients, p-values and effect measures.</p></div>
+<div class="stat-card"><h3>6️⃣ Report</h3><p>Write the result in proper research language.</p></div>
+</div>
+</div>
+
+<div class="card">
+<h2>🎯 Learning Objectives</h2>
+<ul>
+<li>Understand and interpret correlation.</li>
+<li>Perform simple and multiple linear regression.</li>
+<li>Understand the difference between correlation and regression.</li>
+<li>Analyze relationships between qualitative variables.</li>
+<li>Perform and interpret a Chi-square test.</li>
+<li>Select an appropriate statistical test based on research questions and variable types.</li>
+<li>Perform all analyses using R.</li>
+</ul>
+</div>
+
+<div class="highlight">
+<h3>⭐ The Most Important Principle</h3>
+<b>Research Question → Variable Type → Statistical Method → R Analysis → Interpretation → Research Conclusion</b>
+</div>
+</section>
+
+<section id="plan" class="section">
+<div class="card">
+<h2>🕐 Workshop Plan</h2>
+<div class="timeline">
+<div class="time"><b>Session 1: Correlation</b><br>Scatterplots, positive/negative/no relationship, Pearson correlation, hypothesis testing and interpretation.</div>
+<div class="time"><b>Session 2: Simple Linear Regression</b><br>Prediction, regression equation, coefficient, p-value, R² and regression line.</div>
+<div class="time"><b>Session 3: Multiple Regression</b><br>Multiple predictors, controlling variables, interpretation of coefficients and model fit.</div>
+<div class="time"><b>Session 4: Relationship Between Qualitative Variables</b><br>Contingency tables, Chi-square test, hypotheses, expected frequencies and interpretation.</div>
+<div class="time"><b>Session 5: Research Practice + Decision Making</b><br>Which test should I use? Hands-on exercises and complete R workflow.</div>
+</div>
+</div>
+
+<!--
+<div class="card">
+<h2>Suggested Teaching Method</h2>
+<table>
+<tr><th>Step</th><th>What You Do</th></tr>
+<tr><td>1</td><td>Start with a realistic research question.</td></tr>
+<tr><td>2</td><td>Ask participants to identify the variables.</td></tr>
+<tr><td>3</td><td>Ask whether variables are numerical or qualitative.</td></tr>
+<tr><td>4</td><td>Ask them to choose a statistical test.</td></tr>
+<tr><td>5</td><td>Run the analysis in R.</td></tr>
+<tr><td>6</td><td>Interpret the output together.</td></tr>
+<tr><td>7</td><td>Write a research conclusion.</td></tr>
+</table>
+</div>
+-->
+</section>
+
+<section id="correlation" class="section">
+<div class="card">
+<h2>📈 1. Correlation</h2>
+<div class="big-question">🔬 <b>Research Question:</b> Does the amount of study time relate to examination score?</div>
+
+<h3>When do we use correlation?</h3>
+<p>Correlation is generally used when we want to study the <b>linear relationship between two numerical variables</b>.</p>
+
+<table>
+<tr><th>Variable</th><th>Type</th></tr>
+<tr><td>Study Hours</td><td>Numerical</td></tr>
+<tr><td>Examination Score</td><td>Numerical</td></tr>
+</table>
+
+<h3>Correlation coefficient (r)</h3>
+<ul>
+<li><b>r = +1</b> → Perfect positive relationship</li>
+<li><b>r = 0</b> → No linear relationship</li>
+<li><b>r = −1</b> → Perfect negative relationship</li>
+</ul>
+
+<div class="warning"><b>Important:</b> Correlation measures association, not causation.</div>
+</div>
+
+<div class="card">
+<h2>🔬 Interactive Correlation Demonstration</h2>
+<p>Select a relationship and observe the scatterplot.</p>
+<div class="controls">
+<button class="btn" onclick="setPattern('positive')">Positive</button>
+<button class="btn secondary" onclick="setPattern('negative')">Negative</button>
+<button class="btn success" onclick="setPattern('none')">No Relationship</button>
+</div>
+<canvas id="scatterCanvas" width="900" height="440"></canvas>
+<div class="output" id="corOutput"></div>
+</div>
+
+<div class="card">
+<h2>💻 R Code: Correlation</h2>
+<pre><button class="copy-btn" onclick="copyCode('code1')">Copy</button><code id="code1">data <- data.frame(
+  Study_Hours = c(2,3,4,5,6,7,8,4,6,9),
+  Score = c(45,50,55,65,70,72,80,60,68,90)
+)
+
+# Scatterplot
+plot(data$Study_Hours, data$Score,
+     main = "Study Hours vs Exam Score",
+     xlab = "Study Hours",
+     ylab = "Exam Score")
+
+# Correlation coefficient
+cor(data$Study_Hours, data$Score)
+
+# Correlation hypothesis test
+cor.test(data$Study_Hours, data$Score)</code></pre>
+
+<div class="highlight">
+<h3>How to Report</h3>
+<p><i>There was a positive relationship between study hours and examination score (r = ..., p = ...).</i></p>
+</div>
+</div>
+</section>
+
+<section id="regression" class="section">
+<div class="card">
+<h2>📉 2. Simple Linear Regression</h2>
+<div class="big-question">🔬 <b>Research Question:</b> Can examination score be predicted from study hours?</div>
+
+<div class="grid">
+<div class="stat-card"><h3>Correlation asks</h3><p>Are X and Y related?</p></div>
+<div class="stat-card"><h3>Regression asks</h3><p>How does Y change when X changes?</p></div>
+</div>
+
+<h3>Regression Model</h3>
+<div class="highlight" style="font-size:1.4rem;text-align:center">
+Ŷ = b₀ + b₁X
+</div>
+
+<table>
+<tr><th>Symbol</th><th>Meaning</th></tr>
+<tr><td>Ŷ</td><td>Predicted dependent variable</td></tr>
+<tr><td>b₀</td><td>Intercept</td></tr>
+<tr><td>b₁</td><td>Regression coefficient (slope)</td></tr>
+<tr><td>X</td><td>Independent variable</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>📊 Interactive Regression Example</h2>
+<label><b>Change slope:</b> <span id="slopeValue">5</span></label><br>
+<input type="range" min="-5" max="10" value="5" step="0.5" id="slopeSlider" oninput="drawRegression()">
+<canvas id="regCanvas" width="900" height="440"></canvas>
+<div class="output" id="regOutput"></div>
+</div>
+
+<div class="card">
+<h2>💻 R Code: Simple Linear Regression</h2>
+<pre><button class="copy-btn" onclick="copyCode('code2')">Copy</button><code id="code2">model <- lm(Score ~ Study_Hours, data = data)
+
+summary(model)
+
+# Scatterplot
+plot(data$Study_Hours, data$Score,
+     xlab = "Study Hours",
+     ylab = "Exam Score")
+
+# Add regression line
+abline(model, col = "red", lwd = 2)</code></pre>
+
+<h3>Interpretation</h3>
+<div class="highlight">
+If the coefficient for Study_Hours is <b>5.2</b>:<br><br>
+<i>For every one-hour increase in study time, examination score is expected to increase by approximately 5.2 points.</i>
+</div>
+</div>
+
+<div class="card">
+<h2>Understanding R²</h2>
+<p>R² tells us how much variation in the dependent variable is explained by the model.</p>
+<div class="highlight">
+If <b>R² = 0.72</b>:<br>
+<i>Approximately 72% of the variation in examination scores is explained by study hours.</i>
+</div>
+</div>
+</section>
+
+<section id="multiple" class="section">
+<div class="card">
+<h2>📊 3. Multiple Linear Regression</h2>
+<div class="big-question">🔬 <b>Research Question:</b> What factors influence employee performance?</div>
+
+<table>
+<tr><th>Variable</th><th>Role</th></tr>
+<tr><td>Performance</td><td>Dependent Variable (Y)</td></tr>
+<tr><td>Experience</td><td>Independent Variable (X₁)</td></tr>
+<tr><td>Training Hours</td><td>Independent Variable (X₂)</td></tr>
+<tr><td>Job Satisfaction</td><td>Independent Variable (X₃)</td></tr>
+</table>
+
+<div class="highlight" style="font-size:1.3rem;text-align:center">
+Y = b₀ + b₁X₁ + b₂X₂ + b₃X₃ + ε
+</div>
+
+<div class="warning">
+<b>Key concept:</b> In multiple regression, each coefficient is interpreted while <b>controlling for the other variables</b>.
+</div>
+</div>
+
+<div class="card">
+<h2>💻 R Code: Multiple Regression</h2>
+<pre><button class="copy-btn" onclick="copyCode('code3')">Copy</button><code id="code3">data2 <- data.frame(
+  Performance = c(60,65,70,75,80,85,90,72,68,88),
+  Experience = c(2,3,5,6,8,10,12,4,5,11),
+  Training = c(10,15,20,25,30,35,40,18,22,38),
+  Satisfaction = c(3,4,4,5,5,5,4,3,4,5)
+)
+
+model2 <- lm(
+  Performance ~ Experience + Training + Satisfaction,
+  data = data2
+)
+
+summary(model2)</code></pre>
+
+<h3>What should researchers examine?</h3>
+<table>
+<tr><th>Output</th><th>Question</th></tr>
+<tr><td>Coefficient</td><td>How much does Y change?</td></tr>
+<tr><td>p-value</td><td>Is the predictor statistically significant?</td></tr>
+<tr><td>R²</td><td>How much variation is explained?</td></tr>
+<tr><td>Adjusted R²</td><td>Model fit adjusted for number of predictors.</td></tr>
+<tr><td>F-test</td><td>Is the overall model significant?</td></tr>
+</table>
+</div>
+</section>
+
+<section id="qualitative" class="section">
+
+    <!-- ===================================================== -->
+    <!-- 4. RELATIONSHIP BETWEEN QUALITATIVE VARIABLES -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>👥 4. Relationship Between Qualitative Variables</h2>
+
+        <div class="big-question">
+            🔬 <b>Research Question:</b>
+            Is gender associated with preference for online teaching?
+        </div>
+
+        <table>
+            <tr>
+                <th>Variable</th>
+                <th>Type</th>
+            </tr>
+
+            <tr>
+                <td>Gender</td>
+                <td>Qualitative / Categorical</td>
+            </tr>
+
+            <tr>
+                <td>Teaching Preference</td>
+                <td>Qualitative / Categorical</td>
+            </tr>
+        </table>
+
+        <h3>👉 Appropriate Statistical Methods</h3>
+
+        <div class="grid">
+
+            <div class="stat-card">
+                <b>Chi-square Test</b><br>
+                Used to test whether two categorical variables are
+                statistically associated.
+            </div>
+
+            <div class="stat-card">
+                <b>Fisher's Exact Test</b><br>
+                Preferred for a 2 × 2 table when expected cell frequencies
+                are small, particularly when an expected frequency is less
+                than 5.
+            </div>
+
+            <div class="stat-card">
+                <b>Odds Ratio (OR)</b><br>
+                Measures the strength and direction of association between
+                two categorical variables in a 2 × 2 table.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- CONTINGENCY TABLE -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>📊 Example 2 × 2 Contingency Table</h2>
+
+        <table>
+
+            <tr>
+                <th>Gender</th>
+                <th>Prefer Online</th>
+                <th>Do Not Prefer</th>
+                <th>Total</th>
+            </tr>
+
+            <tr>
+                <td>Male</td>
+                <td>40</td>
+                <td>20</td>
+                <td>60</td>
+            </tr>
+
+            <tr>
+                <td>Female</td>
+                <td>55</td>
+                <td>15</td>
+                <td>70</td>
+            </tr>
+
+            <tr>
+                <td><b>Total</b></td>
+                <td>95</td>
+                <td>35</td>
+                <td>130</td>
+            </tr>
+
+        </table>
+
+        <p>
+            This is a <b>2 × 2 contingency table</b> because there are
+            two categories of gender and two categories of teaching preference.
+        </p>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- HYPOTHESES -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>🧪 Hypotheses</h2>
+
+        <div class="grid">
+
+            <div class="stat-card">
+                <b>H₀:</b><br>
+                Gender and teaching preference are independent.
+            </div>
+
+            <div class="stat-card">
+                <b>H₁:</b><br>
+                Gender and teaching preference are associated.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- CHI-SQUARE TEST -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>📐 1. Chi-square Test of Independence</h2>
+
+        <p>
+            The <b>Chi-square test of independence</b> is used to determine
+            whether there is a statistically significant association between
+            two categorical variables.
+        </p>
+
+        <h3>When should we use it?</h3>
+
+        <ul>
+            <li>Both variables are categorical.</li>
+            <li>The observations are independent.</li>
+            <li>Expected cell frequencies are sufficiently large.</li>
+        </ul>
+
+        <h3>Expected Frequency</h3>
+
+        <p>
+            The expected frequency for each cell is calculated as:
+        </p>
+
+        <div class="highlight">
+            <b>
+                Expected Frequency =
+                (Row Total × Column Total) / Grand Total
+            </b>
+        </div>
+
+        <h3>Decision Rule</h3>
+
+        <p>
+            If <b>p &lt; 0.05</b>, reject H₀ and conclude that there is
+            a statistically significant association between the two
+            categorical variables.
+        </p>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- FISHER EXACT TEST -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>🎯 2. Fisher's Exact Test</h2>
+
+        <p>
+            <b>Fisher's exact test</b> is an alternative to the Chi-square
+            test for a 2 × 2 contingency table, particularly when the
+            sample size is small or expected cell frequencies are low.
+        </p>
+
+        <h3>When should Fisher's Exact Test be considered?</h3>
+
+        <ul>
+            <li>The table is 2 × 2.</li>
+            <li>The sample size is small.</li>
+            <li>One or more expected cell frequencies are small.</li>
+            <li>Especially when an expected frequency is less than 5.</li>
+        </ul>
+
+        <div class="highlight">
+
+            <h3>Important</h3>
+
+            <p>
+                Fisher's exact test does not rely on the large-sample
+                approximation used by the Chi-square test. It calculates
+                the exact probability of obtaining the observed table
+                and tables more extreme than it.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- ODDS RATIO -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>📈 3. Odds Ratio (OR)</h2>
+
+        <p>
+            The <b>odds ratio (OR)</b> measures the strength of association
+            between two categorical variables in a 2 × 2 contingency table.
+        </p>
+
+        <h3>2 × 2 Table for Odds Ratio</h3>
+
+        <table>
+
+            <tr>
+                <th></th>
+                <th>Prefer Online</th>
+                <th>Do Not Prefer</th>
+            </tr>
+
+            <tr>
+                <th>Male</th>
+                <td>a = 40</td>
+                <td>b = 20</td>
+            </tr>
+
+            <tr>
+                <th>Female</th>
+                <td>c = 55</td>
+                <td>d = 15</td>
+            </tr>
+
+        </table>
+
+        <h3>Formula</h3>
+
+        <div class="highlight">
+
+            <p>
+                <b>OR = (a × d) / (b × c)</b>
+            </p>
+
+            <p>
+                OR = (40 × 15) / (20 × 55)
+            </p>
+
+            <p>
+                OR = 600 / 1100
+            </p>
+
+            <p>
+                <b>OR ≈ 0.55</b>
+            </p>
+
+        </div>
+
+        <h3>Interpretation of OR</h3>
+
+        <table>
+
+            <tr>
+                <th>OR</th>
+                <th>Interpretation</th>
+            </tr>
+
+            <tr>
+                <td>OR = 1</td>
+                <td>No association</td>
+            </tr>
+
+            <tr>
+                <td>OR &gt; 1</td>
+                <td>Higher odds of the outcome in the first group</td>
+            </tr>
+
+            <tr>
+                <td>OR &lt; 1</td>
+                <td>Lower odds of the outcome in the first group</td>
+            </tr>
+
+        </table>
+
+        <p>
+            In this example, the OR is approximately <b>0.55</b>.
+            Thus, the odds of preferring online teaching among males
+            are approximately 0.55 times the odds among females,
+            based on the way the table is arranged.
+        </p>
+
+        <div class="danger">
+
+            <b>Important:</b>
+            Odds ratio measures association; it does not establish
+            causation.
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- R CODE -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>💻 R Code: Chi-square, Fisher's Exact Test and Odds Ratio</h2>
+
+        <pre>
+<button class="copy-btn" onclick="copyCode('code4')">Copy</button><code id="code4"># Create the 2 × 2 contingency table
+
+tab &lt;- matrix(
+  c(40, 20,
+    55, 15),
+  nrow = 2,
+  byrow = TRUE
+)
+
+# Add row and column names
+
+rownames(tab) &lt;- c("Male", "Female")
+colnames(tab) &lt;- c("Prefer_Online", "Do_Not_Prefer")
+
+# Display the table
+
+tab
+
+# ------------------------------------------------
+# 1. Chi-square Test
+# ------------------------------------------------
+
+chisq.test(tab)
+
+# Check expected frequencies
+
+chisq.test(tab)$expected
+
+# ------------------------------------------------
+# 2. Fisher's Exact Test
+# ------------------------------------------------
+
+fisher.test(tab)
+
+# ------------------------------------------------
+# 3. Odds Ratio
+# ------------------------------------------------
+
+# Calculate OR manually
+
+OR &lt;- (40 * 15) / (20 * 55)
+
+OR
+
+# Fisher's exact test also provides an
+# odds ratio and confidence interval
+
+fisher.test(tab)$estimate
+fisher.test(tab)$conf.int</code>
+        </pre>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- COMPARISON OF METHODS -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>🔎 Chi-square vs Fisher's Exact Test</h2>
+
+        <table>
+
+            <tr>
+                <th>Feature</th>
+                <th>Chi-square Test</th>
+                <th>Fisher's Exact Test</th>
+            </tr>
+
+            <tr>
+                <td>Variable type</td>
+                <td>Categorical</td>
+                <td>Categorical</td>
+            </tr>
+
+            <tr>
+                <td>Typical table</td>
+                <td>2 × 2 or larger</td>
+                <td>Primarily 2 × 2</td>
+            </tr>
+
+            <tr>
+                <td>Large sample</td>
+                <td>Suitable</td>
+                <td>Suitable, but may be computationally unnecessary</td>
+            </tr>
+
+            <tr>
+                <td>Small expected frequencies</td>
+                <td>May be inappropriate</td>
+                <td>Preferred</td>
+            </tr>
+
+            <tr>
+                <td>Provides p-value</td>
+                <td>Yes</td>
+                <td>Yes</td>
+            </tr>
+
+            <tr>
+                <td>Measures strength of association</td>
+                <td>Not directly</td>
+                <td>OR can be reported for 2 × 2 tables</td>
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- DECISION GUIDE -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>🧭 Which Method Should I Use?</h2>
+
+        <div class="grid">
+
+            <div class="stat-card">
+
+                <b>2 categorical variables</b>
+
+                <p>
+                    ↓
+                </p>
+
+                <b>Check expected frequencies</b>
+
+                <p>
+                    ↓
+                </p>
+
+                <p>
+                    Expected frequencies adequate
+                    → <b>Chi-square test</b>
+                </p>
+
+                <p>
+                    Small expected frequencies in a 2 × 2 table
+                    → <b>Fisher's exact test</b>
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <b>Want the strength of association?</b>
+
+                <p>
+                    ↓
+                </p>
+
+                <b>Report Odds Ratio</b>
+
+                <p>
+                    Preferably with its
+                    <b>95% confidence interval</b>.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- INTERPRETATION -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>📌 Interpretation</h2>
+
+        <div class="highlight">
+
+            <h3>If p &lt; 0.05</h3>
+
+            <p>
+                There is a statistically significant association between
+                gender and teaching preference.
+            </p>
+
+        </div>
+
+        <div class="highlight">
+
+            <h3>If p ≥ 0.05</h3>
+
+            <p>
+                There is insufficient evidence to conclude that gender
+                and teaching preference are statistically associated.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- REPORTING -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>📝 Research Reporting Example</h2>
+
+        <p>
+            <i>
+                A Chi-square test of independence was conducted to examine
+                the association between gender and teaching preference.
+                The results indicated that the association was
+                statistically significant/non-significant,
+                χ²(df) = ..., p = .... The odds ratio was ...
+                (95% CI: ...–...), indicating that the odds of preferring
+                online teaching were ... times higher/lower among males
+                compared with females.
+            </i>
+        </p>
+
+        <div class="danger">
+
+            <b>Do not say:</b>
+            Gender causes teaching preference.
+
+            <br><br>
+
+            <b>Correct:</b>
+            Gender is statistically associated with teaching preference.
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- IMPORTANT NOTE -->
+    <!-- ===================================================== -->
+
+    <div class="card">
+
+        <h2>⚠️ Important Statistical Note</h2>
+
+        <p>
+            The Chi-square test or Fisher's exact test tells us whether
+            there is evidence of an association. The <b>odds ratio</b>
+            tells us about the <b>strength and direction</b> of that
+            association.
+        </p>
+
+        <p>
+            Therefore, for a 2 × 2 categorical analysis, it is often useful
+            to report both the <b>p-value</b> and the <b>odds ratio with
+            its 95% confidence interval</b>.
+        </p>
+
+    </div>
+
+</section>
+
+<section id="decision" class="section">
+<div class="card">
+<h2>🧭 Which Statistical Test Should I Use?</h2>
+<p>Answer the questions below to identify a suitable starting point.</p>
+
+<button class="btn" onclick="chooseQuestion('compare')">I want to compare groups</button>
+<button class="btn secondary" onclick="chooseQuestion('relationship')">I want to study a relationship</button>
+
+<div id="decisionBox" class="decision"></div>
+</div>
+
+<div class="card">
+<h2>Quick Statistical Decision Table</h2>
+<table>
+<tr><th>Research Situation</th><th>Recommended Method</th></tr>
+<tr><td>Compare two groups on a numerical outcome</td><td>Independent t-test</td></tr>
+<tr><td>Compare three or more groups on a numerical outcome</td><td>ANOVA</td></tr>
+<tr><td>Relationship between two numerical variables</td><td>Correlation</td></tr>
+<tr><td>Predict numerical Y from one X</td><td>Simple Linear Regression</td></tr>
+<tr><td>Predict numerical Y from multiple X variables</td><td>Multiple Regression</td></tr>
+<tr><td>Association between two qualitative variables</td><td>Chi-square Test/ Fiser's Exact Test</td></tr>
+</table>
+</div>
+</section>
+
+<section id="practice" class="section">
+<div class="card">
+<h2>🎯 Test yourself</h2>
+<p>Choose the correct answer.</p>
+
+<div class="card">
+<h3>Scenario 1</h3>
+<p>Does age relate to income?</p>
+<button class="quiz-option" onclick="reveal('a1')">A. ANOVA</button>
+<button class="quiz-option" onclick="reveal('a1')">B. Correlation / Regression</button>
+<button class="quiz-option" onclick="reveal('a1')">C. Chi-square</button>
+<div id="a1" class="answer"><b>Answer: Correlation or Regression</b><br>Both age and income are numerical variables.</div>
+</div>
+
+<div class="card">
+<h3>Scenario 2</h3>
+<p>Does gender affect average salary?</p>
+<button class="quiz-option" onclick="reveal('a2')">A. Independent t-test</button>
+<button class="quiz-option" onclick="reveal('a2')">B. Chi-square</button>
+<button class="quiz-option" onclick="reveal('a2')">C. Correlation</button>
+<div id="a2" class="answer"><b>Answer: Independent t-test</b><br>Gender forms two groups and salary is numerical.</div>
+</div>
+
+<div class="card">
+<h3>Scenario 3</h3>
+<p>Does average salary differ among three departments?</p>
+<button class="quiz-option" onclick="reveal('a3')">A. ANOVA</button>
+<button class="quiz-option" onclick="reveal('a3')">B. Correlation</button>
+<button class="quiz-option" onclick="reveal('a3')">C. Chi-square</button>
+<div id="a3" class="answer"><b>Answer: ANOVA</b><br>There are three or more groups and a numerical outcome.</div>
+</div>
+
+<div class="card">
+<h3>Scenario 4</h3>
+<p>Is gender associated with voting preference?</p>
+<button class="quiz-option" onclick="reveal('a4')">A. Regression</button>
+<button class="quiz-option" onclick="reveal('a4')">B. Chi-square Test</button>
+<button class="quiz-option" onclick="reveal('a4')">C. t-test</button>
+<div id="a4" class="answer"><b>Answer: Chi-square Test</b><br>Both variables are qualitative.</div>
+</div>
+
+<div class="card">
+<h3>Scenario 5</h3>
+<p>Can income be predicted by education and work experience?</p>
+<button class="quiz-option" onclick="reveal('a5')">A. Multiple Regression</button>
+<button class="quiz-option" onclick="reveal('a5')">B. Chi-square</button>
+<button class="quiz-option" onclick="reveal('a5')">C. One-way ANOVA</button>
+<div id="a5" class="answer"><b>Answer: Multiple Regression</b><br>Income is numerical and there are multiple predictors.</div>
+</div>
+</div>
+</section>
+
+<section id="rlab" class="section">
+<div class="card">
+<h2>💻 Complete R Laboratory</h2>
+<p>Use one dataset to demonstrate different analyses.</p>
+
+<pre><button class="copy-btn" onclick="copyCode('code5')">Copy Complete Script</button><code id="code5"># ==========================================
+# FACULTY RESEARCH DATASET
+# ==========================================
+
+research <- data.frame(
+  Gender = c("Male","Female","Male","Female",
+             "Male","Female","Male","Female",
+             "Male","Female"),
+
+  Department = c("Science","Management","Science",
+                 "Management","Science","Management",
+                 "Science","Management","Science","Management"),
+
+  Research_Hours = c(5,8,6,10,7,9,4,11,8,10),
+
+  Publications = c(1,3,2,5,2,4,1,6,3,5),
+
+  Research_Score = c(50,70,60,85,65,80,45,90,75,88)
+)
+
+# ==========================================
+# 1. SUMMARY STATISTICS
+# ==========================================
+
+summary(research)
+
+# ==========================================
+# 2. CORRELATION
+# ==========================================
+
+cor(research$Research_Hours,
+    research$Research_Score)
+
+cor.test(
+  research$Research_Hours,
+  research$Research_Score
+)
+
+# Scatterplot
+plot(
+  research$Research_Hours,
+  research$Research_Score,
+  pch = 19,
+  xlab = "Research Hours",
+  ylab = "Research Score"
+)
+
+# ==========================================
+# 3. SIMPLE REGRESSION
+# ==========================================
+
+model1 <- lm(
+  Research_Score ~ Research_Hours,
+  data = research
+)
+
+summary(model1)
+
+# Add regression line
+abline(model1, col = "red", lwd = 2)
+
+# ==========================================
+# 4. MULTIPLE REGRESSION
+# ==========================================
+
+model2 <- lm(
+  Research_Score ~ Research_Hours + Publications,
+  data = research
+)
+
+summary(model2)
+
+# ==========================================
+# 5. QUALITATIVE RELATIONSHIP
+# ==========================================
+
+tab <- table(
+  research$Gender,
+  research$Department
+)
+
+tab
+
+chisq.test(tab)</code></pre>
+</div>
+
+<div class="card">
+<h2>📝 Final Checklist Before Choosing a Test</h2>
+<ol>
+<li>What is my research question?</li>
+<li>What is my dependent/outcome variable?</li>
+<li>What are my independent variables?</li>
+<li>Are the variables numerical or qualitative?</li>
+<li>Am I comparing groups or studying relationships?</li>
+<li>What assumptions should I check?</li>
+<li>How will I interpret the results?</li>
+</ol>
+</div>
+
+<div class="highlight">
+<h2>🏆 Final Practice</h2>
+<p style="font-size:1.2rem">Obtain data → Identify variables → Select the appropriate statistical method → Run the analysis in R → Interpret correctly → Report in research language.</p>
+<a href="https://raw.githubusercontent.com/bijayprad/oth/refs/heads/main/Sonydata.csv">
+    Download Sony Medical Data
+</a>
+<h2>Medical Data Dictionary: Sonydata.csv</h2>
+
+<p>
+This data dictionary describes the variables contained in the Sonydata.csv
+medical dataset. The dataset contains 1,296 patient records and 21 variables.
+Definitions are based on the variable names and observed values in the dataset.
+Where the original codebook is required to confirm numerical coding, this is
+indicated explicitly.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Variable</th>
+            <th>Label</th>
+            <th>Definition</th>
+            <th>Coding / Values</th>
+            <th>Data Type</th>
+            <th>Measurement Scale</th>
+            <th>Recommended Statistical Analysis</th>
+        </tr>
+    </thead>
+
+```
+<tbody>
+
+    <tr>
+        <td>1</td>
+        <td><strong>Case ID</strong></td>
+        <td>Patient/Case Identification Number</td>
+        <td>
+            A unique identification number assigned to each patient.
+        </td>
+        <td>Unique numerical identifier</td>
+        <td>Identifier</td>
+        <td>Nominal</td>
+        <td>
+            Record identification.
+        </td>
+    </tr>
+
+    <tr>
+        <td>2</td>
+        <td><strong>Department</strong></td>
+        <td>Patient Department / Care Setting</td>
+        <td>
+            Indicates whether the patient was in OPD or IPD
+        </td>
+        <td>
+            OPD = Outpatient Department<br>
+            IPD = Inpatient Department
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square test, Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>3</td>
+        <td><strong>DForm_Filled</strong></td>
+        <td>Date of Data/Form Completion</td>
+        <td>
+            The date on which clinical data form was completed or recorded.
+        </td>
+        <td>Date values</td>
+        <td>Date</td>
+        <td>Date/Time</td>
+        <td>
+            Temporal trends (we will not do any anaysis on it).
+        </td>
+    </tr>
+
+    <tr>
+        <td>4</td>
+        <td><strong>Sex</strong></td>
+        <td>Biological Sex of Patient</td>
+        <td>
+            Records the biological sex of the patient.
+        </td>
+        <td>
+            1= Male and 2= Female was coded (As per sony Mam).
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>5</td>
+        <td><strong>AgeM</strong></td>
+        <td>Age in Months</td>
+        <td>
+            Age of the patient measured in months. The variable name
+            and observed values indicate that age is recorded in months.
+        </td>
+        <td>
+            Numerical values, e.g. 1, 2, 6, 12, 24, 48, 49
+        </td>
+        <td>Quantitative</td>
+        <td>Ratio</td>
+        <td>
+            Mean, median, standard deviation, IQR, histogram, boxplot,
+            correlation, t-test, ANOVA and regression.
+        </td>
+    </tr>
+
+    <tr>
+        <td>6</td>
+        <td><strong>Fever</strong></td>
+        <td>Presence of Fever</td>
+        <td>
+            Indicates whether the patient had fever at the time of
+            clinical assessment.
+        </td>
+        <td>
+            Yes = Fever present<br>
+            No = Fever absent
+        </td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test, odds ratio.
+        </td>
+    </tr>
+
+    <tr>
+        <td>7</td>
+        <td><strong>DiaMaxNo_24hrs</strong></td>
+        <td>Maximum Number of Diarrheal Episodes in 24 Hours</td>
+        <td>
+            The frequency or severity of diarrhea.
+        </td>
+        <td>Integer count</td>
+        <td>Count / Quantitative</td>
+        <td>Ratio</td>
+        <td>
+            Median, IQR, histogram, boxplot, correlation, group comparisons.
+        </td>
+    </tr>
+
+    <tr>
+        <td>8</td>
+        <td><strong>DiaDurInDays</strong></td>
+        <td>Duration of Diarrhea</td>
+        <td>
+            Duration of the diarrheal illness measured in days.
+        </td>
+        <td>Numerical values in days</td>
+        <td>Quantitative</td>
+        <td>Ratio</td>
+        <td>
+            Mean, median, SD, IQR, histogram, boxplot, correlation,
+            t-test/Wilcoxon test and regression.
+        </td>
+    </tr>
+
+    <tr>
+        <td>9</td>
+        <td><strong>vomiting</strong></td>
+        <td>Presence of Vomiting</td>
+        <td>
+            Patient experienced vomiting during the illness.
+        </td>
+        <td>
+            Yes = Vomiting present<br>
+            No = Vomiting absent
+        </td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test,
+            odds ratio.
+        </td>
+    </tr>
+
+    <tr>
+        <td>10</td>
+        <td><strong>VMaxNo_24hrs</strong></td>
+        <td>Maximum Number of Vomiting Episodes in 24 Hours</td>
+        <td>
+            Maximum number of vomiting episodes recorded within a
+            24-hour period.
+        </td>
+        <td>Integer count</td>
+        <td>Count / Quantitative</td>
+        <td>Ratio</td>
+        <td>
+            Descriptive statistics, histogram, boxplot, group comparison.
+        </td>
+    </tr>
+
+    <tr>
+        <td>11</td>
+        <td><strong>VDurInDays</strong></td>
+        <td>Duration of Vomiting</td>
+        <td>
+            Duration of vomiting measured in days.
+        </td>
+        <td>
+            Numerical values in days; blank were there (NA should be).
+        </td>
+        <td>Quantitative</td>
+        <td>Ratio</td>
+        <td>
+            Mean, median, SD, IQR, boxplot, group comparison and regression.
+        </td>
+    </tr>
+
+    <tr>
+        <td>12</td>
+        <td><strong>DegreeDehy</strong></td>
+        <td>Degree of Dehydration</td>
+        <td>
+            Clinical classification of the degree or severity of
+            dehydration.
+        </td>
+        <td>
+            Observed categories include <em>some</em> and
+            <em>Severe</em>. Data should be cleaned.
+        </td>
+        <td>Categorical</td>
+        <td>Ordinal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>13</td>
+        <td><strong>RehydT</strong></td>
+        <td>Rehydration Treatment</td>
+        <td>
+            Patient received rehydration therapy as part of clinical management.
+        </td>
+        <td>
+            Yes/No coding
+        </td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage and association with dehydration,
+            department etc.
+        </td>
+    </tr>
+
+    <tr>
+        <td>14</td>
+        <td><strong>ORS</strong></td>
+        <td>Oral Rehydration Solution</td>
+        <td>
+            Patient received oral rehydration
+            solution (ORS).
+        </td>
+        <td>Yes/No</td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>15</td>
+        <td><strong>IV</strong></td>
+        <td>Intravenous Fluid Therapy</td>
+        <td>
+            IPatient received intravenous fluid
+            therapy.
+        </td>
+        <td>Yes/No</td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>16</td>
+        <td><strong>OutComeDisc</strong></td>
+        <td>Outcome at Discharge</td>
+        <td>
+            Patient's clinical outcome or status at
+            discharge.
+        </td>
+        <td>
+            Observed value includes <em>Improved</em>. Some blank.
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage. Missing values
+            should be investigated before analysis.
+        </td>
+    </tr>
+
+    <tr>
+        <td>17</td>
+        <td><strong>ELISAResultLab</strong></td>
+        <td>Laboratory ELISA Test Result</td>
+        <td>
+            Result of an ELISA.
+        </td>
+        <td>
+            0 = Negative Result and 1 = Positive Resutl. (Info from Sony Mam)
+        </td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Positivity rate, Chi-square/Fisher's exact test,
+            sensitivity/specificity analysis where applicable.
+        </td>
+    </tr>
+
+    <tr>
+        <td>18</td>
+        <td><strong>StoolStored</strong></td>
+        <td>Stool Specimen Stored</td>
+        <td>
+            Stool specimen from the patient was
+            collected and stored for laboratory investigation.
+        </td>
+        <td>
+            Yes/No
+        </td>
+        <td>Binary categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage.
+        </td>
+    </tr>
+
+    <tr>
+        <td>19</td>
+        <td><strong>GenotypeResult</strong></td>
+        <td>Rotavirus Genotype Result</td>
+        <td>
+            Molecular genotype classification of rotavirus detected
+            in the stool..
+        </td>
+        <td>
+            Examples include:
+            G1P[8], G3P[8], G12P[6], G9P[6],
+            G1P[6], G12P[8], MIXED and UNTYPED.
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, cross-tabulation, Chi-square/
+            Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>20</td>
+        <td><strong>Parasites</strong></td>
+        <td>Parasitic Organism Identified</td>
+        <td>
+            Parasite identified in the patient's stool.
+        </td>
+        <td>
+            Examples include <em>Giardia lamblia</em>,
+            <em>Entamoeba histolytica</em> and
+            <em>Hymenolepsis nana</em>.
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, cross-tabulation and
+            Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+    <tr>
+        <td>21</td>
+        <td><strong>Bacteria</strong></td>
+        <td>Bacterial Organism Identified</td>
+        <td>
+            Bacterial pathogen identified.
+        </td>
+        <td>
+            Names of bacterial organisms where detected; blank values
+            may indicate no recorded bacterial result.
+        </td>
+        <td>Categorical</td>
+        <td>Nominal</td>
+        <td>
+            Frequency, percentage, cross-tabulation and
+            Chi-square/Fisher's exact test.
+        </td>
+    </tr>
+
+</tbody>
+```
+
+</table>
+
+<h3>Variable Classification by Major Domain</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Domain</th>
+            <th>Variables</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Identification</strong></td>
+            <td>Case ID</td>
+        </tr>
+        <tr>
+            <td><strong>Administrative / Time</strong></td>
+            <td>DForm_Filled</td>
+        </tr>
+        <tr>
+            <td><strong>Demographic</strong></td>
+            <td>Sex, AgeM</td>
+        </tr>
+        <tr>
+            <td><strong>Clinical Symptoms</strong></td>
+            <td>
+                Fever, DiaMaxNo_24hrs, DiaDurInDays,
+                vomiting, VMaxNo_24hrs, VDurInDays
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Clinical Severity</strong></td>
+            <td>DegreeDehy</td>
+        </tr>
+        <tr>
+            <td><strong>Treatment</strong></td>
+            <td>RehydT, ORS, IV</td>
+        </tr>
+        <tr>
+            <td><strong>Patient Management / Outcome</strong></td>
+            <td>Department, OutComeDisc</td>
+        </tr>
+        <tr>
+            <td><strong>Laboratory / Microbiology</strong></td>
+            <td>
+                ELISAResultLab, StoolStored, GenotypeResult,
+                Parasites, Bacteria
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Measurement Scale Classification</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Measurement Scale</th>
+            <th>Variables</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Nominal</strong></td>
+            <td>
+                Department, Sex, Fever, vomiting, RehydT, ORS, IV,
+                OutComeDisc, ELISAResultLab, StoolStored,
+                GenotypeResult, Parasites, Bacteria
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Ordinal</strong></td>
+            <td>DegreeDehy</td>
+        </tr>
+        <tr>
+            <td><strong>Ratio</strong></td>
+            <td>
+                AgeM, DiaMaxNo_24hrs, DiaDurInDays,
+                VMaxNo_24hrs, VDurInDays
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Date/Time</strong></td>
+            <td>DForm_Filled</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<!--
+
+<h3>Recommended Statistical Methods for This Dataset</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Objective</th>
+            <th>Variables</th>
+            <th>Recommended Method</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Describe categorical variables</td>
+            <td>Sex, Fever, vomiting, Department, ORS, IV</td>
+            <td>Frequency and percentage</td>
+        </tr>
+        <tr>
+            <td>Describe quantitative variables</td>
+            <td>AgeM, diarrhea frequency, diarrhea duration</td>
+            <td>Mean ± SD or median (IQR)</td>
+        </tr>
+        <tr>
+            <td>Association between categorical variables</td>
+            <td>Fever × Department</td>
+            <td>Chi-square or Fisher's exact test</td>
+        </tr>
+        <tr>
+            <td>Compare age between two groups</td>
+            <td>AgeM × Department</td>
+            <td>t-test or Mann-Whitney U test</td>
+        </tr>
+        <tr>
+            <td>Compare quantitative variable among multiple groups</td>
+            <td>Clinical variable × DegreeDehy</td>
+            <td>ANOVA or Kruskal-Wallis test</td>
+        </tr>
+        <tr>
+            <td>Measure association between quantitative variables</td>
+            <td>AgeM × DiaMaxNo_24hrs</td>
+            <td>Pearson or Spearman correlation</td>
+        </tr>
+        <tr>
+            <td>Predict inpatient admission</td>
+            <td>
+                Department as outcome with AgeM, Sex, Fever,
+                vomiting, dehydration, etc.
+            </td>
+            <td>Binary logistic regression</td>
+        </tr>
+        <tr>
+            <td>Study genotype distribution</td>
+            <td>GenotypeResult and clinical variables</td>
+            <td>Frequency, percentage, Chi-square/Fisher's exact test</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+<strong>Note:</strong> The definitions of numerical codes should be verified
+against the original study questionnaire, case-report form, or laboratory
+codebook before publication or formal statistical analysis.
+</p>
+    
+-->
+
+
+
+</div>
+</section>
+
+
+<section id="feedback" class="section">
+<div class="card">
+<h2>📈 feedback</h2>
+<section class="feedback-section">
+    <div class="feedback-container">
+
+        <h2>Feedback Form</h2>
+        <p>
+            We value your feedback. Please take a few minutes to complete
+            the form below.
+        </p>
+
+        <div class="kobo-form-container">
+            <iframe
+                src="https://ee.kobotoolbox.org/x/POU7zOfM"
+                width="100%"
+                height="6680"
+                frameborder="0"
+                allowfullscreen>
+            </iframe>
+        </div>
+
+    </div>
+</section>
+
+<style>
+.feedback-section {
+    padding: 60px 20px;
+    background: #f5f7fa;
+}
+
+.feedback-container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.feedback-container h2 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.feedback-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666;
+}
+
+.kobo-form-container {
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.10);
+    overflow: hidden;
+}
+
+.kobo-form-container iframe {
+    width: 100%;
+    min-height: 900px;
+    border: none;
+    display: block;
+}
+</style>
+
+</section>
+
+<div class="presentation-bar">
+<button onclick="previousSection()" title="Previous">◀</button>
+<button onclick="nextSection()" title="Next">▶</button>
+</div>
+
+<footer>
+<b>St. Xevier College, Maitighar</b><br>
+Interactive Teaching Tool • Correlation • Regression • Chi-square
+Instructor: Bijay Lal Pradhan Email:bijayprad@gmail.com
+</footer>
+
+<script>
+const sections=['home','plan','correlation','regression','multiple','qualitative','decision','practice','rlab',"feedback"];
+let current=0;
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  current=sections.indexOf(id);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextSection(){current=(current+1)%sections.length;showSection(sections[current])}
+function previousSection(){current=(current-1+sections.length)%sections.length;showSection(sections[current])}
+
+function copyCode(id){
+  const text=document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(()=>alert("R code copied to clipboard!"));
+}
+
+const patterns={
+positive:[[2,45],[3,50],[4,55],[5,65],[6,70],[7,72],[8,80],[4,60],[6,68],[9,90]],
+negative:[[2,90],[3,82],[4,78],[5,70],[6,65],[7,58],[8,50],[4,74],[6,63],[9,42]],
+none:[[2,65],[3,48],[4,80],[5,55],[6,70],[7,45],[8,72],[4,60],[6,50],[9,68]]
+};
+let currentPattern='positive';
+
+function correlation(points){
+ let n=points.length;
+ let mx=points.reduce((s,p)=>s+p[0],0)/n;
+ let my=points.reduce((s,p)=>s+p[1],0)/n;
+ let num=0,dx=0,dy=0;
+ points.forEach(p=>{let a=p[0]-mx,b=p[1]-my;num+=a*b;dx+=a*a;dy+=b*b});
+ return num/Math.sqrt(dx*dy);
+}
+
+function drawScatter(){
+ const c=document.getElementById('scatterCanvas');
+ if(!c)return;
+ const ctx=c.getContext('2d'), W=c.width,H=c.height;
+ ctx.clearRect(0,0,W,H);
+ const pad={l:70,r:30,t:30,b:60};
+ const pts=patterns[currentPattern];
+ const xMin=0,xMax=10,yMin=30,yMax=100;
+ const X=x=>pad.l+(x-xMin)/(xMax-xMin)*(W-pad.l-pad.r);
+ const Y=y=>H-pad.b-(y-yMin)/(yMax-yMin)*(H-pad.t-pad.b);
+ ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;
+ for(let i=0;i<=10;i++){
+   let x=X(i);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();
+ }
+ for(let y=30;y<=100;y+=10){
+   let yy=Y(y);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke();
+ }
+ ctx.strokeStyle='#334155';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+ ctx.fillStyle='#2563eb';
+ pts.forEach(p=>{ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),6,0,Math.PI*2);ctx.fill()});
+ ctx.fillStyle='#1e293b';ctx.font='16px Arial';
+ ctx.fillText('Study Hours',W/2-40,H-20);
+ ctx.save();ctx.translate(20,H/2+40);ctx.rotate(-Math.PI/2);ctx.fillText('Exam Score',0,0);ctx.restore();
+ const r=correlation(pts);
+ let direction=r>0.2?'Positive':r<-0.2?'Negative':'Weak / No clear linear';
+ document.getElementById('corOutput').innerText=
+ `Pearson correlation (illustrative): r = ${r.toFixed(3)}\nDirection: ${direction}\n\nTeaching question: What does the scatterplot tell us before calculating r?`;
+}
+function setPattern(p){currentPattern=p;drawScatter()}
+
+function drawRegression(){
+ const c=document.getElementById('regCanvas');if(!c)return;
+ const ctx=c.getContext('2d'),W=c.width,H=c.height;
+ const slope=parseFloat(document.getElementById('slopeSlider').value);
+ document.getElementById('slopeValue').innerText=slope;
+ const intercept=40;
+ const pts=[[2,48],[3,54],[4,58],[5,67],[6,68],[7,76],[8,82],[9,86]];
+ ctx.clearRect(0,0,W,H);
+ const pad={l:70,r:30,t:30,b:60};
+ const X=x=>pad.l+x/10*(W-pad.l-pad.r);
+ const Y=y=>H-pad.b-(y-20)/90*(H-pad.t-pad.b);
+ ctx.strokeStyle='#cbd5e1';
+ for(let i=0;i<=10;i++){let x=X(i);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke()}
+ for(let y=20;y<=110;y+=10){let yy=Y(y);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke()}
+ ctx.strokeStyle='#334155';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+ ctx.fillStyle='#2563eb';pts.forEach(p=>{ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),6,0,Math.PI*2);ctx.fill()});
+ let y1=intercept+slope*0,y2=intercept+slope*10;
+ ctx.strokeStyle='#dc2626';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(0),Y(y1));ctx.lineTo(X(10),Y(y2));ctx.stroke();
+ ctx.fillStyle='#1e293b';ctx.font='16px Arial';ctx.fillText('Study Hours (X)',W/2-50,H-20);
+ document.getElementById('regOutput').innerText=
+ `Illustrative regression equation:\n\nŶ = ${intercept} + (${slope})X\n\nInterpretation:\nFor every one-unit increase in X, the predicted Y changes by ${slope} units.`;
+}
+
+function chooseQuestion(type){
+ const box=document.getElementById('decisionBox');box.style.display='block';
+ if(type==='compare'){
+   box.innerHTML=`<h3>Are you comparing two groups or three/more groups?</h3>
+   <button class="btn" onclick="document.getElementById('decisionBox').innerHTML='<h3>Two Groups</h3><p>If the outcome is numerical → <b>Independent t-test</b></p>'">Two Groups</button>
+   <button class="btn secondary" onclick="document.getElementById('decisionBox').innerHTML='<h3>Three or More Groups</h3><p>If the outcome is numerical → <b>ANOVA</b></p>'">Three or More Groups</button>`;
+ }else{
+   box.innerHTML=`<h3>What types of variables do you have?</h3>
+   <button class="btn" onclick="document.getElementById('decisionBox').innerHTML='<h3>Numerical + Numerical</h3><p>Use <b>Correlation</b> for association or <b>Regression</b> for prediction/explanation.</p>'">Numerical + Numerical</button>
+   <button class="btn secondary" onclick="document.getElementById('decisionBox').innerHTML='<h3>Qualitative + Qualitative</h3><p>Use a <b>Chi-square Test of Independence</b>.</p>'">Qualitative + Qualitative</button>`;
+ }
+}
+function reveal(id){document.getElementById(id).style.display='block'}
+drawScatter();
+drawRegression();
+</script>
+</body>
+</html>
