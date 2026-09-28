@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Visualization & Descriptive Statistics Using R</title>
+<style>
+:root{
+ --primary:#2563eb;--secondary:#7c3aed;--success:#059669;--warning:#d97706;
+ --danger:#dc2626;--dark:#172033;--muted:#64748b;--light:#f8fafc;
+ --card:#fff;--border:#e2e8f0
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;color:#1e293b;line-height:1.65}
+header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:44px 20px;text-align:center}
+header h1{margin:0;font-size:2.35rem} header p{margin:9px 0 0;font-size:1.08rem}
+nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--border);
+ padding:10px;display:flex;gap:8px;overflow:auto}
+nav button{border:0;background:#eef2ff;color:#3730a3;padding:10px 14px;border-radius:8px;
+ cursor:pointer;white-space:nowrap;font-weight:bold} nav button:hover{background:#c7d2fe}
+.container{max-width:1200px;margin:auto;padding:24px 18px 70px}
+.section{display:none;animation:fade .3s ease}.section.active{display:block}
+@keyframes fade{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin:18px 0;
+ box-shadow:0 4px 14px rgba(15,23,42,.06)}
+h2{color:#1d4ed8;margin-top:0} h3{color:#4c1d95}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.stat-card{padding:18px;border-radius:14px;background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+ border-left:5px solid var(--primary)}
+.highlight{background:#ecfdf5;border-left:5px solid var(--success);padding:16px;border-radius:10px;margin:14px 0}
+.warning{background:#fff7ed;border-left:5px solid var(--warning);padding:16px;border-radius:10px;margin:14px 0}
+.danger{background:#fef2f2;border-left:5px solid var(--danger);padding:16px;border-radius:10px;margin:14px 0}
+.info{background:#eff6ff;border-left:5px solid var(--primary);padding:16px;border-radius:10px;margin:14px 0}
+table{width:100%;border-collapse:collapse;margin:15px 0;background:#fff}
+th{background:#1d4ed8;color:#fff} th,td{padding:10px;border:1px solid var(--border);text-align:left}
+tr:nth-child(even){background:#f8fafc}
+pre{background:#0f172a;color:#e2e8f0;padding:18px;border-radius:12px;overflow:auto;position:relative}
+code{font-family:Consolas,monospace}.copy-btn{float:right;background:#334155;color:#fff;border:0;
+ border-radius:6px;padding:6px 10px;cursor:pointer}
+.btn{background:var(--primary);color:#fff;border:0;border-radius:8px;padding:10px 15px;cursor:pointer;
+ font-size:1rem;margin:4px}.btn.secondary{background:var(--secondary)}.btn.success{background:var(--success)}
+.big-question{font-size:1.2rem;background:#eff6ff;padding:18px;border-radius:12px;border-left:6px solid var(--primary)}
+.output{background:#f8fafc;border:1px solid var(--border);padding:15px;border-radius:10px;
+ font-family:Consolas,monospace;white-space:pre-wrap}
+.quiz-option{display:block;width:100%;text-align:left;margin:8px 0;padding:13px;border:1px solid var(--border);
+ border-radius:9px;background:#fff;cursor:pointer}.quiz-option:hover{background:#eff6ff}
+.answer{display:none;padding:14px;background:#ecfdf5;border-left:5px solid var(--success);border-radius:8px;margin-top:10px}
+.chart-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart-box{border:1px solid var(--border);border-radius:12px;padding:15px;background:#fff}
+canvas{width:100%;height:340px;border-radius:10px;background:#fff}
+.badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#e0e7ff;color:#3730a3;font-size:.85rem;margin:2px}
+.timeline{border-left:4px solid #6366f1;padding-left:20px}.time{margin:18px 0;padding:15px;background:#fff;border-radius:10px;border:1px solid var(--border)}
+footer{text-align:center;padding:25px;background:#172033;color:#fff}
+.presentation-bar{position:fixed;right:18px;bottom:18px;z-index:30}
+.presentation-bar button{border:0;border-radius:50%;width:52px;height:52px;margin:4px;background:#1d4ed8;color:#fff;font-size:20px;cursor:pointer}
+@media(max-width:800px){.chart-wrap{grid-template-columns:1fr}}
+@media(max-width:700px){header h1{font-size:1.7rem}.container{padding:14px}canvas{height:280px}}
+@media print{nav,.presentation-bar,.copy-btn,.btn{display:none!important}.section{display:block!important;page-break-after:always}
+body{background:#fff}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>📊 Data Visualization & Descriptive Statistics Using R</h1>
+<p>Continuous & Categorical Variables • Exploratory Data Analysis • Research Reporting</p>
+<p><b>Karnali Academy of Health Sciences (KAHS)</b></p>
+
+</header>
+
+<nav>
+<button onclick="showSection('home')">🏠 Home</button>
+<button onclick="showSection('plan')">🕐 Study Plan</button>
+<button onclick="showSection('data')">🧩 Data & Variables</button>
+<button onclick="showSection('continuous')">📈 Continuous Variables</button>
+<button onclick="showSection('categorical')">📊 Categorical Variables</button>
+<button onclick="showSection('compare')">🔎 Compare & Explore</button>
+<button onclick="showSection('decision')">🧭 Choose a Summary</button>
+<button onclick="showSection('quiz')">🎯 Quiz</button>
+<button onclick="showSection('rlab')">💻 R Lab</button>
+</nav>
+
+<div class="container">
+
+<section id="home" class="section active">
+<div class="card">
+<h2>Welcome to the R Data Analysis Workshop</h2>
+<p>This training focuses on the first stage of almost every quantitative research project: <b>understanding the data before performing inferential analysis</b>.</p>
+<div class="grid">
+<div class="stat-card"><h3>1️⃣ Identify Variables</h3><p>Distinguish continuous, discrete, nominal and ordinal variables.</p></div>
+<div class="stat-card"><h3>2️⃣ Clean & Inspect</h3><p>Check missing values, coding, ranges and unusual observations.</p></div>
+<div class="stat-card"><h3>3️⃣ Describe</h3><p>Use appropriate numerical summaries for each variable type.</p></div>
+<div class="stat-card"><h3>4️⃣ Visualize</h3><p>Select plots that reveal distribution, frequency and patterns.</p></div>
+<div class="stat-card"><h3>5️⃣ Compare</h3><p>Explore distributions across groups using suitable plots.</p></div>
+<div class="stat-card"><h3>6️⃣ Report</h3><p>Present tables and figures clearly in research language.</p></div>
+</div>
+</div>
+
+<div class="card">
+<h2>🎯 Learning Objectives</h2>
+<ul>
+<li>Understand continuous and categorical variables.</li>
+<li>Calculate and interpret mean, median, standard deviation, variance, range and IQR.</li>
+<li>Calculate frequencies and percentages for categorical variables.</li>
+<li>Use histograms, density plots, boxplots and violin plots for continuous variables.</li>
+<li>Use bar charts and stacked/proportional charts for categorical variables.</li>
+<li>Recognize skewness, outliers and distributional patterns.</li>
+<li>Use R base functions and <b>ggplot2</b> for reproducible visualization.</li>
+<li>Choose an appropriate descriptive statistic and graph based on the variable type.</li>
+<li>Produce publication-ready descriptive summaries.</li>
+</ul>
+</div>
+
+<div class="highlight"><b>⭐ Core principle:</b><br>
+Research question → Variable type → Data quality → Numerical summary → Visualization → Interpretation → Report</div>
+</section>
+
+<section id="plan" class="section">
+<div class="card"><h2>🕐 Suggested Training Plan</h2>
+<div class="timeline">
+<div class="time"><b>Session 1: Understanding Data</b><br>Rows, columns, variable types, measurement scales, missing values and basic R inspection.</div>
+<div class="time"><b>Session 2: Descriptive Statistics</b><br>Mean, median, mode, SD, variance, range, quartiles, IQR, coefficient of variation and five-number summary.</div>
+<div class="time"><b>Session 3: Continuous Data Visualization</b><br>Histogram, density plot, boxplot, violin plot, ECDF and Q-Q plot.</div>
+<div class="time"><b>Session 4: Categorical Data Visualization</b><br>Frequency tables, percentages, bar charts, ordered bars and proportional/stacked charts.</div>
+<div class="time"><b>Session 5: Grouped Exploration</b><br>Continuous variables by category, categorical variables by groups, faceting and comparative graphics.</div>
+<div class="time"><b>Session 6: Complete R Lab</b><br>Import data → inspect → clean → summarize → visualize → export figures/tables → report findings.</div>
+</div></div>
+
+<div class="card"><h2>👨‍🏫 Recommended Teaching Flow</h2>
+<table><tr><th>Step</th><th>Trainer Activity</th><th>Learner Activity</th></tr>
+<tr><td>1</td><td>Present a research question.</td><td>Identify outcome and explanatory variables.</td></tr>
+<tr><td>2</td><td>Show the raw data.</td><td>Identify variable types.</td></tr>
+<tr><td>3</td><td>Ask what should be reported.</td><td>Select numerical summaries.</td></tr>
+<tr><td>4</td><td>Demonstrate the graph.</td><td>Interpret the visual pattern.</td></tr>
+<tr><td>5</td><td>Show R code.</td><td>Reproduce the analysis.</td></tr>
+<tr><td>6</td><td>Discuss reporting.</td><td>Write a concise research statement.</td></tr>
+</table></div>
+</section>
+
+<section id="data" class="section">
+<div class="card">
+<h2>🧩 1. Understanding Variable Types</h2>
+<table>
+<tr><th>Variable type</th><th>Example</th><th>Typical summaries</th><th>Typical graphs</th></tr>
+<tr><td>Continuous / quantitative</td><td>Age, weight, height, blood pressure</td><td>Mean, SD, median, IQR</td><td>Histogram, density, boxplot, violin</td></tr>
+<tr><td>Discrete / count</td><td>Number of visits, episodes, publications</td><td>Mean/SD or median/IQR depending on distribution</td><td>Bar chart, histogram, boxplot</td></tr>
+<tr><td>Nominal categorical</td><td>Sex, department, treatment group</td><td>Frequency, percentage</td><td>Bar chart</td></tr>
+<tr><td>Ordinal categorical</td><td>Mild, moderate, severe</td><td>Frequency, percentage, median where appropriate</td><td>Ordered bar chart</td></tr>
+</table>
+<div class="warning"><b>Important:</b> A variable stored as numbers is not automatically a continuous variable. For example, 1 = Male and 2 = Female is categorical coding.</div>
+</div>
+
+<div class="card">
+<h2>🔍 Basic R Data Inspection</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeInspect')">Copy</button><code id="codeInspect"># Import CSV
+data &lt;- read.csv("mydata.csv")
+
+# First six rows
+head(data)
+
+# Structure of the dataset
+str(data)
+
+# Variable names
+names(data)
+
+# Dimensions
+dim(data)
+
+# Summary of every variable
+summary(data)
+
+# Missing values by variable
+colSums(is.na(data))
+
+# Unique values of a categorical variable
+unique(data$Sex)
+
+# Frequency table
+table(data$Sex)
+
+# Relative frequency / percentage
+prop.table(table(data$Sex)) * 100</code></pre>
+</div>
+
+<div class="card">
+<h2>🧹 Data Quality Checklist</h2>
+<div class="grid">
+<div class="stat-card"><b>Missing values</b><p>How many observations are missing?</p></div>
+<div class="stat-card"><b>Impossible values</b><p>Are age, weight or scores within plausible ranges?</p></div>
+<div class="stat-card"><b>Coding</b><p>Are categorical codes correctly labelled?</p></div>
+<div class="stat-card"><b>Outliers</b><p>Are extreme observations genuine or data-entry errors?</p></div>
+</div>
+</div>
+</section>
+
+<section id="continuous" class="section">
+<div class="card">
+<h2>📈 2. Descriptive Statistics for Continuous Variables</h2>
+<div class="big-question">🔬 Example research question: What is the distribution of patient age and duration of illness?</div>
+<table>
+<tr><th>Statistic</th><th>What it describes</th><th>R function</th></tr>
+<tr><td>Mean</td><td>Arithmetic average</td><td><code>mean(x, na.rm=TRUE)</code></td></tr>
+<tr><td>Median</td><td>Middle observation</td><td><code>median(x, na.rm=TRUE)</code></td></tr>
+<tr><td>SD</td><td>Spread around the mean</td><td><code>sd(x, na.rm=TRUE)</code></td></tr>
+<tr><td>Variance</td><td>Squared measure of dispersion</td><td><code>var(x, na.rm=TRUE)</code></td></tr>
+<tr><td>Minimum / Maximum</td><td>Observed range</td><td><code>min()</code> / <code>max()</code></td></tr>
+<tr><td>Quartiles</td><td>Distribution cut-points</td><td><code>quantile(x)</code></td></tr>
+<tr><td>IQR</td><td>Middle 50% spread</td><td><code>IQR(x)</code></td></tr>
+</table>
+<div class="info"><b>Reporting idea:</b> Approximately symmetric data are often summarized using mean ± SD, while strongly skewed data are often summarized using median and IQR. The choice should reflect the distribution and research context.</div>
+</div>
+
+<div class="card">
+<h2>💻 Base R Descriptive Statistics</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeDesc')">Copy</button><code id="codeDesc">x &lt;- data$Age
+
+mean(x, na.rm = TRUE)
+median(x, na.rm = TRUE)
+sd(x, na.rm = TRUE)
+var(x, na.rm = TRUE)
+min(x, na.rm = TRUE)
+max(x, na.rm = TRUE)
+range(x, na.rm = TRUE)
+quantile(x, na.rm = TRUE)
+IQR(x, na.rm = TRUE)
+
+# Five-number summary
+fivenum(x)
+
+# Several statistics together
+summary(x)</code></pre>
+</div>
+
+<div class="card">
+<h2>📦 Five-Number Summary</h2>
+<table>
+<tr><th>Component</th><th>Meaning</th></tr>
+<tr><td>Minimum</td><td>Smallest observation</td></tr>
+<tr><td>Q1</td><td>25th percentile</td></tr>
+<tr><td>Median</td><td>50th percentile</td></tr>
+<tr><td>Q3</td><td>75th percentile</td></tr>
+<tr><td>Maximum</td><td>Largest observation</td></tr>
+</table>
+<div class="highlight">The five-number summary is particularly useful for understanding spread, skewness and potential outliers.</div>
+</div>
+
+<div class="card">
+<h2>📊 Histogram vs Density Plot vs Boxplot</h2>
+<div class="chart-wrap">
+<div class="chart-box"><h3>Histogram</h3><p>Shows the frequency distribution across intervals.</p><canvas id="histCanvas"></canvas></div>
+<div class="chart-box"><h3>Boxplot</h3><p>Shows median, quartiles, spread and potential outliers.</p><canvas id="boxCanvas"></canvas></div>
+</div>
+<div class="info"><b>Teaching tip:</b> Ask participants what they can see in each graph before showing the numerical statistics.</div>
+</div>
+
+<div class="card">
+<h2>💻 ggplot2: Continuous Variable Visualization</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeContPlot')">Copy</button><code id="codeContPlot">library(ggplot2)
+
+# Histogram
+ggplot(data, aes(x = Age)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "white") +
+  labs(title = "Distribution of Age",
+       x = "Age", y = "Frequency") +
+  theme_minimal()
+
+# Density plot
+ggplot(data, aes(x = Age)) +
+  geom_density(fill = "skyblue", alpha = 0.5) +
+  labs(title = "Density of Age",
+       x = "Age", y = "Density") +
+  theme_minimal()
+
+# Boxplot
+ggplot(data, aes(y = Age)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Age", y = "Age") +
+  theme_minimal()
+
+# Violin plot
+ggplot(data, aes(x = "", y = Age)) +
+  geom_violin(fill = "orchid", alpha = 0.6) +
+  geom_boxplot(width = 0.12) +
+  labs(title = "Violin + Boxplot of Age", x = NULL, y = "Age") +
+  theme_minimal()</code></pre>
+</div>
+
+<div class="card">
+<h2>📐 Detecting Skewness and Outliers</h2>
+<ul>
+<li><b>Right-skewed:</b> long tail toward larger values; mean may exceed median.</li>
+<li><b>Left-skewed:</b> long tail toward smaller values; mean may be below median.</li>
+<li><b>Symmetric:</b> mean and median are often relatively close.</li>
+<li><b>Potential outliers:</b> observations unusually far from the main distribution.</li>
+</ul>
+<pre><button class="copy-btn" onclick="copyCode('codeOutlier')">Copy</button><code id="codeOutlier"># Boxplot statistics
+boxplot.stats(data$Age)
+
+# Identify possible boxplot outliers
+boxplot(data$Age)$out
+
+# Quantiles
+quantile(data$Age, probs = c(.25, .50, .75), na.rm = TRUE)</code></pre>
+</div>
+</section>
+
+<section id="categorical" class="section">
+<div class="card">
+<h2>📊 3. Descriptive Statistics for Categorical Variables</h2>
+<div class="big-question">🔬 Example research question: What proportion of participants are male/female, and how are participants distributed across departments?</div>
+<table>
+<tr><th>Summary</th><th>Purpose</th><th>R function</th></tr>
+<tr><td>Frequency</td><td>Number in each category</td><td><code>table(x)</code></td></tr>
+<tr><td>Percentage</td><td>Relative frequency</td><td><code>prop.table(table(x))*100</code></td></tr>
+<tr><td>Cross-tabulation</td><td>Two categorical variables</td><td><code>table(x, y)</code></td></tr>
+<tr><td>Row percentage</td><td>Percentage within each row</td><td><code>prop.table(tab, 1)*100</code></td></tr>
+<tr><td>Column percentage</td><td>Percentage within each column</td><td><code>prop.table(tab, 2)*100</code></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>💻 Base R Frequency Tables</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeCat')">Copy</button><code id="codeCat"># Frequency
+table(data$Sex)
+
+# Percentage
+round(prop.table(table(data$Sex)) * 100, 1)
+
+# Two-way table
+tab &lt;- table(data$Sex, data$Department)
+tab
+
+# Row percentages
+round(prop.table(tab, 1) * 100, 1)
+
+# Column percentages
+round(prop.table(tab, 2) * 100, 1)</code></pre>
+</div>
+
+<div class="card">
+<h2>📊 Bar Charts</h2>
+<div class="chart-wrap">
+<div class="chart-box"><h3>Frequency bar chart</h3><canvas id="barCanvas"></canvas></div>
+<div class="chart-box"><h3>Percentage bar chart</h3><canvas id="pctCanvas"></canvas></div>
+</div>
+</div>
+
+<div class="card">
+<h2>💻 ggplot2: Categorical Visualization</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeCatPlot')">Copy</button><code id="codeCatPlot">library(ggplot2)
+
+# Bar chart
+ggplot(data, aes(x = Sex)) +
+  geom_bar() +
+  labs(title = "Participants by Sex",
+       x = "Sex", y = "Frequency") +
+  theme_minimal()
+
+# Ordered bar chart using counts
+ggplot(data, aes(x = reorder(Department, Department, function(x) -length(x)))) +
+  geom_bar() +
+  coord_flip() +
+  labs(title = "Participants by Department",
+       x = "Department", y = "Frequency") +
+  theme_minimal()
+
+# Proportion chart
+ggplot(data, aes(x = Sex, fill = Department)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Department Composition by Sex",
+       x = "Sex", y = "Percentage") +
+  theme_minimal()</code></pre>
+</div>
+
+<div class="card">
+<h2>⚠️ Common Mistakes with Categorical Variables</h2>
+<div class="grid">
+<div class="danger"><b>Do not:</b><br>Calculate a mean of arbitrary category codes such as 1 = Male and 2 = Female.</div>
+<div class="warning"><b>Do not:</b><br>Ignore the denominator when reporting percentages.</div>
+<div class="info"><b>Do:</b><br>Report n and % together whenever useful.</div>
+<div class="highlight"><b>Do:</b><br>Preserve the meaningful order of ordinal categories.</div>
+</div>
+</div>
+</section>
+
+<section id="compare" class="section">
+<div class="card">
+<h2>🔎 4. Exploring Continuous Variables by Groups</h2>
+<div class="big-question">🔬 Example research question: Does age have a different distribution across departments?</div>
+<pre><button class="copy-btn" onclick="copyCode('codeGroup')">Copy</button><code id="codeGroup">library(ggplot2)
+
+# Boxplot by group
+ggplot(data, aes(x = Department, y = Age)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution by Department",
+       x = "Department", y = "Age") +
+  theme_minimal()
+
+# Violin + boxplot
+ggplot(data, aes(x = Department, y = Age, fill = Department)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.12) +
+  theme_minimal()
+
+# Histogram by group
+ggplot(data, aes(x = Age)) +
+  geom_histogram(bins = 20) +
+  facet_wrap(~ Department) +
+  theme_minimal()</code></pre>
+<div class="highlight"><b>Interpretation:</b> Compare centre, spread, skewness and unusual observations across groups. Visualization is exploratory; it does not by itself establish statistical significance.</div>
+</div>
+
+<div class="card">
+<h2>📋 Descriptive Summary by Group</h2>
+<pre><button class="copy-btn" onclick="copyCode('codeGroupSummary')">Copy</button><code id="codeGroupSummary"># Base R
+aggregate(Age ~ Department, data = data,
+          FUN = function(x) c(
+            mean = mean(x, na.rm = TRUE),
+            median = median(x, na.rm = TRUE),
+            sd = sd(x, na.rm = TRUE)
+          ))
+
+# dplyr approach
+library(dplyr)
+
+data %>%
+  group_by(Department) %>%
+  summarise(
+    n = sum(!is.na(Age)),
+    mean = mean(Age, na.rm = TRUE),
+    median = median(Age, na.rm = TRUE),
+    sd = sd(Age, na.rm = TRUE),
+    IQR = IQR(Age, na.rm = TRUE)
+  )</code></pre>
+</div>
+
+<div class="card">
+<h2>🧮 Mean vs Median: A Simple Interpretation Exercise</h2>
+<table>
+<tr><th>Pattern</th><th>What you might observe</th><th>Question to ask</th></tr>
+<tr><td>Mean ≈ Median</td><td>Distribution may be reasonably symmetric.</td><td>Does the graph support this?</td></tr>
+<tr><td>Mean > Median</td><td>Possible right skew.</td><td>Are there large observations?</td></tr>
+<tr><td>Mean < Median</td><td>Possible left skew.</td><td>Are there small observations?</td></tr>
+<tr><td>Large SD / IQR</td><td>Greater variability.</td><td>Are observations widely dispersed?</td></tr>
+</table>
+</div>
+</section>
+
+<section id="decision" class="section">
+<div class="card">
+<h2>🧭 Which Descriptive Summary Should I Use?</h2>
+<table>
+<tr><th>Variable / situation</th><th>Numerical summary</th><th>Recommended visualization</th></tr>
+<tr><td>Continuous, approximately symmetric</td><td>Mean ± SD</td><td>Histogram / density / boxplot</td></tr>
+<tr><td>Continuous, skewed</td><td>Median (IQR)</td><td>Histogram / density / boxplot</td></tr>
+<tr><td>Count variable</td><td>Mean/SD or median/IQR depending on distribution</td><td>Histogram / bar chart / boxplot</td></tr>
+<tr><td>Nominal categorical</td><td>n (%)</td><td>Bar chart</td></tr>
+<tr><td>Ordinal categorical</td><td>n (%) in meaningful order</td><td>Ordered bar chart</td></tr>
+<tr><td>Continuous by categorical group</td><td>Group-specific mean/SD or median/IQR</td><td>Boxplot / violin plot</td></tr>
+<tr><td>Two categorical variables</td><td>Cross-tabulation, n (%)</td><td>Grouped / stacked / proportional bar chart</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>🧠 Quick Decision Tree</h2>
+<div class="grid">
+<div class="stat-card"><b>Step 1</b><p>Is the variable numerical?</p><p>↓ Yes → Examine distribution.</p></div>
+<div class="stat-card"><b>Step 2</b><p>Is it categorical?</p><p>↓ Yes → Use frequency and percentage.</p></div>
+<div class="stat-card"><b>Step 3</b><p>Numerical distribution?</p><p>Symmetric → mean/SD; skewed → median/IQR.</p></div>
+<div class="stat-card"><b>Step 4</b><p>Need a visual?</p><p>Continuous → histogram/boxplot; categorical → bar chart.</p></div>
+</div>
+</div>
+</section>
+
+<section id="quiz" class="section">
+<div class="card"><h2>🎯 Test Yourself</h2><p>Click an option to reveal the explanation.</p>
+
+<div class="card"><h3>Scenario 1</h3><p>Age is strongly right-skewed. Which summary is generally more representative of the centre?</p>
+<button class="quiz-option" onclick="reveal('q1')">A. Mean only</button>
+<button class="quiz-option" onclick="reveal('q1')">B. Median with IQR</button>
+<button class="quiz-option" onclick="reveal('q1')">C. Percentage</button>
+<div id="q1" class="answer"><b>Answer: Median with IQR.</b><br>The median is less sensitive to extreme values than the mean.</div></div>
+
+<div class="card"><h3>Scenario 2</h3><p>Sex is coded 1 = Male and 2 = Female. What should you report?</p>
+<button class="quiz-option" onclick="reveal('q2')">A. Mean sex</button>
+<button class="quiz-option" onclick="reveal('q2')">B. Frequency and percentage</button>
+<button class="quiz-option" onclick="reveal('q2')">C. Standard deviation of sex</button>
+<div id="q2" class="answer"><b>Answer: Frequency and percentage.</b><br>The numbers are category codes, not measurements.</div></div>
+
+<div class="card"><h3>Scenario 3</h3><p>Which graph is especially useful for showing the distribution of a continuous variable?</p>
+<button class="quiz-option" onclick="reveal('q3')">A. Histogram</button>
+<button class="quiz-option" onclick="reveal('q3')">B. Pie chart</button>
+<button class="quiz-option" onclick="reveal('q3')">C. Frequency table only</button>
+<div id="q3" class="answer"><b>Answer: Histogram.</b><br>A histogram displays the distribution of numerical observations across intervals.</div></div>
+
+<div class="card"><h3>Scenario 4</h3><p>You want to compare the distribution of a continuous outcome across four departments. Which plot is particularly useful?</p>
+<button class="quiz-option" onclick="reveal('q4')">A. Boxplot</button>
+<button class="quiz-option" onclick="reveal('q4')">B. Pie chart</button>
+<button class="quiz-option" onclick="reveal('q4')">C. Single frequency table</button>
+<div id="q4" class="answer"><b>Answer: Boxplot.</b><br>It allows comparison of centre, spread and potential outliers across groups.</div></div>
+
+<div class="card"><h3>Scenario 5</h3><p>Which R function produces a frequency table for a categorical variable?</p>
+<button class="quiz-option" onclick="reveal('q5')">A. table()</button>
+<button class="quiz-option" onclick="reveal('q5')">B. lm()</button>
+<button class="quiz-option" onclick="reveal('q5')">C. cor()</button>
+<div id="q5" class="answer"><b>Answer: table().</b><br>For example: <code>table(data$Sex)</code>.</div></div>
+</div>
+</section>
+
+<section id="rlab" class="section">
+<div class="card">
+<h2>💻 Complete R Laboratory</h2>
+<p>This script gives participants one reproducible workflow from importing data to descriptive reporting.</p>
+<pre><button class="copy-btn" onclick="copyCode('codeLab')">Copy Complete Script</button><code id="codeLab"># =========================================================
+# DATA VISUALIZATION & DESCRIPTIVE STATISTICS USING R
+# =========================================================
+
+# 1. Install packages once if necessary
+# install.packages(c("tidyverse", "scales"))
+
+library(tidyverse)
+library(scales)
+
+# 2. Import data
+data &lt;- read.csv("mydata.csv")
+
+# 3. Inspect
+head(data)
+str(data)
+summary(data)
+dim(data)
+colSums(is.na(data))
+
+# ---------------------------------------------------------
+# 4. CATEGORICAL VARIABLES
+# ---------------------------------------------------------
+
+# Frequency
+table(data$Sex)
+
+# Percentage
+round(prop.table(table(data$Sex)) * 100, 1)
+
+# Bar chart
+ggplot(data, aes(x = Sex)) +
+  geom_bar() +
+  labs(title = "Distribution of Sex",
+       x = "Sex", y = "Frequency") +
+  theme_minimal()
+
+# ---------------------------------------------------------
+# 5. CONTINUOUS VARIABLES
+# ---------------------------------------------------------
+
+# Descriptive statistics
+mean(data$Age, na.rm = TRUE)
+median(data$Age, na.rm = TRUE)
+sd(data$Age, na.rm = TRUE)
+IQR(data$Age, na.rm = TRUE)
+quantile(data$Age, na.rm = TRUE)
+
+# Histogram
+ggplot(data, aes(x = Age)) +
+  geom_histogram(bins = 20) +
+  labs(title = "Distribution of Age",
+       x = "Age", y = "Frequency") +
+  theme_minimal()
+
+# Density plot
+ggplot(data, aes(x = Age)) +
+  geom_density(fill = "steelblue", alpha = .4) +
+  labs(title = "Density Plot of Age",
+       x = "Age", y = "Density") +
+  theme_minimal()
+
+# Boxplot
+ggplot(data, aes(y = Age)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Age", y = "Age") +
+  theme_minimal()
+
+# ---------------------------------------------------------
+# 6. CONTINUOUS VARIABLE BY CATEGORY
+# ---------------------------------------------------------
+
+ggplot(data, aes(x = Sex, y = Age)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution by Sex",
+       x = "Sex", y = "Age") +
+  theme_minimal()
+
+# ---------------------------------------------------------
+# 7. TWO CATEGORICAL VARIABLES
+# ---------------------------------------------------------
+
+tab &lt;- table(data$Sex, data$Department)
+tab
+
+# Row percentages
+round(prop.table(tab, 1) * 100, 1)
+
+# Proportional bar chart
+ggplot(data, aes(x = Sex, fill = Department)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = percent) +
+  labs(title = "Department Composition by Sex",
+       x = "Sex", y = "Percentage") +
+  theme_minimal()
+
+# ---------------------------------------------------------
+# 8. GROUPED DESCRIPTIVE STATISTICS
+# ---------------------------------------------------------
+
+data %>%
+  group_by(Sex) %>%
+  summarise(
+    n = sum(!is.na(Age)),
+    mean_age = mean(Age, na.rm = TRUE),
+    median_age = median(Age, na.rm = TRUE),
+    sd_age = sd(Age, na.rm = TRUE),
+    IQR_age = IQR(Age, na.rm = TRUE)
+  )
+
+# ---------------------------------------------------------
+# 9. SAVE A GRAPH
+# ---------------------------------------------------------
+
+p &lt;- ggplot(data, aes(x = Age)) +
+  geom_histogram(bins = 20) +
+  theme_minimal()
+
+ggsave("age_histogram.png", p, width = 7, height = 5, dpi = 300)
+
+# =========================================================
+# FINAL WORKFLOW
+# Inspect → Clean → Classify → Summarize → Visualize → Report
+# =========================================================</code></pre>
+</div>
+
+<div class="card">
+<h2>📝 Research Reporting Templates</h2>
+<div class="highlight"><b>Continuous variable:</b><br>
+“The median age was XX years (IQR: XX–XX years). The distribution was right-skewed, with several higher observations.”</div>
+<div class="highlight"><b>Approximately symmetric continuous variable:</b><br>
+“The mean age was XX years (SD = XX years).”</div>
+<div class="highlight"><b>Categorical variable:</b><br>
+“Among the participants, XX (XX%) were female and XX (XX%) were male.”</div>
+<div class="highlight"><b>Graph:</b><br>
+“Figure 1 presents the distribution of age. The histogram indicates that the variable is approximately symmetric/right-skewed/left-skewed.”</div>
+</div>
+
+<div class="card">
+<h2>🏆 Final Checklist</h2>
+<ol>
+<li>Have I correctly identified every variable type?</li>
+<li>Have I checked missing values?</li>
+<li>Have I checked unusual or impossible values?</li>
+<li>Have I selected mean/SD or median/IQR based on the distribution?</li>
+<li>Have I reported n (%) for categorical variables?</li>
+<li>Have I selected a graph appropriate to the variable?</li>
+<li>Have I labelled axes and categories clearly?</li>
+<li>Have I avoided interpreting category codes as numerical measurements?</li>
+<li>Have I described what the graph actually shows?</li>
+<li>Can another researcher reproduce my analysis from my R code?</li>
+</ol>
+<div class="big-question"><b>Final practice:</b> Obtain data → Inspect → Identify variable types → Calculate descriptive statistics → Visualize → Compare groups → Interpret → Report.</div>
+</div>
+</section>
+
+</div>
+
+<footer>
+<p><b>Data Visualization & Descriptive Statistics Using R</b></p>
+<p>Interactive training guide for teaching, workshops and research practice</p>
+</footer>
+
+<div class="presentation-bar">
+<button onclick="window.print()" title="Print / Save as PDF">🖨️</button>
+</div>
+
+<script>
+function showSection(id){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function copyCode(id){
+ const text=document.getElementById(id).innerText;
+ navigator.clipboard.writeText(text).then(()=>alert("Code copied to clipboard."));
+}
+function reveal(id){document.getElementById(id).style.display='block';}
+
+function drawHistogram(){
+ const c=document.getElementById('histCanvas'),ctx=c.getContext('2d');
+ const w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;ctx.scale(2,2);
+ const W=c.clientWidth,H=c.clientHeight;
+ ctx.clearRect(0,0,W,H);
+ ctx.strokeStyle="#94a3b8";ctx.lineWidth=1;
+ ctx.beginPath();ctx.moveTo(45,H-35);ctx.lineTo(W-20,H-35);ctx.stroke();
+ const vals=[5,9,14,20,28,35,42,50,44,36,27,19,12,7,4];
+ const bw=(W-75)/vals.length;
+ vals.forEach((v,i)=>{
+   const bh=v*(H-65)/55;
+   ctx.fillStyle="#3b82f6";ctx.fillRect(45+i*bw,H-35-bh,bw-3,bh);
+ });
+ ctx.fillStyle="#475569";ctx.font="13px Arial";ctx.fillText("Lower values",45,H-12);ctx.fillText("Higher values",W-105,H-12);
+}
+function drawBox(){
+ const c=document.getElementById('boxCanvas'),ctx=c.getContext('2d');
+ const w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;ctx.scale(2,2);
+ const W=c.clientWidth,H=c.clientHeight;ctx.clearRect(0,0,W,H);
+ const x=W/2; const top=55,bottom=H-55;
+ ctx.strokeStyle="#64748b";ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);ctx.stroke();
+ ctx.fillStyle="#8b5cf6";ctx.fillRect(x-55,100,110,130);
+ ctx.strokeStyle="#334155";ctx.strokeRect(x-55,100,110,130);
+ ctx.beginPath();ctx.moveTo(x-55,165);ctx.lineTo(x+55,165);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x-30,55);ctx.lineTo(x+30,55);ctx.moveTo(x-30,290);ctx.lineTo(x+30,290);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x-30,55);ctx.lineTo(x-30,100);ctx.moveTo(x+30,55);ctx.lineTo(x+30,100);
+ ctx.moveTo(x-30,230);ctx.lineTo(x-30,290);ctx.moveTo(x+30,230);ctx.lineTo(x+30,290);ctx.stroke();
+ ctx.fillStyle="#475569";ctx.font="13px Arial";ctx.fillText("Maximum",x+65,60);ctx.fillText("Q3",x+65,105);
+ ctx.fillText("Median",x+65,170);ctx.fillText("Q1",x+65,235);ctx.fillText("Minimum",x+65,295);
+}
+function drawBars(){
+ const configs=[
+  ['barCanvas',[42,58,31,69],['Male','Female','Other','Unknown']],
+  ['pctCanvas',[42,58,31,69],['Male','Female','Other','Unknown']]
+ ];
+ configs.forEach(([id,vals,labels])=>{
+  const c=document.getElementById(id),ctx=c.getContext('2d');
+  const w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;ctx.scale(2,2);
+  const W=c.clientWidth,H=c.clientHeight;ctx.clearRect(0,0,W,H);
+  const max=Math.max(...vals),bw=(W-70)/vals.length;
+  ctx.strokeStyle="#94a3b8";ctx.beginPath();ctx.moveTo(40,H-45);ctx.lineTo(W-15,H-45);ctx.stroke();
+  vals.forEach((v,i)=>{
+   const bh=v/max*(H-80);ctx.fillStyle=i%2?"#7c3aed":"#2563eb";
+   ctx.fillRect(45+i*bw,H-45-bh,bw-12,bh);
+   ctx.fillStyle="#475569";ctx.font="12px Arial";ctx.fillText(labels[i],45+i*bw,H-25);
+  });
+ });
+}
+window.addEventListener('load',()=>{drawHistogram();drawBox();drawBars();});
+window.addEventListener('resize',()=>{drawHistogram();drawBox();drawBars();});
+</script>
+</body>
+</html>
