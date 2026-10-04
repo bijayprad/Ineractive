@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academia–Industry Interaction Program | MDS Curriculum Review</title>
+<style>
+    :root {
+        --primary: #123b5d;
+        --secondary: #1f6f8b;
+        --accent: #2f8f9d;
+        --light: #f4f8fa;
+        --border: #d7e2e8;
+        --text: #263238;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.7;
+        color: var(--text);
+        background: #eef3f6;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 35px auto;
+        background: white;
+        padding: 55px 70px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    header {
+        text-align: center;
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 30px;
+        margin-bottom: 40px;
+    }
+
+    header h1 {
+        color: var(--primary);
+        font-size: 2.2rem;
+        margin: 0 0 10px;
+    }
+
+    header h2 {
+        color: var(--secondary);
+        font-size: 1.45rem;
+        margin: 8px 0;
+        font-weight: 600;
+    }
+
+    header h3 {
+        font-size: 1.1rem;
+        margin-top: 20px;
+        color: #455a64;
+    }
+
+    h2.section-title {
+        color: var(--primary);
+        border-left: 6px solid var(--accent);
+        padding-left: 14px;
+        margin-top: 45px;
+        margin-bottom: 18px;
+        font-size: 1.55rem;
+    }
+
+    h3 {
+        color: var(--secondary);
+        margin-top: 28px;
+    }
+
+    p {
+        margin: 12px 0;
+    }
+
+    ul, ol {
+        padding-left: 28px;
+    }
+
+    li {
+        margin: 7px 0;
+    }
+
+    .quote {
+        background: var(--light);
+        border-left: 5px solid var(--accent);
+        padding: 18px 22px;
+        margin: 22px 0;
+        font-size: 1.08rem;
+        font-weight: 500;
+    }
+
+    .highlight {
+        background: #f8fbfc;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 22px 0;
+    }
+
+    .step-flow {
+        text-align: center;
+        background: var(--light);
+        padding: 22px;
+        border-radius: 8px;
+        margin: 25px 0;
+        font-weight: 600;
+    }
+
+    .step-flow div {
+        margin: 8px 0;
+    }
+
+    .competency {
+        background: #fafcfd;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 18px 22px;
+        margin: 16px 0;
+    }
+
+    .competency h3 {
+        margin-top: 0;
+    }
+
+    .recommendations li {
+        margin-bottom: 12px;
+    }
+
+    .closing {
+        margin-top: 40px;
+        padding: 28px;
+        background: var(--primary);
+        color: white;
+        border-radius: 8px;
+    }
+
+    .closing h2 {
+        color: white;
+        border: none;
+        padding: 0;
+        margin-top: 0;
+    }
+
+    .source {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 0.9rem;
+        color: #546e7a;
+    }
+
+    a {
+        color: var(--secondary);
+        word-break: break-word;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 0.9rem;
+        color: #607d8b;
+    }
+
+    @media (max-width: 700px) {
+        .container {
+            margin: 0;
+            padding: 30px 22px;
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+        }
+
+        h2.section-title {
+            font-size: 1.3rem;
+        }
+    }
+
+    @media print {
+        body {
+            background: white;
+        }
+
+        .container {
+            margin: 0;
+            max-width: none;
+            box-shadow: none;
+            padding: 20px 35px;
+        }
+
+        .closing {
+            color: black;
+            background: white;
+            border: 2px solid var(--primary);
+        }
+
+        .closing h2 {
+            color: var(--primary);
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <h1>Talk Note</h1>
+    <h2>Academia–Industry Interaction Program</h2>
+    <h2>Curriculum Review and Industry Relevance of the Master in Data Science Program</h2>
+    <h3>School of Mathematical Sciences, Tribhuvan University</h3>
+</header>
+
+<h2 class="section-title">1. Opening Remarks</h2>
+
+<p>Respected Chair, Director, distinguished professors, representatives from industries and organizations, colleagues, and participants,</p>
+
+<p>Thank you very much for inviting me to this important <strong>Academia–Industry Interaction Program</strong>.</p>
+
+<p>I consider this a very timely initiative because Data Science is one of those fields where the gap between what is taught in the classroom and what is required in professional practice can emerge very quickly.</p>
+
+<p>The purpose of today's interaction, therefore, should not be simply to ask:</p>
+
+<div class="quote">“Is our curriculum good or bad?”</div>
+
+<p>Rather, I think we should ask:</p>
+
+<div class="quote">“What should a graduate of the Master in Data Science program be able to do when he or she enters an organization?”</div>
+
+<p>And, equally importantly:</p>
+
+<div class="quote">“What can academia and industry do together to produce such graduates?”</div>
+
+<p>This should be a two-way conversation.</p>
+
+<p>Academia brings mathematical foundations, statistical thinking, research methodology, theoretical understanding and educational structure.</p>
+
+<p>Industry brings real problems, real datasets, real constraints, real users and real consequences of analytical decisions.</p>
+
+<p>The strongest Data Science education should connect these two worlds.</p>
+
+<h2 class="section-title">2. First, Let Us Look at What We Already Have</h2>
+
+<p>The current MDS curriculum is designed as a <strong>four-semester, two-year, 60-credit interdisciplinary program</strong>, combining Mathematics, Statistics, Computer Science and Information Technology.</p>
+
+<p>The stated objectives include collecting and cleaning data, supporting decision-making through appropriate analytics, and communicating findings in written, oral and visual forms.</p>
+
+<h3>First Semester</h3>
+
+<ul>
+    <li>Fundamentals of Data Science</li>
+    <li>Data Structures and Algorithms</li>
+    <li>Statistical Computing with R</li>
+    <li>Mathematics for Data Science</li>
+</ul>
+
+<p>Electives include Database Management Systems, Programming Concepts and Techniques, and Linear and Integer Programming.</p>
+
+<h3>Second Semester</h3>
+
+<ul>
+    <li>Programming with Python</li>
+    <li>Applied Machine Learning</li>
+    <li>Statistical Methods for Data Science</li>
+    <li>Multivariable Calculus for Data Science</li>
+</ul>
+
+<p>Electives include Natural Language Processing, Artificial Intelligence, and Learning Structure and Time Series.</p>
+
+<h3>Third Semester</h3>
+
+<ul>
+    <li>Research Methodology</li>
+    <li>Advanced Data Mining</li>
+    <li>Techniques for Big Data</li>
+</ul>
+
+<p>Electives include Cloud Computing, Regression Analysis, Decision Analysis, and Monte Carlo Methods.</p>
+
+<h3>Fourth Semester</h3>
+
+<ul>
+    <li>Data Visualization</li>
+    <li>Capstone Project/Thesis</li>
+</ul>
+
+<p>Electives include Social Network Analysis, Actuarial Data Analysis, Deep Learning, Business Analytics, Bioinformatics, and Economic Analysis.</p>
+
+<div class="highlight">
+<strong>Key observation:</strong> The curriculum already contains many of the important ingredients expected from a modern Data Science program. The next question is how these components can be connected more strongly to practical competencies and industry needs.
+</div>
+
+<h2 class="section-title">3. The Main Question: Is Coverage Enough?</h2>
+
+<p>Having a topic in the syllabus does not necessarily mean that students acquire professional competence in that topic.</p>
+
+<p>For example, the syllabus contains R programming, Python, machine learning, big data, visualization and databases.</p>
+
+<p>But an industry employer may ask a different question:</p>
+
+<div class="quote">“Can this graduate take an unfamiliar dataset, understand the business or organizational problem, clean the data, build an appropriate model, validate it, communicate the result, deploy or operationalize the solution, and explain its limitations?”</div>
+
+<p>That is a much higher-level competency.</p>
+
+<p>Therefore, while reviewing the curriculum, we should move from:</p>
+
+<div class="quote">Course-based curriculum → Competency-based curriculum</div>
+
+<h2 class="section-title">4. What Should an MDS Graduate Be Able to Do?</h2>
+
+<p>I would suggest that we define the graduate profile around eight major competencies.</p>
+
+<div class="competency">
+<h3>Competency 1: Problem Formulation</h3>
+<p>A Data Scientist should not begin with “Which machine-learning algorithm shall I use?”</p>
+<p>The first question should be: <strong>“What is the actual problem?”</strong></p>
+<p>A graduate should be able to convert an organizational problem into a research question, analytical question, measurable objective, appropriate variables, and an appropriate data strategy.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 2: Data Acquisition and Data Quality</h3>
+<p>Industry data are rarely as clean as textbook datasets.</p>
+<ul>
+<li>Missing data</li>
+<li>Duplicate records</li>
+<li>Inconsistent coding</li>
+<li>Outliers</li>
+<li>Measurement errors</li>
+<li>Different data formats</li>
+<li>Data integration</li>
+<li>Unstructured data</li>
+<li>Data documentation</li>
+<li>Data validation</li>
+</ul>
+<p>The important question is how much hands-on exposure students receive using messy, real organizational datasets.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 3: Statistical Thinking</h3>
+<p>Data Science is not simply programming. It is not simply machine learning.</p>
+<p>A Data Scientist must understand uncertainty, sampling, variation, estimation, hypothesis testing, association versus causation, regression, model assumptions, prediction error, bias and variance, validation, and uncertainty in conclusions.</p>
+<p>I would strongly recommend that <strong>statistical thinking remain a core identity of the program</strong>, even as artificial intelligence and machine learning continue to expand.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 4: Programming and Computational Skills</h3>
+<p>Students should graduate with evidence that they can actually program.</p>
+<ul>
+<li>R</li>
+<li>Python</li>
+<li>Data structures and algorithms</li>
+<li>Databases and SQL</li>
+<li>Git and GitHub</li>
+<li>Version control</li>
+<li>Collaborative coding</li>
+<li>Reproducible analysis</li>
+<li>APIs</li>
+<li>Testing and debugging</li>
+<li>Documentation</li>
+<li>Basic Linux and deployment concepts</li>
+</ul>
+<p>The objective should not be to add many isolated subjects. The objective should be to make students <strong>use these tools together to solve problems</strong>.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 5: Machine Learning and AI</h3>
+<p>The curriculum already includes Applied Machine Learning, Advanced Data Mining, Artificial Intelligence, Deep Learning and related electives.</p>
+<p>But we should distinguish:</p>
+<div class="quote">Knowing an algorithm<br>from<br>Knowing when and why to use an algorithm.</div>
+<p>Students should understand model selection, validation, baselines, class imbalance, overfitting, interpretability, model limitations and the consequences of incorrect predictions.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 6: Data Visualization and Communication</h3>
+<p>A technically correct analysis is not necessarily a useful analysis.</p>
+<p>The final product of Data Science is often a <strong>decision</strong>.</p>
+<p>Students should therefore be able to communicate results to data scientists, technical managers, organizational managers, policy makers and non-technical stakeholders.</p>
+<p>Important areas include dashboards, executive summaries, storytelling with data, visualization for decision-making, communicating uncertainty, and presenting limitations clearly.</p>
+</div>
+
+<div class="competency">
+<h3>Competency 7: Ethics, Privacy and Responsible Data Science</h3>
+<p>Data Science can affect employment, credit, insurance, healthcare, education, public services, security and individual privacy.</p>
+<p>Ethical issues should not remain confined to one unit. They should be integrated into practical projects.</p>
+<div class="quote">“What ethical issues arise when using this dataset?” should become a standard project question.</div>
+</div>
+
+<div class="competency">
+<h3>Competency 8: Business and Organizational Understanding</h3>
+<p>A Data Scientist may build a technically excellent model, but if the model does not solve an organizational problem, its value may be limited.</p>
+<p>Students should understand organizational objectives, key performance indicators, cost of errors, return on investment, operational constraints, user requirements and regulatory requirements.</p>
+</div>
+
+<h2 class="section-title">5. The Capstone Project: Our Biggest Opportunity</h2>
+
+<p>I believe the <strong>Capstone Project/Thesis</strong> provides perhaps the strongest opportunity for genuine Academia–Industry collaboration.</p>
+
+<h3>Industry-linked Capstone Projects</h3>
+
+<p>Instead of every student necessarily starting with a purely academic research question, we could encourage projects based on genuine problems supplied by:</p>
+
+<ul>
+<li>Banks</li>
+<li>Insurance companies</li>
+<li>Hospitals</li>
+<li>Telecommunications companies</li>
+<li>Government agencies</li>
+<li>Development organizations</li>
+<li>Manufacturing industries</li>
+<li>Educational institutions</li>
+<li>Consulting organizations</li>
+<li>E-commerce companies</li>
+<li>Financial institutions</li>
+<li>Technology companies</li>
+</ul>
+
+<div class="step-flow">
+<div>Industry provides the problem</div>
+<div>↓</div>
+<div>Student and supervisor formulate the research question</div>
+<div>↓</div>
+<div>Industry provides appropriate data</div>
+<div>↓</div>
+<div>Student performs the analysis</div>
+<div>↓</div>
+<div>Academic supervisor ensures methodological rigor</div>
+<div>↓</div>
+<div>Industry expert evaluates practical usefulness</div>
+</div>
+
+<p>This creates a real bridge between academia and industry.</p>
+
+<h2 class="section-title">6. From Internship to “Industry Problem Lab”</h2>
+
+<p>I would also suggest exploring something beyond a conventional internship.</p>
+
+<h3>Industry Problem Lab</h3>
+
+<p>Each participating organization could submit one or more real but appropriately anonymized problems.</p>
+
+<ul>
+<li>Customer churn</li>
+<li>Demand forecasting</li>
+<li>Fraud detection</li>
+<li>Employee turnover</li>
+<li>Credit risk</li>
+<li>Hospital resource utilization</li>
+<li>Student dropout</li>
+<li>Supply-chain forecasting</li>
+<li>Customer segmentation</li>
+<li>Social-media analytics</li>
+<li>Quality control</li>
+<li>Energy demand</li>
+<li>Tourism forecasting</li>
+</ul>
+
+<p>Students could work in teams under faculty and industry mentorship.</p>
+
+<p>Possible outcomes include a reproducible analysis, technical report, dashboard, prototype, presentation, or research paper.</p>
+
+<h2 class="section-title">7. Industry Should Help Define Competencies</h2>
+
+<p>I would propose that the School periodically conduct an <strong>Industry Skills Survey</strong>.</p>
+
+<p>Ask employers:</p>
+
+<ul>
+<li>What are the top five skills you expect from a fresh Data Science graduate?</li>
+<li>What skills do graduates usually lack when they join your organization?</li>
+<li>Which tools and technologies are actually used in your organization?</li>
+<li>What type of projects do graduates normally work on?</li>
+<li>What communication skills are expected?</li>
+<li>What are the common weaknesses of fresh graduates?</li>
+</ul>
+
+<p>This evidence can then feed directly into curriculum revision.</p>
+
+<h2 class="section-title">8. Do We Need More Courses?</h2>
+
+<div class="highlight">
+<p><strong>Before adding many new courses, first examine how existing courses are delivered.</strong></p>
+
+<p>Instead of adding another course on “Data Analytics,” we might ask whether existing courses provide enough:</p>
+
+<ul>
+<li>Practical projects</li>
+<li>Real datasets</li>
+<li>Industry cases</li>
+<li>Teamwork</li>
+<li>Reproducibility</li>
+<li>Version control</li>
+<li>Communication</li>
+<li>Deployment</li>
+<li>Evaluation</li>
+</ul>
+
+<p>The issue may not always be <strong>what is taught</strong>. It may be <strong>how it is taught and assessed</strong>.</p>
+</div>
+
+<h2 class="section-title">9. Assessment Should Also Change</h2>
+
+<p>If we want industry-ready graduates, examination-based assessment alone may not be sufficient.</p>
+
+<p>A Data Science graduate should have a portfolio demonstrating:</p>
+
+<ol>
+<li>Data cleaning project</li>
+<li>Statistical analysis project</li>
+<li>Machine learning project</li>
+<li>Visualization/dashboard project</li>
+<li>Database/SQL project</li>
+<li>Real-world capstone project</li>
+<li>Presentation of analytical findings</li>
+</ol>
+
+<div class="quote">“Here are the problems I solved, here is my data, here is my methodology, here is my code, here are my results, here is my interpretation, and here is the limitation of my analysis.”</div>
+
+<p>That is a strong demonstration of competence.</p>
+
+<h2 class="section-title">10. A Possible MDS Graduate Portfolio</h2>
+
+<div class="highlight">
+<p><strong>GitHub / Code Repository</strong><br>Reproducible code</p>
+<p><strong>Data Projects</strong><br>Real analytical problems</p>
+<p><strong>Dashboard</strong><br>Visualization and communication</p>
+<p><strong>Technical Report</strong><br>Methodological explanation</p>
+<p><strong>Capstone Project</strong><br>Substantial independent work</p>
+<p><strong>Presentation</strong><br>Ability to communicate with technical and non-technical audiences</p>
+</div>
+
+<h2 class="section-title">11. What Industry Can Contribute</h2>
+
+<p>Academia–industry collaboration should not mean:</p>
+
+<div class="quote">“Industry tells the university what to teach.”</div>
+
+<p>It should mean <strong>co-development</strong>.</p>
+
+<p>Industry can contribute through:</p>
+
+<ul>
+<li>Real-world datasets</li>
+<li>Case studies</li>
+<li>Guest lectures</li>
+<li>Project problems</li>
+<li>Internships</li>
+<li>Mentoring</li>
+<li>Technical workshops</li>
+<li>Software/platform exposure</li>
+<li>Industrial visits</li>
+<li>Project evaluation</li>
+<li>Feedback on graduate competencies</li>
+</ul>
+
+<h2 class="section-title">12. What Academia Can Contribute</h2>
+
+<p>Academia provides things that industry may not always have time to provide:</p>
+
+<ul>
+<li>Theoretical foundations</li>
+<li>Statistical rigor</li>
+<li>Research methodology</li>
+<li>Mathematical understanding</li>
+<li>Critical thinking</li>
+<li>Methodological validation</li>
+<li>Ethical perspectives</li>
+<li>Long-term learning capacity</li>
+<li>Independent research skills</li>
+</ul>
+
+<div class="quote">The objective should therefore be: <strong>Industry relevance without sacrificing academic rigor.</strong></div>
+
+<h2 class="section-title">13. A Possible Academia–Industry Model</h2>
+
+<div class="step-flow">
+<div><strong>STEP 1</strong> — Industry identifies a problem</div>
+<div>↓</div>
+<div><strong>STEP 2</strong> — Faculty and industry refine the problem</div>
+<div>↓</div>
+<div><strong>STEP 3</strong> — Students work on the problem</div>
+<div>↓</div>
+<div><strong>STEP 4</strong> — Industry mentor + academic supervisor</div>
+<div>↓</div>
+<div><strong>STEP 5</strong> — Student develops solution</div>
+<div>↓</div>
+<div><strong>STEP 6</strong> — Industry evaluates practical relevance</div>
+<div>↓</div>
+<div><strong>STEP 7</strong> — Academic evaluation ensures methodological rigor</div>
+<div>↓</div>
+<div><strong>STEP 8</strong> — Successful projects become case studies</div>
+<div>↓</div>
+<div><strong>STEP 9</strong> — Lessons feed into curriculum revision</div>
+</div>
+
+<p>This creates a <strong>continuous feedback loop</strong> between university and industry.</p>
+
+<h2 class="section-title">14. Questions for Industry Representatives</h2>
+
+<ol>
+<li><strong>What are the top five skills you expect from a fresh Data Science graduate?</strong></li>
+<li><strong>What skills do graduates usually lack when they join your organization?</strong></li>
+<li><strong>Which tools and technologies are actually used in your organization?</strong></li>
+<li><strong>How important are statistics and statistical thinking in your data-related work?</strong></li>
+<li><strong>What types of real-world projects could students work on during their Master's study?</strong></li>
+<li><strong>Would your organization be willing to provide anonymized datasets or problem statements?</strong></li>
+<li><strong>Would industry professionals be willing to mentor MDS students?</strong></li>
+<li><strong>Could industry experts participate in evaluating capstone projects?</strong></li>
+<li><strong>What should an MDS graduate be able to demonstrate in a job interview?</strong></li>
+<li><strong>What changes would you recommend in the MDS curriculum?</strong></li>
+</ol>
+
+<h2 class="section-title">15. Main Recommendations</h2>
+
+<ol class="recommendations">
+<li><strong>Move toward competency-based curriculum:</strong> Define clearly what an MDS graduate should be able to do, not merely what courses the graduate has completed.</li>
+<li><strong>Increase real-world datasets and projects:</strong> Students should work with imperfect, realistic data.</li>
+<li><strong>Strengthen industry-linked capstone projects:</strong> Use genuine organizational problems wherever confidentiality and data protection permit.</li>
+<li><strong>Develop student portfolios:</strong> Students should graduate with evidence of practical capability.</li>
+<li><strong>Strengthen reproducible data science:</strong> Use Git/GitHub, documented workflows, reproducible code and appropriate project documentation.</li>
+<li><strong>Integrate ethics and privacy throughout the curriculum:</strong> Not only as a separate topic.</li>
+<li><strong>Strengthen communication skills:</strong> Students should communicate results to both technical and non-technical audiences.</li>
+<li><strong>Establish an Industry Advisory Mechanism:</strong> The School could periodically obtain structured feedback from industry representatives.</li>
+<li><strong>Review the curriculum periodically:</strong> Data Science changes rapidly. Curriculum review should therefore be continuous and evidence-based.</li>
+<li><strong>Build long-term partnerships:</strong> The objective should not be one workshop or one internship, but a sustainable Academia–Industry Data Science ecosystem.</li>
+</ol>
+
+<h2 class="section-title">16. Closing</h2>
+
+<p>Finally, I would like to emphasize one point.</p>
+
+<p>The purpose of curriculum revision should not be to chase every new technology.</p>
+
+<p>Today it may be one tool. Tomorrow it may be another.</p>
+
+<p>What should remain constant is the ability of graduates to:</p>
+
+<div class="quote">
+<strong>Understand a problem → obtain and assess data → apply appropriate statistical and computational methods → evaluate the result → communicate the findings → and support responsible decision-making.</strong>
+</div>
+
+<p>Technology will continue to change.</p>
+
+<p>Therefore, our curriculum should give students both:</p>
+
+<div class="quote">
+<strong>the tools of today</strong><br>
+and<br>
+<strong>the capacity to learn the tools of tomorrow.</strong>
+</div>
+
+<p>I believe the Academia–Industry Interaction Program provides an excellent opportunity to begin this conversation.</p>
+
+<p>Let us therefore use today's meeting not merely to identify gaps, but to identify <strong>opportunities for collaboration</strong>.</p>
+
+<p>If the School, faculty, students, industry and professional organizations work together, the MDS program can become a platform where students do not simply learn Data Science—</p>
+
+<div class="quote">
+<strong>they practice Data Science on meaningful problems.</strong>
+</div>
+
+<p>Thank you.</p>
+
+<div class="closing">
+<h2>Suggested Final Discussion Statement</h2>
+
+<p>I would like to conclude by putting one simple question before the house:</p>
+
+<div class="quote">
+“If an MDS student graduates tomorrow and joins our organization the day after tomorrow, what should we expect that graduate to be able to do independently?”
+</div>
+
+<p>I believe the answers to that question can provide a very practical foundation for the next stage of curriculum development.</p>
+</div>
+
+<div class="source">
+<strong>Reference:</strong><br>
+Tribhuvan University, Master in Data Science (MDS), Course Structure and Syllabus.<br>
+<a href="https://portal.tu.edu.np/notice/3693/MDS-Course-Structure%20and%20Syllabus.pdf" target="_blank">
+Official TU MDS Course Structure and Syllabus PDF
+</a>
+</div>
+
+<div class="footer">
+Prepared as a discussion/talk note for the Academia–Industry Interaction Program<br>
+School of Mathematical Sciences, Tribhuvan University
+</div>
+
+</div>
+</body>
+</html>
