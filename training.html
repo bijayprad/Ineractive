@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Training programmes and learning resources in R, Python, SPSS, MS Excel, qualitative data analysis, ITC, and academic paper writing.">
+  <title>Training Programmes | Bijay Lal Pradhan</title>
+  <style>
+    :root {
+      --ink: #17243b;
+      --muted: #5e6b80;
+      --brand: #174ea6;
+      --brand2: #2878d0;
+      --pale: #eef5ff;
+      --line: #dfe7f1;
+      --surface: #ffffff;
+      --page: #f5f8fc;
+      --shadow: 0 12px 34px rgba(27, 55, 91, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--ink); background: var(--page);
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.65;
+    }
+    a { color: inherit; }
+    .topbar {
+      background: #10294f; color: #fff; padding: 11px 5vw;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      font-size: .92rem;
+    }
+    .topbar a { color: #fff; text-decoration: none; opacity: .94; }
+    .topbar a:hover { text-decoration: underline; }
+    .hero {
+      color: white; padding: 62px 5vw 58px;
+      background: radial-gradient(circle at 82% 10%, rgba(106,176,255,.35), transparent 28%),
+                  linear-gradient(125deg, #10294f 0%, #174ea6 57%, #2878d0 100%);
+    }
+    .hero-inner, main, footer { max-width: 1180px; margin: 0 auto; }
+    .eyebrow {
+      display: inline-block; text-transform: uppercase; letter-spacing: .14em;
+      font-size: .76rem; font-weight: 800; color: #d5e7ff; margin-bottom: 12px;
+    }
+    h1 { font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.12; margin: 0 0 18px; max-width: 850px; }
+    .hero p { max-width: 770px; font-size: 1.08rem; color: #edf5ff; margin: 0 0 25px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 17px; border-radius: 10px; font-weight: 750; text-decoration: none;
+      border: 1px solid transparent; transition: transform .18s ease, background .18s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-light { background: white; color: #123a78; }
+    .btn-outline { border-color: rgba(255,255,255,.55); color: white; background: rgba(255,255,255,.07); }
+    main { padding: 36px 22px 64px; }
+    .intro {
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; align-items: stretch; margin-bottom: 35px;
+    }
+    .panel, .stat {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 17px; padding: 23px;
+      box-shadow: var(--shadow);
+    }
+    .panel h2, .section-head h2 { margin: 0 0 8px; font-size: 1.45rem; }
+    .panel p { margin: 0; color: var(--muted); }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .stat strong { display: block; font-size: 1.65rem; color: var(--brand); line-height: 1.2; }
+    .stat span { color: var(--muted); font-size: .9rem; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin: 0 0 17px; }
+    .section-head p { color: var(--muted); margin: 4px 0 0; }
+    .search-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+    .search-row input, .search-row select {
+      font: inherit; color: var(--ink); background: white; border: 1px solid #cbd7e6;
+      border-radius: 10px; padding: 11px 13px; min-height: 45px;
+    }
+    .search-row input { flex: 1 1 270px; }
+    .search-row select { flex: 0 1 220px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+    .card {
+      background: white; border: 1px solid var(--line); border-radius: 16px; padding: 22px;
+      display: flex; flex-direction: column; min-height: 285px; box-shadow: 0 7px 22px rgba(27,55,91,.045);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: #b5ccef; }
+    .icon {
+      width: 47px; height: 47px; display: grid; place-items: center; border-radius: 13px;
+      background: var(--pale); font-size: 1.5rem; margin-bottom: 15px;
+    }
+    .tag { font-size: .73rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--brand); }
+    .card h3 { margin: 6px 0 8px; font-size: 1.2rem; line-height: 1.35; }
+    .card p { margin: 0 0 18px; color: var(--muted); font-size: .95rem; }
+    .card .card-link { margin-top: auto; color: var(--brand); font-weight: 800; text-decoration: none; }
+    .card .card-link:hover { text-decoration: underline; }
+    .resource-band {
+      margin-top: 35px; background: #eaf2ff; border: 1px solid #d1e2fc; border-radius: 17px;
+      padding: 24px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: center;
+    }
+    .resource-band h2 { margin: 0 0 8px; }
+    .resource-band p { color: #4b5d76; margin: 0; }
+    .resource-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-start; }
+    .resource-links a {
+      display: inline-flex; padding: 9px 13px; background: white; border: 1px solid #c7d9f3;
+      border-radius: 9px; color: #174ea6; font-weight: 750; text-decoration: none;
+    }
+    .resource-links a:hover { background: #f8fbff; }
+    .note { font-size: .88rem; color: var(--muted); margin-top: 17px; }
+    footer { padding: 0 22px 30px; color: var(--muted); font-size: .9rem; }
+    footer .foot-inner { border-top: 1px solid var(--line); padding-top: 20px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .empty { display: none; padding: 25px; background: white; border: 1px dashed #b8c9de; border-radius: 14px; color: var(--muted); text-align: center; }
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .intro, .resource-band { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .topbar { align-items: flex-start; }
+      .hero { padding: 45px 22px; }
+      main { padding: 28px 15px 45px; }
+      .cards { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="https://www.bijaylalpradhan.com.np"><strong>Bijay Lal Pradhan</strong></a>
+    <nav aria-label="Main navigation" style="display:flex;gap:18px;flex-wrap:wrap">
+      <a href="https://www.bijaylalpradhan.com.np">Home</a>
+      <a href="https://www.bijaylalpradhan.com.np/TeachingLearning">Teaching &amp; Learning</a>
+      <a href="https://www.bijaylalpradhan.com.np/training">Trainings</a>
+      <a href="https://www.bijaylalpradhan.com.np/contact">Contact</a>
+    </nav>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Training • Practice • Research</span>
+      <h1>Build practical skills for research and data analysis.</h1>
+      <p>Explore training programmes and learning resources in statistical software, data management, qualitative analysis, and academic writing. Choose a topic to view its materials and activities.</p>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="#training-catalogue">Explore training topics <span aria-hidden="true">↓</span></a>
+        <a class="btn btn-outline" href="https://www.bijaylalpradhan.com.np/contact">Enquire about training</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-label="Training overview">
+      <div class="panel">
+        <h2>Learning by doing</h2>
+        <p>The training catalogue brings together software-based practice and research-oriented learning. Use the topic cards to open the corresponding training section. Each programme can be expanded with session notes, datasets, worked examples, exercises, and downloadable resources.</p>
+      </div>
+      <div class="stat-grid" aria-label="Catalogue summary">
+        <div class="stat"><strong>07</strong><span>Training areas</span></div>
+        <div class="stat"><strong>Hands-on</strong><span>Practice-oriented learning</span></div>
+        <div class="stat"><strong>Research</strong><span>Applied examples and workflows</span></div>
+        <div class="stat"><strong>Flexible</strong><span>Self-paced resource access</span></div>
+      </div>
+    </section>
+
+    <section id="training-catalogue">
+      <div class="section-head">
+        <div>
+          <h2>Training catalogue</h2>
+          <p>Search by topic or filter the list to find a programme.</p>
+        </div>
+      </div>
+      <div class="search-row">
+        <input id="searchInput" type="search" placeholder="Search training topics…" aria-label="Search training topics">
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="all">All training areas</option>
+          <option value="software">Statistical software</option>
+          <option value="research">Research methods</option>
+          <option value="writing">Academic writing</option>
+        </select>
+      </div>
+
+      <div class="cards" id="trainingCards">
+        <article class="card" data-category="software" data-search="r rstudio statistics data analysis programming visualization">
+          <div class="icon" aria-hidden="true">📊</div>
+          <span class="tag">Statistical software</span>
+          <h3>Data Analysis using R and RStudio</h3>
+          <p>Learn a reproducible workflow for importing data, summarising variables, creating visualisations, and conducting statistical analysis in R.</p>
+          <a class="card-link" href="/trainings/R">Explore R training <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="software" data-search="itc information communication technology digital skills">
+          <div class="icon" aria-hidden="true">💻</div>
+          <span class="tag">Digital skills</span>
+          <h3>ICT / ITC Training</h3>
+          <p>Digital tools and practical technology skills that support teaching, learning, communication, and research activities.</p>
+          <a class="card-link" href="/trainings/itc">Explore ICT training <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="software" data-search="python programming data science automation analysis">
+          <div class="icon" aria-hidden="true">🐍</div>
+          <span class="tag">Statistical software</span>
+          <h3>Python for Data Analysis</h3>
+          <p>Build a foundation in Python programming and use data-oriented workflows for data handling, analysis, and visualisation.</p>
+          <a class="card-link" href="/trainings/python">Explore Python training <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="software" data-search="spss statistical analysis descriptive statistics hypothesis testing">
+          <div class="icon" aria-hidden="true">📈</div>
+          <span class="tag">Statistical software</span>
+          <h3>Statistical Analysis using SPSS</h3>
+          <p>Practice data preparation, descriptive statistics, hypothesis testing, and interpretation of statistical output.</p>
+          <a class="card-link" href="/trainings/spss">Explore SPSS training <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="software" data-search="ms excel spreadsheet data cleaning formulas charts analysis">
+          <div class="icon" aria-hidden="true">🧮</div>
+          <span class="tag">Productivity &amp; analysis</span>
+          <h3>Data Management using MS Excel</h3>
+          <p>Use spreadsheets for data organisation, formulas, cleaning, summaries, charts, and everyday analytical tasks.</p>
+          <a class="card-link" href="/trainings/ms-excel">Explore Excel training <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="research" data-search="qualitative data analysis coding themes interviews qualitative research">
+          <div class="icon" aria-hidden="true">🗂️</div>
+          <span class="tag">Research methods</span>
+          <h3>Qualitative Data Analysis</h3>
+          <p>Work through the qualitative research process, including organising interview material, coding, developing themes, and reporting findings.</p>
+          <a class="card-link" href="/trainings/qu_da">Explore qualitative analysis <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="card" data-category="writing" data-search="research paper writing academic writing manuscript publication journal">
+          <div class="icon" aria-hidden="true">✍️</div>
+          <span class="tag">Academic writing</span>
+          <h3>Research Paper Writing</h3>
+          <p>Develop a research manuscript from study design and literature review through methods, results, discussion, referencing, and submission preparation.</p>
+          <a class="card-link" href="/trainings/paper">Explore paper-writing training <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+      <div class="empty" id="emptyState">No training topics match your search. Try a different keyword or category.</div>
+    </section>
+
+    <section class="resource-band" aria-label="Additional learning resources">
+      <div>
+        <h2>Continue learning with online materials</h2>
+        <p>Open the interactive learning resources for guided examples and practice. The R materials below are examples of the existing resources; replace or add links as your catalogue grows.</p>
+      </div>
+      <div class="resource-links">
+        <a href="https://bijayprad.github.io/Interactive/Day5.html" target="_blank" rel="noopener">Interactive learning module</a>
+        <a href="https://bijayprad.github.io/Interactive/R5.html" target="_blank" rel="noopener">R training material 1</a>
+        <a href="https://bijayprad.github.io/Interactive/R6.html" target="_blank" rel="noopener">R training material 2</a>
+        <a href="https://rpubs.com/bijayprad/R1" target="_blank" rel="noopener">R tutorial</a>
+      </div>
+    </section>
+    
+  </main>
+
+  <footer>
+    <div class="foot-inner">
+      <span>© <span id="year"></span> Bijay Lal Pradhan</span>
+      <span><a href="https://www.bijaylalpradhan.com.np">bijaylalpradhan.com.np</a></span>
+    </div>
+  </footer>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const cards = Array.from(document.querySelectorAll('#trainingCards .card'));
+    const emptyState = document.getElementById('emptyState');
+
+    function filterCards() {
+      const query = searchInput.value.trim().toLowerCase();
+      const category = categoryFilter.value;
+      let visible = 0;
+
+      cards.forEach(card => {
+        const searchable = (card.innerText + ' ' + card.dataset.search).toLowerCase();
+        const matchesQuery = searchable.includes(query);
+        const matchesCategory = category === 'all' || card.dataset.category === category;
+        const show = matchesQuery && matchesCategory;
+        card.style.display = show ? 'flex' : 'none';
+        if (show) visible++;
+      });
+
+      emptyState.style.display = visible ? 'none' : 'block';
+    }
+
+    searchInput.addEventListener('input', filterCards);
+    categoryFilter.addEventListener('change', filterCards);
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
